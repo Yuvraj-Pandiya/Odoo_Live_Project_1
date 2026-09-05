@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { authApi, getStoredUser, setStoredAuth, clearStoredAuth } from '@/lib/api';
+import { authApi, getStoredUser, clearStoredAuth } from '@/lib/api';
 import { getNavItemsForRole, canCreateQuotation, canAccessRoute } from '@/lib/permissions';
 
 /* ─── Light Workspace Tokens ─────────────────────────────────────────────── */
@@ -21,13 +21,6 @@ const t = {
   errorSubtle:   '#FEE2E2',
 };
 
-const DEMO_PERSONAS = [
-  { label: 'Admin',         role: 'ADMIN',     email: 'admin@dealflow360.com',   name: 'Aarav Sharma',     icon: 'admin_panel_settings' },
-  { label: 'Sales Manager', role: 'MANAGER',   email: 'manager@dealflow360.com', name: 'Vikram Malhotra',  icon: 'manage_accounts' },
-  { label: 'Finance Lead',  role: 'FINANCE',   email: 'finance@dealflow360.com', name: 'Sneha Gupta',      icon: 'payments' },
-  { label: 'Sales Rep',     role: 'SALES_REP', email: 'rep1@dealflow360.com',    name: 'Priya Patel',      icon: 'person' },
-];
-
 export default function HeaderNavbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -35,7 +28,6 @@ export default function HeaderNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [switchingRole, setSwitchingRole] = useState<string | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -43,18 +35,36 @@ export default function HeaderNavbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
-  const loadUserFromStorage = () => {
+  const loadUserFromSession = async () => {
     if (typeof window !== 'undefined') {
       const u = getStoredUser();
       setUser(u || {});
+
+      // Optionally refresh session info from backend if token is active
+      try {
+        const res = await authApi.session();
+        if (res.data && res.data.role) {
+          setUser((prev: any) => ({
+            ...prev,
+            userId: res.data.userId,
+            id: res.data.userId,
+            email: res.data.email,
+            role: res.data.role,
+            fullName: res.data.fullName,
+            department: res.data.department,
+          }));
+        }
+      } catch {
+        // JWT decode fallback already in getStoredUser()
+      }
     }
   };
 
   useEffect(() => {
-    loadUserFromStorage();
+    loadUserFromSession();
 
     const handleAuthChange = () => {
-      loadUserFromStorage();
+      loadUserFromSession();
     };
 
     window.addEventListener('dealflow-auth-change', handleAuthChange);
@@ -99,7 +109,7 @@ export default function HeaderNavbar() {
     }
   }, []);
 
-  const userRole = user?.role || 'SALES_REP';
+  const userRole = (user?.role || 'SALES_REP').toUpperCase();
   const visibleNavItems = getNavItemsForRole(userRole);
   const showNewQuoteButton = canCreateQuotation(userRole);
 
@@ -145,49 +155,6 @@ export default function HeaderNavbar() {
       window.dispatchEvent(new Event('dealflow-auth-change'));
     }
     router.push('/');
-  };
-
-  const handleSwitchPersona = async (persona: typeof DEMO_PERSONAS[0]) => {
-    setSwitchingRole(persona.role);
-    try {
-      let token = 'demo-token';
-      let newUser = {
-        userId: 1,
-        email: persona.email,
-        role: persona.role,
-        fullName: persona.name,
-      };
-
-      try {
-        const res = await authApi.login(persona.email, 'Password123!');
-        token = res.data.accessToken || res.data.token || token;
-        newUser = {
-          userId: res.data.userId || 1,
-          email: res.data.email || persona.email,
-          role: res.data.role || persona.role,
-          fullName: res.data.fullName || persona.name,
-        };
-      } catch {
-        // Fallback demo mock auth
-      }
-
-      setStoredAuth(token, newUser);
-      setUser(newUser);
-      setProfileDropdownOpen(false);
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('dealflow-auth-change'));
-      }
-
-      // If the current route is not accessible by the newly selected role, navigate to /dashboard
-      if (!canAccessRoute(newUser.role, pathname)) {
-        router.push('/dashboard');
-      } else {
-        router.refresh();
-      }
-    } finally {
-      setSwitchingRole(null);
-    }
   };
 
   const isActive = (path: string) => {
@@ -461,7 +428,7 @@ export default function HeaderNavbar() {
               style={{ background: t.border }}
             />
 
-            {/* User Profile & Role Switcher Dropdown */}
+            {/* Real Session User Profile Dropdown (No fake persona switcher) */}
             <div className="relative shrink-0" ref={dropdownRef}>
               <button
                 type="button"
@@ -496,7 +463,7 @@ export default function HeaderNavbar() {
                 </div>
                 <div className="hidden xl:flex flex-col text-left shrink-0">
                   <span style={{ fontSize: '12.5px', fontWeight: 600, color: t.textPrimary, lineHeight: 1.2 }}>
-                    {user.fullName || 'Enterprise User'}
+                    {user.fullName || user.email || 'Enterprise User'}
                   </span>
                   <span
                     style={{
@@ -519,7 +486,7 @@ export default function HeaderNavbar() {
                 </span>
               </button>
 
-              {/* Profile Dropdown Menu */}
+              {/* Secure Session Profile Dropdown Menu */}
               {profileDropdownOpen && (
                 <div
                   className="absolute right-0 top-full mt-2 w-72 rounded-xl overflow-hidden shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-150"
@@ -529,13 +496,13 @@ export default function HeaderNavbar() {
                     boxShadow: '0 12px 32px rgba(0,0,0,0.1)',
                   }}
                 >
-                  {/* Current User Header */}
+                  {/* Actual Authenticated User Header */}
                   <div className="p-4" style={{ borderBottom: `1px solid ${t.border}` }}>
                     <div className="flex items-center gap-3">
                       <div
                         style={{
-                          width: '36px',
-                          height: '36px',
+                          width: '40px',
+                          height: '40px',
                           borderRadius: '50%',
                           background: t.canvas,
                           border: `1px solid ${t.border}`,
@@ -543,7 +510,7 @@ export default function HeaderNavbar() {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '13px',
+                          fontSize: '14px',
                           fontWeight: 700,
                         }}
                       >
@@ -554,93 +521,55 @@ export default function HeaderNavbar() {
                           {user.fullName || 'User'}
                         </p>
                         <p style={{ fontSize: '12px', color: t.textMuted, margin: '2px 0 0 0' }} className="truncate">
-                          {user.email || 'user@dealflow360.com'}
+                          {user.email || 'user@company.com'}
                         </p>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            background: t.accentSubtle,
-                            color: t.accent,
-                            border: `1px solid ${t.border}`,
-                            borderRadius: '4px',
-                            padding: '2px 6px',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            marginTop: '4px',
-                          }}
-                        >
-                          Role: {userRole}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              background: '#EEF2FF',
+                              color: '#4F46E5',
+                              border: '1px solid #C7D2FE',
+                              borderRadius: '4px',
+                              padding: '2px 6px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            Role: {userRole}
+                          </span>
+                          {user.department && (
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                background: t.accentSubtle,
+                                color: t.textSecondary,
+                                borderRadius: '4px',
+                                padding: '2px 6px',
+                                fontSize: '10px',
+                                fontWeight: 500,
+                              }}
+                            >
+                              {user.department}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Switch Persona Section */}
-                  <div className="p-3">
-                    <p style={{ fontSize: '11px', fontWeight: 600, color: t.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '0 8px', marginBottom: '8px' }}>
-                      Switch Role Persona (Instant Demo)
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      {DEMO_PERSONAS.map((persona) => {
-                        const isCurrent = userRole === persona.role;
-                        const isSwitching = switchingRole === persona.role;
-                        return (
-                          <button
-                            key={persona.role}
-                            type="button"
-                            onClick={() => handleSwitchPersona(persona)}
-                            disabled={isSwitching}
-                            className="w-full flex items-center justify-between p-2 rounded-lg text-left transition-all cursor-pointer"
-                            style={{
-                              background: isCurrent ? t.accentSubtle : 'transparent',
-                              border: isCurrent ? `1px solid ${t.accent}` : '1px solid transparent',
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isCurrent) e.currentTarget.style.background = t.canvas;
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isCurrent) e.currentTarget.style.background = 'transparent';
-                            }}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <span className="material-symbols-outlined text-lg" style={{ color: t.accent }}>
-                                {persona.icon}
-                              </span>
-                              <div>
-                                <p style={{ fontSize: '13px', fontWeight: 600, color: t.textPrimary, margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  {persona.label}
-                                  {isCurrent && (
-                                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: t.accent, color: '#FFFFFF', fontWeight: 700 }}>
-                                      Active
-                                    </span>
-                                  )}
-                                </p>
-                                <p style={{ fontSize: '11px', color: t.textMuted, margin: 0 }}>{persona.name}</p>
-                              </div>
-                            </div>
-                            {isSwitching ? (
-                              <span className="material-symbols-outlined text-sm animate-spin" style={{ color: t.accent }}>refresh</span>
-                            ) : isCurrent ? (
-                              <span className="material-symbols-outlined text-base" style={{ color: t.accent }}>check</span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Sign out Footer */}
-                  <div className="p-2" style={{ borderTop: `1px solid ${t.border}` }}>
+                  {/* Single Sign out Action */}
+                  <div className="p-2">
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all cursor-pointer"
+                      className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg transition-all cursor-pointer"
                       style={{ color: t.error, fontSize: '13px', fontWeight: 600, background: 'transparent', border: 'none' }}
                       onMouseEnter={(e) => { e.currentTarget.style.background = t.errorSubtle; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <span className="material-symbols-outlined text-base">logout</span>
-                      <span>Sign out of DealFlow360</span>
+                      <span>Sign out</span>
                     </button>
                   </div>
                 </div>

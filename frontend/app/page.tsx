@@ -90,7 +90,19 @@ export default function MainframePage() {
   /* ── Auth redirect if already logged in */
   useEffect(() => {
     const token = localStorage.getItem('dealflow_token');
-    if (token) router.replace('/dashboard');
+    const rawUser = localStorage.getItem('dealflow_user');
+    if (token) {
+      try {
+        const u = rawUser ? JSON.parse(rawUser) : {};
+        if ((u.role || '').toUpperCase() === 'CUSTOMER') {
+          router.replace('/portal');
+        } else {
+          router.replace('/dashboard');
+        }
+      } catch {
+        router.replace('/dashboard');
+      }
+    }
   }, [router]);
 
   /* ── Video scrub */
@@ -163,8 +175,12 @@ export default function MainframePage() {
     const { accessToken, role, email: ue, fullName, userId } = data;
     localStorage.setItem('dealflow_token', accessToken);
     localStorage.setItem('dealflow_user', JSON.stringify({ id: userId, email: ue, fullName, role }));
-    if (role === 'CUSTOMER') router.push('/portal/login');
-    else router.push('/dashboard');
+    const normalizedRole = (role || '').toUpperCase();
+    if (normalizedRole === 'CUSTOMER') {
+      router.push('/portal');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const handleLogin = async (ev: React.FormEvent) => {

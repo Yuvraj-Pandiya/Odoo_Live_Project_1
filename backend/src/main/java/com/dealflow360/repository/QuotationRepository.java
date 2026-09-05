@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface QuotationRepository extends JpaRepository<Quotation, Long> {
     List<Quotation> findBySalesRepIdOrderByCreatedAtDesc(Long salesRepId);
+    List<Quotation> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
     List<Quotation> findByStatusOrderByCreatedAtDesc(Quotation.QuotationStatus status);
     Optional<Quotation> findByPortalToken(String portalToken);
     Optional<Quotation> findByQuoteNumber(String quoteNumber);

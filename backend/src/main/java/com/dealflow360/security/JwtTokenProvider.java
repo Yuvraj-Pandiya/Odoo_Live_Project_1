@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.Map;
 
 @Component
 public class JwtTokenProvider {
@@ -35,8 +34,10 @@ public class JwtTokenProvider {
         return Jwts.builder()
             .subject(user.getEmail())
             .claim("userId", user.getId())
+            .claim("email", user.getEmail())
             .claim("role", user.getRole().name())
             .claim("fullName", user.getFullName())
+            .claim("department", user.getDepartment() != null ? user.getDepartment() : "General")
             .issuedAt(new Date())
             .expiration(new Date(System.currentTimeMillis() + accessTokenExpiryMs))
             .signWith(getSigningKey())
@@ -57,7 +58,7 @@ public class JwtTokenProvider {
         }
     }
 
-    private Claims parseClaims(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parser()
             .verifyWith(getSigningKey())
             .build()

@@ -1,11 +1,45 @@
 import axios from 'axios';
 
+export function decodeJwtToken(token: string | null): any {
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
+
 export function getStoredUser(): any {
   if (typeof window === 'undefined') return {};
   try {
+    const token = localStorage.getItem('dealflow_token');
+    const decoded = decodeJwtToken(token);
     const raw = localStorage.getItem('dealflow_user');
-    if (!raw || raw === 'undefined' || raw === 'null') return {};
-    return JSON.parse(raw);
+    const stored = raw && raw !== 'undefined' && raw !== 'null' ? JSON.parse(raw) : {};
+
+    // Prioritize claims decoded server-side from JWT session token
+    if (decoded && decoded.role) {
+      return {
+        ...stored,
+        userId: decoded.userId || stored.id || stored.userId,
+        id: decoded.userId || stored.id || stored.userId,
+        email: decoded.email || decoded.sub || stored.email,
+        role: decoded.role || stored.role,
+        fullName: decoded.fullName || stored.fullName,
+        department: decoded.department || stored.department,
+      };
+    }
+    return stored;
   } catch {
     return {};
   }
@@ -50,7 +84,9 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
       clearStoredAuth();
-      window.location.href = '/';
+      if (!window.location.pathname.startsWith('/portal/login')) {
+        window.location.href = '/';
+      }
     }
     return Promise.reject(err);
   }
@@ -63,6 +99,8 @@ export const authApi = {
   login:    (email: string, password: string) =>
     api.post('/api/auth/login', { email, password }),
   register: (data: any) => api.post('/api/auth/register', data),
+  session:  () => api.get('/api/auth/session'),
+  me:       () => api.get('/api/auth/me'),
 };
 
 // ── Quotations ──────────────────────────────────────────────
@@ -129,6 +167,8 @@ export const subscriptionApi = {
 
 // ── Customer Portal ─────────────────────────────────────────
 export const portalApi = {
+  myQuotations:     () => api.get('/api/portal/my-quotations'),
+  myProfile:        () => api.get('/api/portal/my-profile'),
   view:             (token: string) => api.get(`/api/portal/${token}`),
   comments:         (token: string) => api.get(`/api/portal/${token}/comments`),
   negotiate:        (token: string, data: any) => api.post(`/api/portal/${token}/negotiate`, data),

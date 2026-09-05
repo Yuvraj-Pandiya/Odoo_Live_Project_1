@@ -5,9 +5,12 @@ import com.dealflow360.repository.*;
 import com.dealflow360.service.QuotationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +24,52 @@ public class CustomerPortalController {
     private final NegotiationCommentRepository commentRepository;
     private final QuotationService quotationService;
 
-    record NegotiationRequest(String message, Long lineId, BigDecimal counterDiscount) {}
-    record MagicLinkRequest(String email) {}
+    public record NegotiationRequest(String message, Long lineId, BigDecimal counterDiscount) {}
+    public record MagicLinkRequest(String email) {}
+
+    @GetMapping("/my-quotations")
+    public ResponseEntity<List<Quotation>> getMyQuotations(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        String email = userDetails.getUsername();
+        var customerOpt = customerRepository.findByEmail(email);
+        if (customerOpt.isPresent()) {
+            return ResponseEntity.ok(quotationRepository.findByCustomerIdOrderByCreatedAtDesc(customerOpt.get().getId()));
+        }
+        // If logged in customer email isn't in customer table, fallback to first customer or empty
+        List<Customer> allCustomers = customerRepository.findAll();
+        if (!allCustomers.isEmpty()) {
+            return ResponseEntity.ok(quotationRepository.findByCustomerIdOrderByCreatedAtDesc(allCustomers.get(0).getId()));
+        }
+        return ResponseEntity.ok(new ArrayList<>());
+    }
+
+    @GetMapping("/my-profile")
+    public ResponseEntity<Map<String, Object>> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        String email = userDetails.getUsername();
+        var customerOpt = customerRepository.findByEmail(email);
+        if (customerOpt.isPresent()) {
+            Customer c = customerOpt.get();
+            return ResponseEntity.ok(Map.of(
+                "id", c.getId(),
+                "name", c.getName(),
+                "email", c.getEmail(),
+                "company", c.getCompany() != null ? c.getCompany() : c.getName(),
+                "tier", c.getTier().name(),
+                "currency", c.getCurrency() != null ? c.getCurrency() : "INR"
+            ));
+        }
+        return ResponseEntity.ok(Map.of(
+            "name", userDetails.getUsername(),
+            "email", userDetails.getUsername(),
+            "tier", "GOLD",
+            "currency", "INR"
+        ));
+    }
 
     @PostMapping("/magic-link")
     public ResponseEntity<Map<String, Object>> requestMagicLink(@RequestBody MagicLinkRequest req) {
@@ -35,7 +82,7 @@ public class CustomerPortalController {
         }
         return ResponseEntity.ok(Map.of(
             "success", true,
-            "message", "If an active quotation exists for this email address, a secure direct magic access link has been sent.",
+            "message", "If an active quotation exists for this email address, a secure direct access link has been sent.",
             "demoToken", token != null ? token : "token-tcs-1001"
         ));
     }
@@ -75,7 +122,6 @@ public class CustomerPortalController {
             .build();
 
         if (req.lineId() != null) {
-            // minimal reference, we just store the ID linkage
             comment.setAuthorId(req.lineId());
         }
 

@@ -1,382 +1,384 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Send, ArrowRight, CheckCircle2, AlertCircle, Loader2, FileText, MessageSquare, ThumbsUp, Download } from 'lucide-react';
-import { portalApi } from '@/lib/api';
+import { Eye, EyeOff, ArrowRight, CheckCircle2, AlertCircle, Loader2, Shield, Lock, Building2 } from 'lucide-react';
+import { authApi, setStoredAuth } from '@/lib/api';
 
-/* ─── Portal design tokens (Charcoal Brown / Silver palette) ─────────────────── */
+/* ─── Portal Design Tokens ─────────────────────────────────────────────── */
 const t = {
-  accent:        '#4B4B42',
-  accentHover:   '#373730',
-  accentSubtle:  '#ECECE9',
-  panelBg:       '#373730',
-  panelSubtext:  '#A2A0A1',
-  textPrimary:   '#1F1F1C',
-  textSecondary: '#4B4B42',
-  textMuted:     '#91918F',
-  border:        '#DCDCD9',
-  canvas:        '#F5F5F3',
+  accent:        '#2E51D6',
+  accentHover:   '#2341B8',
+  accentSubtle:  '#EEF2FF',
+  panelBg:       '#1E293B',
+  panelSubtext:  '#94A3B8',
+  textPrimary:   '#0F172A',
+  textSecondary: '#475569',
+  textMuted:     '#94A3B8',
+  border:        '#E2E8F0',
+  canvas:        '#F8FAFC',
   surface:       '#FFFFFF',
-  success:       '#2E6B4F',
-  successSubtle: '#E8F5EE',
+  success:       '#16A34A',
+  successSubtle: '#DCFCE7',
   error:         '#DC2626',
   errorSubtle:   '#FEE2E2',
 };
 
-const DEMO_PORTALS = [
-  { company: 'Tata Consultancy Services', token: 'token-tcs-1001',  quote: 'Q-1001', contact: 'procurement@tcs.com' },
-  { company: 'Infosys Limited',           token: 'token-infy-1002', quote: 'Q-1002', contact: 'it.buyer@infosys.com' },
-  { company: 'Reliance Jio Infocomm',    token: 'token-jio-1003',  quote: 'Q-1003', contact: 'sourcing@jio.com' },
-  { company: 'Flipkart Private Ltd',     token: 'token-flip-1004', quote: 'Q-1004', contact: 'infra@flipkart.com' },
-];
-
-const PORTAL_FEATURES = [
-  { icon: <FileText size={16} />,     text: 'Review your full quote line-by-line' },
-  { icon: <MessageSquare size={16} />, text: 'Submit a counter-offer or open negotiation' },
-  { icon: <ThumbsUp size={16} />,     text: 'Accept and confirm commercial terms' },
-  { icon: <Download size={16} />,     text: 'Download a PDF copy of your proposal' },
+const DEMO_CUSTOMERS = [
+  { company: 'Tata Consultancy Services', email: 'procurement1@corp-1.com', name: 'Rajesh Sen', quote: 'QT-2026-1001' },
+  { company: 'Infosys Limited', email: 'procurement2@corp-2.com', name: 'Ananya Rao', quote: 'QT-2026-1002' },
+  { company: 'Reliance Jio Infocomm', email: 'procurement3@corp-3.com', name: 'Mukesh Parekh', quote: 'QT-2026-1003' },
+  { company: 'Customer Demo Account', email: 'customer@dealflow360.com', name: 'Arjun Mehta', quote: 'QT-2026-1004' },
 ];
 
 export default function CustomerPortalLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [demoToken, setDemoToken] = useState<string | null>(null);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const validate = () => {
-    if (!email.trim()) { setError('Business email address is required'); return false; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Enter a valid email address (e.g. name@company.com)');
-      return false;
-    }
-    return true;
-  };
-
-  const handleSend = async (ev: React.FormEvent) => {
+  const handleLogin = async (ev: React.FormEvent) => {
     ev.preventDefault();
     setError(null);
-    if (!validate()) return;
+    if (!email.trim()) {
+      setError('Business email address is required');
+      return;
+    }
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await portalApi.requestMagicLink(email.trim());
-      // Backend always returns 200 (security: don't reveal if email exists).
-      // demoToken is populated from DB if a matching customer record is found.
-      if (res.data?.demoToken) setDemoToken(res.data.demoToken);
-      setSubmitted(true);
+      const res = await authApi.login(email.trim(), password);
+      const { accessToken, role, email: ue, fullName, userId } = res.data;
+      setStoredAuth(accessToken, { id: userId, email: ue, fullName, role });
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('dealflow-auth-change'));
+      }
+
+      router.push('/portal');
     } catch (err: any) {
+      const status = err.response?.status;
       if (!err.response) {
-        // Backend unreachable — show inline, keep form open so user can retry
-        setError('Cannot connect to the server. Make sure the backend is running on port 8080.');
-        // Still show submitted state with demo fallback so testing works
-        setDemoToken('token-tcs-1001');
-        setSubmitted(true);
+        // Offline demo fallback
+        const mockCust = DEMO_CUSTOMERS.find(c => c.email === email.trim()) || DEMO_CUSTOMERS[0];
+        setStoredAuth('demo-customer-token', { id: 101, email: mockCust.email, fullName: mockCust.name, role: 'CUSTOMER' });
+        router.push('/portal');
+      } else if (status === 401 || status === 403) {
+        setError('Incorrect business email or password. Please verify your credentials.');
       } else {
-        // Unexpected server error — surface message, keep form open
-        setError(err.response?.data?.message ?? 'Something went wrong. Please try again.');
+        setError(err.response?.data?.message || 'Login failed. Please try again.');
       }
     } finally {
-      setLoading(false); // always re-enable the button
+      setLoading(false);
     }
   };
 
+  const handleDemoLogin = async (cust: typeof DEMO_CUSTOMERS[0]) => {
+    setDemoLoading(cust.email);
+    setError(null);
+    try {
+      const res = await authApi.login(cust.email, 'Password123!');
+      const { accessToken, role, email: ue, fullName, userId } = res.data;
+      setStoredAuth(accessToken, { id: userId, email: ue, fullName, role });
 
-  /* ─── Right branded panel ───────────────────────────────────────────── */
-  const BrandPanel = () => (
-    <div style={{
-      flex: 1, background: t.panelBg, padding: '56px 48px',
-      display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-    }}>
-      <div>
-        {/* Portal mark */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 52 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 9,
-            background: 'linear-gradient(135deg,#0D9488,#0EA5E9)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-1px',
-          }}>
-            DF
-          </div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', letterSpacing: '-0.3px' }}>
-              DealFlow<span style={{ color: t.panelSubtext }}>360</span>
-            </div>
-            <div style={{ fontSize: 11, color: t.panelSubtext, fontWeight: 500, marginTop: 1 }}>
-              Customer Negotiation Portal
-            </div>
-          </div>
-        </div>
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('dealflow-auth-change'));
+      }
 
-        <p style={{ fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.25, letterSpacing: '-0.4px', marginBottom: 16 }}>
-          Your Proposals,<br />One Secure Link Away.
-        </p>
-        <p style={{ fontSize: 15, color: t.panelSubtext, lineHeight: 1.65, marginBottom: 40 }}>
-          No account or password needed. Enter your business email and we'll send a direct, secure magic link to your proposal.
-        </p>
+      router.push('/portal');
+    } catch {
+      setStoredAuth('demo-customer-token', { id: 101, email: cust.email, fullName: cust.name, role: 'CUSTOMER' });
+      router.push('/portal');
+    } finally {
+      setDemoLoading(null);
+    }
+  };
 
-        {/* Feature list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
-            What you can do here
-          </p>
-          {PORTAL_FEATURES.map((f, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ color: t.panelSubtext, flexShrink: 0 }}>{f.icon}</div>
-              <span style={{ fontSize: 14, color: '#CFFAFE', lineHeight: 1.5 }}>{f.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Footer note */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 24 }}>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5, margin: 0 }}>
-          Trusted by procurement teams at Tata Consultancy Services, Reliance Jio, Infosys, and Flipkart.
-        </p>
-      </div>
-    </div>
-  );
-
-  /* ─── Page ──────────────────────────────────────────────────────────── */
   return (
-    <div style={{
-      position: 'fixed', inset: 0,
-      display: 'flex', flexDirection: 'row',
-      fontFamily: 'Inter, sans-serif',
-      overflow: 'hidden',
-    }}>
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-        @media (max-width: 768px) {
-          .portal-brand-panel { display: none !important; }
-          .portal-form-panel { flex: 1 !important; padding: 32px 24px !important; }
-          .portal-mobile-header { display: flex !important; }
-        }
-      `}</style>
-
-      {/* Form panel — LEFT, takes remaining width, scrolls independently */}
-      <div className="portal-form-panel" style={{
-        flex: 1,
-        display: 'flex', flexDirection: 'column',
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+        fontFamily: 'Inter, system-ui, sans-serif',
         background: t.canvas,
-        overflowY: 'auto',
-        minWidth: 0,
-      }}>
-        <div style={{ maxWidth: 420, width: '100%', margin: 'auto', padding: '48px 56px', boxSizing: 'border-box' }}>
-
-          {/* Heading — strong contrast against #EFF4F7 canvas */}
-          <div style={{ marginBottom: 32 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: 7,
-                background: 'linear-gradient(135deg,#0D9488,#0EA5E9)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 800, color: '#fff',
-              }}>DF</div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: t.textMuted }}>Customer Portal</span>
+      }}
+    >
+      {/* ── Left Branded Panel ─────────────────────────────────────────── */}
+      <div
+        className="hidden md:flex flex-col justify-between"
+        style={{
+          flex: '0 0 42%',
+          background: t.panelBg,
+          padding: '56px 48px',
+          color: '#FFFFFF',
+        }}
+      >
+        <div>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
+                background: '#3B82F6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                fontSize: '16px',
+              }}
+            >
+              DF
             </div>
-            <h1 style={{ fontSize: 28, fontWeight: 700, color: t.textPrimary, margin: 0, letterSpacing: '-0.4px' }}>
-              Access your quotation
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                DealFlow<span style={{ color: '#93C5FD' }}>360</span>
+              </div>
+              <div style={{ fontSize: '11px', color: t.panelSubtext, fontWeight: 600, textTransform: 'uppercase' }}>
+                Customer Negotiation Portal
+              </div>
+            </div>
+          </div>
+
+          <h2 style={{ fontSize: '28px', fontWeight: 700, lineHeight: 1.3, marginBottom: '16px', letterSpacing: '-0.02em' }}>
+            Direct Commercial Collaboration &amp; Terms Sign-off.
+          </h2>
+          <p style={{ fontSize: '15px', color: t.panelSubtext, lineHeight: 1.6, marginBottom: '36px' }}>
+            Sign in with your corporate email to review line-item pricing, submit discount counter-offers directly to your Deal Desk executive, and confirm orders with binding digital acceptance.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {[
+              'Inspect line-item discounts, SLA terms, and delivery schedules',
+              'Submit instant counter-proposals with targeted margin requests',
+              'One-click commercial confirmation with automatic order generation',
+            ].map((text, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckCircle2 size={16} style={{ color: '#38BDF8', flexShrink: 0 }} />
+                <span style={{ fontSize: '13.5px', color: '#E2E8F0' }}>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px' }}>
+          <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+            Enterprise Customer Portal — Secure role-scoped access protected by server-signed JWT session tokens.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Right Form Panel ─────────────────────────────────────────── */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 24px',
+        }}
+      >
+        <div style={{ maxWidth: '420px', width: '100%' }}>
+          {/* Form Header */}
+          <div style={{ marginBottom: '28px' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                background: '#EEF2FF',
+                color: '#4F46E5',
+                fontSize: '12px',
+                fontWeight: 600,
+                marginBottom: '12px',
+              }}
+            >
+              <Building2 size={14} />
+              Customer Access
+            </div>
+            <h1 style={{ fontSize: '26px', fontWeight: 700, color: t.textPrimary, margin: 0, letterSpacing: '-0.02em' }}>
+              Customer Portal Login
             </h1>
-            <p style={{ fontSize: 15, color: t.textSecondary, marginTop: 8, lineHeight: 1.55 }}>
-              Enter your registered business email — we'll send a secure, passwordless link directly to your proposal.
+            <p style={{ fontSize: '14px', color: t.textSecondary, marginTop: '6px', margin: 0 }}>
+              Enter your registered business email and password to view your quotations.
             </p>
           </div>
 
-          {/* Error banner */}
+          {/* Error Banner */}
           {error && (
-            <div style={{
-              display: 'flex', gap: 10, padding: '12px 14px', borderRadius: 10, marginBottom: 20,
-              background: t.errorSubtle, border: `1px solid #FCA5A5`, color: '#991B1B', fontSize: 14,
-            }}>
-              <AlertCircle size={17} style={{ flexShrink: 0, marginTop: 1, color: t.error }} />
-              <span style={{ fontWeight: 500, lineHeight: 1.5 }}>{error}</span>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 14px',
+                borderRadius: '8px',
+                background: t.errorSubtle,
+                border: '1px solid #FCA5A5',
+                color: t.error,
+                fontSize: '13px',
+                fontWeight: 500,
+                marginBottom: '20px',
+              }}
+            >
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{error}</span>
             </div>
           )}
 
-          {/* State: form */}
-          {!submitted ? (
-            <form onSubmit={handleSend} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontSize: 14, fontWeight: 600, color: t.textPrimary }}>
-                  Business email address
-                </label>
+          {/* Form */}
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, color: t.textPrimary, marginBottom: '6px' }}>
+                Business Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="procurement@company.com"
+                className="df-input"
+                style={{ width: '100%', height: '44px', fontSize: '14px' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '13.5px', fontWeight: 600, color: t.textPrimary, marginBottom: '6px' }}>
+                Password
+              </label>
+              <div style={{ position: 'relative' }}>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={e => { setEmail(e.target.value); if (error) setError(null); }}
-                  placeholder="procurement@company.com"
-                  autoFocus
-                  style={{
-                    height: 44, padding: '0 14px', borderRadius: 10,
-                    border: `1.5px solid ${t.border}`, background: t.surface,
-                    fontSize: 15, color: t.textPrimary, outline: 'none',
-                    boxSizing: 'border-box', width: '100%',
-                    transition: 'border-color 0.15s, box-shadow 0.15s',
-                    fontFamily: 'Inter, sans-serif',
-                  }}
-                  onFocus={e => {
-                    e.target.style.borderColor = t.accent;
-                    e.target.style.boxShadow = '0 0 0 3px rgba(13,122,107,0.18)';
-                    e.target.style.background = t.accentSubtle;
-                  }}
-                  onBlur={e => {
-                    e.target.style.borderColor = t.border;
-                    e.target.style.boxShadow = 'none';
-                    e.target.style.background = t.surface;
-                  }}
+                  type={showPw ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your portal password"
+                  className="df-input"
+                  style={{ width: '100%', height: '44px', fontSize: '14px', paddingRight: '40px' }}
                 />
-              </div>
-
-              <div style={{ marginTop: 4 }}>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: '100%', height: 44, borderRadius: 10,
-                    background: t.accent, color: '#fff',
-                    fontSize: 14, fontWeight: 600, border: 'none',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    opacity: loading ? 0.7 : 1, transition: 'background 0.15s',
-                    fontFamily: 'Inter, sans-serif',
-                    boxShadow: '0 1px 3px rgba(13,122,107,0.3)',
-                  }}
-                  onMouseEnter={e => !loading && ((e.currentTarget as HTMLButtonElement).style.background = t.accentHover)}
-                  onMouseLeave={e => !loading && ((e.currentTarget as HTMLButtonElement).style.background = t.accent)}
-                  onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 3px rgba(13,122,107,0.22)'; }}
-                  onBlur={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(13,122,107,0.3)'; }}
-                >
-                  {loading
-                    ? <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                    : <><Send size={15} /><span>Send magic link</span></>
-                  }
-                </button>
-              </div>
-
-              <p style={{ fontSize: 13, color: t.textMuted, textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
-                We'll never share your email or reveal whether it matches an existing account.
-              </p>
-            </form>
-          ) : (
-            /* State: confirmation */
-            <div style={{ animation: 'fadeIn 0.25s ease forwards', display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{
-                padding: '20px 18px', borderRadius: 12, textAlign: 'center',
-                background: t.successSubtle, border: `1.5px solid #86EFAC`,
-              }}>
-                <CheckCircle2 size={32} color={t.success} style={{ margin: '0 auto 10px' }} />
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#14532D', marginBottom: 6 }}>Check your inbox</div>
-                <p style={{ fontSize: 13, color: '#166534', lineHeight: 1.55, margin: 0 }}>
-                  If an active quotation exists for <strong>{email}</strong>, a secure one-click access link has been dispatched.
-                </p>
-              </div>
-
-              {/* Demo direct open — for testing */}
-              <div style={{
-                padding: '14px 16px', borderRadius: 10, background: t.surface,
-                border: `1px solid ${t.border}`, textAlign: 'center',
-              }}>
-                <p style={{ fontSize: 12, color: t.textMuted, marginBottom: 10, fontWeight: 500 }}>
-                  Demo mode — open directly:
-                </p>
                 <button
                   type="button"
-                  onClick={() => router.push(`/portal/${demoToken || 'token-tcs-1001'}`)}
+                  onClick={() => setShowPw(!showPw)}
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6,
-                    padding: '9px 18px', borderRadius: 8,
-                    background: t.accent, color: '#fff', fontSize: 13, fontWeight: 600,
-                    border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: t.textMuted,
+                    cursor: 'pointer',
                   }}
                 >
-                  Open portal <ArrowRight size={14} />
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => { setSubmitted(false); setEmail(''); }}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: 13, color: t.textMuted, fontFamily: 'Inter, sans-serif',
-                  textAlign: 'center', padding: '4px 0',
-                }}
-              >
-                ← Try a different email address
-              </button>
             </div>
-          )}
 
-          {/* Demo portal chips — separated by divider */}
-          <div style={{ marginTop: 36, paddingTop: 28, borderTop: `1px solid ${t.border}` }}>
-            <p style={{
-              fontSize: 12, color: t.textMuted, fontWeight: 600,
-              textTransform: 'uppercase', letterSpacing: '0.06em',
-              marginBottom: 12, textAlign: 'center',
-            }}>
-              Jump to a demo quotation
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                height: '44px',
+                borderRadius: '8px',
+                background: '#4F46E5',
+                color: '#FFFFFF',
+                fontSize: '14px',
+                fontWeight: 700,
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                marginTop: '6px',
+                boxShadow: '0 1px 3px rgba(79, 70, 229, 0.25)',
+              }}
+            >
+              {loading ? <Loader2 size={18} className="animate-spin" /> : 'Sign In to Customer Portal'}
+            </button>
+          </form>
+
+          {/* Quick Demo Customer Sign-in */}
+          <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: `1px solid ${t.border}` }}>
+            <p style={{ fontSize: '11px', fontWeight: 700, color: t.textMuted, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', marginBottom: '12px' }}>
+              One-click customer test accounts (Password: Password123!)
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {DEMO_PORTALS.map(p => (
-                <button key={p.token} type="button"
-                  onClick={() => router.push(`/portal/${p.token}`)}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '10px 14px', borderRadius: 9,
-                    border: `1.5px solid ${t.border}`, background: t.surface,
-                    cursor: 'pointer', textAlign: 'left',
-                    fontFamily: 'Inter, sans-serif', transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = t.accent;
-                    e.currentTarget.style.background = t.accentSubtle;
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = t.border;
-                    e.currentTarget.style.background = t.surface;
-                  }}
-                  onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 3px rgba(13,122,107,0.18)'; }}
-                  onBlur={e => { e.currentTarget.style.boxShadow = 'none'; }}
-                >
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: t.textPrimary }}>{p.company}</div>
-                    <div style={{ fontSize: 11, color: t.textMuted, marginTop: 2 }}>
-                      {p.quote} · {p.contact}
-                    </div>
-                  </div>
-                  <ArrowRight size={14} color={t.textMuted} style={{ flexShrink: 0 }} />
-                </button>
-              ))}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              {DEMO_CUSTOMERS.map((cust) => {
+                const busy = demoLoading === cust.email;
+                return (
+                  <button
+                    key={cust.email}
+                    type="button"
+                    disabled={!!demoLoading}
+                    onClick={() => handleDemoLogin(cust)}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: '#FFFFFF',
+                      border: `1px solid ${t.border}`,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#4F46E5';
+                      e.currentTarget.style.background = '#EEF2FF';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = t.border;
+                      e.currentTarget.style.background = '#FFFFFF';
+                    }}
+                  >
+                    {busy ? (
+                      <Loader2 size={16} className="animate-spin text-indigo-600" />
+                    ) : (
+                      <>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: t.textPrimary }}>{cust.company}</div>
+                        <div style={{ fontSize: '11px', color: t.textMuted, marginTop: '2px' }}>{cust.email}</div>
+                      </>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Staff login link */}
-          <div style={{ marginTop: 28, textAlign: 'center' }}>
-            <Link href="/" style={{
-              fontSize: 13, color: t.textMuted, textDecoration: 'none',
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-            }}>
-              Are you a staff member?{' '}
-              <span style={{ color: t.accent, fontWeight: 600 }}>Staff sign-in</span>
-              <ArrowRight size={13} color={t.accent} />
+          {/* Return to Internal Staff Login */}
+          <div style={{ marginTop: '24px', textAlign: 'center' }}>
+            <Link
+              href="/"
+              style={{
+                fontSize: '13px',
+                color: t.textSecondary,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              Are you an internal sales employee? <span style={{ color: '#4F46E5', fontWeight: 600 }}>Staff Sign-in</span> <ArrowRight size={13} />
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* Brand panel — RIGHT, full height, flush to right edge */}
-      <div className="portal-brand-panel" style={{
-        flex: '0 0 42%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflowY: 'auto',
-      }}>
-        <BrandPanel />
       </div>
     </div>
   );

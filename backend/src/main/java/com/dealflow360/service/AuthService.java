@@ -21,8 +21,9 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    public record LoginResponse(String accessToken, String role, String email, String fullName, Long userId) {}
+    public record LoginResponse(String accessToken, String role, String email, String fullName, Long userId, String department) {}
     public record RegisterResponse(Long userId, String email, String role) {}
+    public record UserSessionResponse(Long userId, String email, String role, String fullName, String department, String avatarUrl) {}
 
     @Transactional
     public RegisterResponse register(String email, String password, String firstName, String lastName, User.UserRole role) {
@@ -48,6 +49,26 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
         String token = jwtTokenProvider.generateAccessToken(user);
-        return new LoginResponse(token, user.getRole().name(), user.getEmail(), user.getFullName(), user.getId());
+        return new LoginResponse(
+            token,
+            user.getRole().name(),
+            user.getEmail(),
+            user.getFullName(),
+            user.getId(),
+            user.getDepartment() != null ? user.getDepartment() : "Sales Operations"
+        );
+    }
+
+    public UserSessionResponse getSession(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+        return new UserSessionResponse(
+            user.getId(),
+            user.getEmail(),
+            user.getRole().name(),
+            user.getFullName(),
+            user.getDepartment() != null ? user.getDepartment() : "Sales Operations",
+            user.getAvatarUrl()
+        );
     }
 }
