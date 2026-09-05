@@ -17,6 +17,7 @@ public class Approval {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quotation_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Quotation quotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,6 +30,7 @@ public class Approval {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "approval_status")
+    @Builder.Default
     private ApprovalStatus status = ApprovalStatus.PENDING;
 
     private String notes;

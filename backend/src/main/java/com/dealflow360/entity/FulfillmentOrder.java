@@ -25,15 +25,19 @@ public class FulfillmentOrder {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "fulfillment_status")
+    @Builder.Default
     private FulfillmentStatus status = FulfillmentStatus.PENDING;
 
     @Column(name = "is_manual_override")
+    @Builder.Default
     private Boolean isManualOverride = false;
 
     @Column(name = "total_shipments")
+    @Builder.Default
     private Integer totalShipments = 0;
 
     @Column(name = "total_shipping_cost")
+    @Builder.Default
     private BigDecimal totalShippingCost = BigDecimal.ZERO;
 
     private String notes;

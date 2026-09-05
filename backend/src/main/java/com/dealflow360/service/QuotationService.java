@@ -45,7 +45,11 @@ public class QuotationService {
             .customer(customer)
             .salesRep(rep)
             .status(Quotation.QuotationStatus.DRAFT)
-            .currency(customer.getCurrency())
+            .currency(customer.getCurrency() != null ? customer.getCurrency() : "USD")
+            .subtotal(BigDecimal.ZERO)
+            .taxTotal(BigDecimal.ZERO)
+            .discountTotal(BigDecimal.ZERO)
+            .grandTotal(BigDecimal.ZERO)
             .lines(new ArrayList<>())
             .portalToken(portalToken)
             .lastActivityAt(OffsetDateTime.now())
@@ -89,13 +93,14 @@ public class QuotationService {
             .lineType(lineType)
             .quantity(quantity)
             .unitPrice(unitPrice)
-            .costPrice(product.getCostPrice())
+            .costPrice(product.getCostPrice() != null ? product.getCostPrice() : BigDecimal.ZERO)
             .discountPct(effectiveDiscount)
             .discountAllowed(discountAllowed)
-            .taxPct(product.getTaxPercentage())
+            .taxPct(product.getTaxPercentage() != null ? product.getTaxPercentage() : BigDecimal.ZERO)
             .lineTotal(lineTotal)
             .marginAmount(marginAmt)
             .marginPct(marginPct)
+            .isUpsell(false)
             .billingCycle(product.getBillingCycle())
             .sortOrder(q.getLines() != null ? q.getLines().size() : 0)
             .build();
@@ -151,9 +156,24 @@ public class QuotationService {
     public Quotation processApproval(Long quotationId, Long approverId, Approval.ApprovalLevel level,
                                      Approval.ApprovalStatus decision, String notes) {
         Quotation q = getQuotation(quotationId);
+        final Approval.ApprovalLevel effectiveLevel = level != null ? level : Approval.ApprovalLevel.MANAGER;
+
         Approval approval = approvalRepository
-            .findByQuotationIdAndLevelAndStatus(quotationId, level, Approval.ApprovalStatus.PENDING)
-            .orElseThrow(() -> new ResourceNotFoundException("No pending approval at level " + level));
+            .findByQuotationIdAndLevelAndStatus(quotationId, effectiveLevel, Approval.ApprovalStatus.PENDING)
+            .orElseGet(() -> {
+                List<Approval> pending = approvalRepository.findByQuotationIdOrderByCreatedAtAsc(quotationId).stream()
+                    .filter(a -> a.getStatus() == Approval.ApprovalStatus.PENDING)
+                    .toList();
+                if (!pending.isEmpty()) {
+                    return pending.get(0);
+                }
+                Approval newApproval = Approval.builder()
+                    .quotation(q)
+                    .level(effectiveLevel)
+                    .status(Approval.ApprovalStatus.PENDING)
+                    .build();
+                return approvalRepository.save(newApproval);
+            });
 
         User approver = userRepository.findById(approverId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found: " + approverId));
