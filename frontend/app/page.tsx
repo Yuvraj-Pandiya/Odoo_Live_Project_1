@@ -17,7 +17,7 @@ const DEMO_ACCOUNTS = [
   { label: 'Admin',         email: 'admin@dealflow360.com',   role: 'ADMIN',     desc: 'Full access' },
   { label: 'Sales Manager', email: 'manager@dealflow360.com', role: 'MANAGER',   desc: 'Level-1 approvals' },
   { label: 'Finance',       email: 'finance@dealflow360.com', role: 'FINANCE',   desc: 'Level-2 approvals' },
-  { label: 'Sales Rep',     email: 'sales@dealflow360.com',   role: 'SALES_REP', desc: 'Quotes & deals' },
+  { label: 'Sales Rep',     email: 'rep1@dealflow360.com',    role: 'SALES_REP', desc: 'Quotes & deals' },
 ];
 
 /* ─── Glass Input ─────────────────────────────────────────────── */

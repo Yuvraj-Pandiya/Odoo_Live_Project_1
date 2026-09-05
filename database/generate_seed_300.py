@@ -45,6 +45,7 @@ def generate_and_seed():
         (2, "manager@dealflow360.com", pw_hash, "Vikram", "Malhotra", "MANAGER", True, "Commercial Governance", "+91-9811022334"),
         (3, "finance@dealflow360.com", pw_hash, "Sneha", "Gupta", "FINANCE", True, "Finance & Treasury", "+91-9833033445"),
         (4, "rep1@dealflow360.com", pw_hash, "Priya", "Patel", "SALES_REP", True, "Enterprise Sales", "+91-9844044556"),
+        (301, "sales@dealflow360.com", pw_hash, "Priya", "Patel", "SALES_REP", True, "Enterprise Sales", "+91-9844044556"),
         (5, "rep2@dealflow360.com", pw_hash, "Rajesh", "Kumar", "SALES_REP", True, "Strategic Accounts", "+91-9855055667"),
         (6, "rep3@dealflow360.com", pw_hash, "Ananya", "Iyer", "SALES_REP", True, "Cloud & SaaS Sales", "+91-9866066778"),
         (7, "rep4@dealflow360.com", pw_hash, "Rohan", "Verma", "SALES_REP", True, "Mid-Market Solutions", "+91-9877077889"),
