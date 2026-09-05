@@ -66,54 +66,41 @@ export default function DashboardPage() {
       <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
         {/* ── Executive Greeting ────────────────────────────────── */}
         <div
-          className="relative overflow-hidden rounded-xl p-6 sm:p-8"
-          style={{
-            background: 'color-mix(in srgb, var(--color-surface-container-low) 70%, transparent)',
-            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-            backdropFilter: 'blur(12px)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-          }}
+          className="relative overflow-hidden rounded-xl bg-white border border-slate-200 p-6 sm:p-8 shadow-xs"
         >
-          {/* Ambient glows */}
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full blur-3xl pointer-events-none"
-            style={{ background: 'color-mix(in srgb, var(--color-primary-container) 10%, transparent)' }} />
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full blur-3xl pointer-events-none"
-            style={{ background: 'color-mix(in srgb, var(--color-tertiary) 8%, transparent)' }} />
           <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
             <div style={{ maxWidth: '42rem' }}>
               <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 text-label-sm"
-                style={{ background: 'var(--color-surface-container-highest)', color: 'var(--color-tertiary)' }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 text-xs font-semibold bg-slate-100 text-emerald-700 border border-slate-200"
               >
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--color-tertiary)' }} />
+                <span className="w-2 h-2 rounded-full animate-pulse bg-emerald-600" />
                 Q3 FY26 Live Cycle
-                <span style={{ color: 'var(--color-outline)' }}>•</span>
-                <span style={{ color: 'var(--color-on-surface-variant)' }}>Day 67 of 90</span>
+                <span className="text-slate-400">•</span>
+                <span className="text-slate-600">Day 67 of 90</span>
               </div>
-              <h1 className="text-display-xl mb-2" style={{ color: 'var(--color-on-surface)' }}>
+              <h1 className="text-h1 mb-2">
                 Welcome back, {firstName}
               </h1>
-              <p className="text-body-lg" style={{ color: 'var(--color-on-surface-variant)' }}>
+              <p className="text-body">
                 Central command hub linking active pipeline velocity, governance bottlenecks, and cross-tier fulfillment handoffs.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
               {/* Quota capsule */}
               <div
-                className="rounded-xl flex items-center gap-4 shadow-inner"
-                style={{ background: 'color-mix(in srgb, var(--color-surface-container) 90%, transparent)', padding: '0.75rem 1rem' }}
+                className="rounded-xl flex items-center gap-4 bg-slate-50 border border-slate-200 p-3"
               >
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-1">
-                    <span className="text-label-sm uppercase tracking-wider" style={{ color: 'var(--color-outline)' }}>Quota Attainment</span>
-                    <span className="text-meta-numeric" style={{ color: 'var(--color-tertiary)' }}>84.2%</span>
+                    <span className="text-caption font-semibold uppercase tracking-wider">Quota Attainment</span>
+                    <span className="text-sm font-bold text-emerald-600">84.2%</span>
                   </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ width: '160px', background: 'var(--color-surface-container-highest)' }}>
-                    <div className="h-full rounded-full" style={{ width: '84.2%', background: 'var(--color-tertiary)' }} />
+                  <div className="h-2 rounded-full overflow-hidden w-40 bg-slate-200">
+                    <div className="h-full rounded-full bg-emerald-600" style={{ width: '84.2%' }} />
                   </div>
-                  <div className="flex justify-between mt-1 text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+                  <div className="flex justify-between mt-1 text-xs text-slate-600">
                     <span>$2.1M closed</span>
-                    <span style={{ color: 'var(--color-outline)' }}>Target $2.5M</span>
+                    <span className="text-slate-400">Target $2.5M</span>
                   </div>
                 </div>
               </div>
@@ -123,11 +110,7 @@ export default function DashboardPage() {
                   View Approvals
                   {stats.pendingApprovals > 0 && (
                     <span
-                      className="ml-2 text-label-sm px-1.5 py-0.5 rounded-full font-bold"
-                      style={{
-                        background: 'color-mix(in srgb, var(--color-error-container) 30%, transparent)',
-                        color: 'var(--color-error)',
-                      }}
+                      className="ml-2 text-xs px-1.5 py-0.5 rounded-full font-bold bg-red-100 text-red-700 border border-red-200"
                     >
                       {stats.pendingApprovals}
                     </span>
@@ -143,47 +126,30 @@ export default function DashboardPage() {
         </div>
 
         {/* ── KPI Metric Cards ──────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 df-stagger">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { label: 'Pending Approvals', value: stats.pendingApprovals, icon: 'gavel', color: 'var(--color-error)', link: '/approvals', sub: 'Awaiting decision' },
-            { label: 'Active Quotations', value: stats.activeQuotes, icon: 'receipt_long', color: 'var(--color-primary)', link: '/quotations', sub: 'In pipeline' },
-            { label: 'Deal Health Alerts', value: stats.activeAlerts, icon: 'warning', color: '#ffc85a', link: '/deal-health', sub: 'Require action' },
+            { label: 'Pending Approvals', value: stats.pendingApprovals, icon: 'gavel', color: '#dc2626', link: '/approvals', sub: 'Awaiting decision' },
+            { label: 'Active Quotations', value: stats.activeQuotes, icon: 'receipt_long', color: '#0f172a', link: '/quotations', sub: 'In pipeline' },
+            { label: 'Deal Health Alerts', value: stats.activeAlerts, icon: 'warning', color: '#d97706', link: '/deal-health', sub: 'Require action' },
           ].map((card) => (
             <Link
               key={card.label}
               href={card.link}
-              className="rounded-xl p-5 flex items-start gap-4 animate-df-in transition-all cursor-pointer group"
-              style={{
-                background: 'color-mix(in srgb, var(--color-surface-container-low) 80%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-                backdropFilter: 'blur(8px)',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = `color-mix(in srgb, ${card.color} 40%, transparent)`;
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 24px color-mix(in srgb, ${card.color} 15%, transparent)`;
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'color-mix(in srgb, var(--color-outline-variant) 30%, transparent)';
-                (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-              }}
+              className="df-card flex items-start gap-4 transition-all cursor-pointer hover:border-slate-400 group"
             >
               <div
-                className="rounded-lg flex items-center justify-center shrink-0"
-                style={{
-                  width: '44px', height: '44px',
-                  background: `color-mix(in srgb, ${card.color} 15%, transparent)`,
-                }}
+                className="rounded-lg flex items-center justify-center shrink-0 w-11 h-11 bg-slate-100 border border-slate-200"
               >
                 <span className="material-symbols-outlined" style={{ color: card.color, fontSize: '22px' }}>{card.icon}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-display-xl" style={{ color: card.color, lineHeight: 1.1, fontSize: '2.5rem', fontWeight: 900 }}>
+                <div className="text-data-value" style={{ color: card.color }}>
                   {card.value}
                 </div>
-                <div className="text-label-md mt-1" style={{ color: 'var(--color-on-surface)' }}>{card.label}</div>
-                <div className="text-body-sm mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>{card.sub}</div>
+                <div className="text-h3 text-slate-900 mt-1">{card.label}</div>
+                <div className="text-caption mt-0.5">{card.sub}</div>
               </div>
-              <span className="material-symbols-outlined transition-transform group-hover:translate-x-1" style={{ color: 'var(--color-outline)', fontSize: '18px', marginTop: '2px' }}>arrow_forward</span>
+              <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-900 transition-transform group-hover:translate-x-1" style={{ fontSize: '18px', marginTop: '2px' }}>arrow_forward</span>
             </Link>
           ))}
         </div>

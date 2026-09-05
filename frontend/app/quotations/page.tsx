@@ -66,23 +66,16 @@ export default function QuotationsPage() {
       <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
         {/* ── Page Header ───────────────────────────────────────── */}
         <div
-          className="w-full"
-          style={{
-            background: 'var(--color-surface-container-lowest)',
-            margin: 'calc(-1 * var(--space-xl)) calc(-1 * var(--space-lg)) 0',
-            padding: 'var(--space-lg) var(--space-lg)',
-            borderBottom: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-            width: 'calc(100% + 2 * var(--space-lg))',
-          }}
+          className="w-full bg-white rounded-xl border border-slate-200 p-6 shadow-xs"
         >
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)' }}>Quotations</h1>
+                <h1 className="text-h1">Quotations</h1>
                 <span className="badge badge-primary">CPQ CORE</span>
               </div>
-              <p className="text-body-md mt-1" style={{ color: 'var(--color-on-surface-variant)' }}>
-                Every quotation in the system — click a row to open it
+              <p className="text-body mt-1">
+                Every quotation in the system — click a row to open details
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
@@ -95,7 +88,7 @@ export default function QuotationsPage() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="df-input pl-9"
-                  style={{ width: '220px' }}
+                  style={{ width: '240px' }}
                 />
               </div>
               <Link href="/quotations/new" className="btn-primary">
@@ -110,34 +103,32 @@ export default function QuotationsPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setFilter('ALL')}
-            className="px-4 py-2 rounded-lg text-label-md transition-all cursor-pointer"
-            style={filter === 'ALL'
-              ? { background: 'var(--color-surface-container-high)', color: 'var(--color-on-surface)', border: '1px solid var(--color-outline-variant)', fontWeight: 700 }
-              : { background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid transparent' }}
+            className={`px-3.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer ${
+              filter === 'ALL'
+                ? 'bg-slate-900 text-white font-medium shadow-xs'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 font-normal'
+            }`}
           >
-            All <span className="ml-1 text-label-sm" style={{ color: 'var(--color-outline)' }}>({quotations.length})</span>
+            All <span className={`ml-1 text-xs ${filter === 'ALL' ? 'text-slate-300' : 'text-slate-500'}`}>({quotations.length})</span>
           </button>
           {STATUS_GROUPS.map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className="px-4 py-2 rounded-lg text-label-md transition-all cursor-pointer"
-              style={filter === s
-                ? { background: 'var(--color-surface-container-high)', color: 'var(--color-on-surface)', border: '1px solid var(--color-outline-variant)', fontWeight: 700 }
-                : { background: 'transparent', color: 'var(--color-on-surface-variant)', border: '1px solid transparent' }}
+              className={`px-3.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer ${
+                filter === s
+                  ? 'bg-slate-900 text-white font-medium shadow-xs'
+                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 font-normal'
+              }`}
             >
-              {s.replace(/_/g, ' ')} {counts[s] ? <span className="ml-1 text-label-sm" style={{ color: 'var(--color-outline)' }}>({counts[s]})</span> : null}
+              {s.replace(/_/g, ' ')} {counts[s] ? <span className={`ml-1 text-xs ${filter === s ? 'text-slate-300' : 'text-slate-500'}`}>({counts[s]})</span> : null}
             </button>
           ))}
         </div>
 
         {/* ── Table ─────────────────────────────────────────────── */}
         <div
-          className="rounded-xl overflow-hidden"
-          style={{
-            background: 'var(--color-surface-container-low)',
-            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-          }}
+          className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs"
         >
           {loading ? (
             <div className="flex items-center justify-center py-20">

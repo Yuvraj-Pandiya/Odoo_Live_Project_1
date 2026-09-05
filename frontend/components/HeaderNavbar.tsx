@@ -61,20 +61,16 @@ export default function HeaderNavbar() {
     <>
       {/* ── Main Header ─────────────────────────────────────────── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50"
+        className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-xs"
         style={{
-          background: 'color-mix(in srgb, var(--color-surface-container-lowest) 80%, transparent)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
+          height: '64px',
         }}
       >
         <div
-          style={{ height: '64px' }}
-          className="w-full px-4 sm:px-6 flex items-center justify-between gap-4"
+          className="w-full h-full px-4 sm:px-6 flex items-center justify-between gap-4 max-w-[1600px] mx-auto"
         >
           {/* ── Left: Logo + Nav ─────────────────────────────────── */}
-          <div className="flex items-center gap-4 shrink-0 min-w-0">
+          <div className="flex items-center gap-6 shrink-0 min-w-0">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
               <Image
@@ -86,12 +82,7 @@ export default function HeaderNavbar() {
                 priority
               />
               <span
-                className="text-label-sm badge hidden xl:inline-flex"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-tertiary-container) 20%, transparent)',
-                  color: 'var(--color-tertiary)',
-                  border: '1px solid color-mix(in srgb, var(--color-tertiary) 30%, transparent)',
-                }}
+                className="badge badge-primary hidden xl:inline-flex"
               >
                 ENTERPRISE
               </span>
@@ -99,11 +90,7 @@ export default function HeaderNavbar() {
 
             {/* Desktop Navigation */}
             <nav
-              className="hidden xl:flex items-center gap-0.5 p-1 rounded-xl"
-              style={{
-                background: 'color-mix(in srgb, var(--color-surface-container-low) 60%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 20%, transparent)',
-              }}
+              className="hidden xl:flex items-center gap-1 p-1 rounded-lg bg-slate-100/80 border border-slate-200"
             >
               {NAV_ITEMS.map((item) => {
                 const active = isActive(item.path);
@@ -111,31 +98,31 @@ export default function HeaderNavbar() {
                   <Link
                     key={item.path}
                     href={item.href}
-                    className="px-3 py-1.5 rounded-lg transition-all text-label-md"
+                    className="px-3 py-1.5 rounded-md transition-all text-sm font-medium"
                     style={
                       active
                         ? {
-                            background: 'var(--color-surface-container-high)',
-                            color: 'var(--color-on-surface)',
-                            fontWeight: 700,
-                            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 60%, transparent)',
-                            boxShadow: '0 0 12px rgba(77,142,255,0.15)',
+                            background: '#ffffff',
+                            color: '#0f172a',
+                            fontWeight: 600,
+                            border: '1px solid #cbd5e1',
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                           }
                         : {
-                            color: 'var(--color-on-surface-variant)',
+                            color: '#475569',
                             border: '1px solid transparent',
                           }
                     }
                     onMouseEnter={(e) => {
                       if (!active) {
-                        e.currentTarget.style.background = 'var(--color-surface-container-high)';
-                        e.currentTarget.style.color = 'var(--color-on-surface)';
+                        e.currentTarget.style.background = '#ffffff';
+                        e.currentTarget.style.color = '#0f172a';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!active) {
                         e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = 'var(--color-on-surface-variant)';
+                        e.currentTarget.style.color = '#475569';
                       }
                     }}
                   >
