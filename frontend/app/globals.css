@@ -86,69 +86,84 @@
     /* === TYPOGRAPHY SCALE (User Specified) === */
     --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
 
-    /* H1: 24–32px (28px), Weight: 600, Color: Primary */
-    --fs-h1:           28px;
-    --lh-h1:           36px;
-    --fw-h1:           600;
+    /* Display: 36px (2.25rem), Line Height: 40px (1.1), Weight: 700 (Bold) - Analytics overview major metrics */
+    --fs-display:        36px;
+    --lh-display:        40px;
+    --fw-display:        700;
 
-    /* H2: 18–20px (20px), Weight: 600, Color: Primary */
-    --fs-h2:           20px;
-    --lh-h2:           28px;
-    --fw-h2:           600;
+    /* Heading 1: 30px (1.875rem), Line Height: 36px (1.2), Weight: 700 (Bold) - Main page titles (e.g., "Settings") */
+    --fs-h1:             30px;
+    --lh-h1:             36px;
+    --fw-h1:             700;
 
-    /* H3: 15–16px (16px), Weight: 500, Color: Primary */
-    --fs-h3:           16px;
-    --lh-h3:           24px;
-    --fw-h3:           500;
+    /* Heading 2: 24px (1.5rem), Line Height: 32px (1.3), Weight: 600 (SemiBold) - Section headers, card titles */
+    --fs-h2:             24px;
+    --lh-h2:             32px;
+    --fw-h2:             600;
 
-    /* Body: 14px, Weight: 400, Color: Primary */
-    --fs-body:         14px;
-    --lh-body:         20px;
-    --fw-body:         400;
+    /* Heading 3: 20px (1.25rem), Line Height: 28px (1.4), Weight: 600 (SemiBold) - Modal titles, small card titles */
+    --fs-h3:             20px;
+    --lh-h3:             28px;
+    --fw-h3:             600;
+
+    /* Subheading: 16px (1rem), Line Height: 24px (1.5), Weight: 500 (Medium) - Table headers, form labels */
+    --fs-subheading:     16px;
+    --lh-subheading:     24px;
+    --fw-subheading:     500;
+
+    /* Body (Large): 16px (1rem), Line Height: 24px (1.5), Weight: 400 (Regular) - Blog posts, long-form descriptions */
+    --fs-body-lg:        16px;
+    --lh-body-lg:        24px;
+    --fw-body-lg:        400;
+
+    /* Body (Base): 14px (0.875rem), Line Height: 20px (1.4), Weight: 400 (Regular) - Standard UI text, inputs, sidebar links */
+    --fs-body:           14px;
+    --lh-body:           20px;
+    --fw-body:           400;
+    --fs-body-base:      14px;
+    --lh-body-base:      20px;
+    --fw-body-base:      400;
 
     /* Caption: 12px, Weight: 400, Color: Muted */
-    --fs-caption:      12px;
-    --lh-caption:      16px;
-    --fw-caption:      400;
+    --fs-caption:        12px;
+    --lh-caption:        16px;
+    --fw-caption:        400;
 
-    /* Data values: Larger than label, Weight: 600+, Color: Accent/Primary */
-    --fs-data-value:   28px;
-    --lh-data-value:   36px;
-    --fw-data-value:   700;
+    /* Data values / KPI Major metrics */
+    --fs-data-value:     36px;
+    --lh-data-value:     40px;
+    --fw-data-value:     700;
 
     /* Compatibility aliases */
-    --fs-body-sm:      12px;
-    --lh-body-sm:      16px;
-    --fw-body-sm:      400;
-    --fs-body-md:      14px;
-    --lh-body-md:      20px;
-    --fw-body-md:      400;
-    --fs-body-lg:      16px;
-    --lh-body-lg:      24px;
-    --fw-body-lg:      400;
+    --fs-body-sm:        12px;
+    --lh-body-sm:        16px;
+    --fw-body-sm:        400;
+    --fs-body-md:        14px;
+    --lh-body-md:        20px;
+    --fw-body-md:        400;
 
-    --fs-label-sm:     12px;
-    --lh-label-sm:     16px;
-    --fw-label-sm:     600;
-    --fs-label-md:     14px;
-    --lh-label-md:     20px;
-    --fw-label-md:     500;
+    --fs-label-sm:       12px;
+    --lh-label-sm:       16px;
+    --fw-label-sm:       600;
+    --fs-label-md:       16px;
+    --lh-label-md:       24px;
+    --fw-label-md:       500;
 
-    --fs-headline-sm:  16px;
-    --lh-headline-sm:  24px;
-    --fw-headline-sm:  500;
-    --fs-headline-md:  20px;
-    --lh-headline-md:  28px;
-    --fw-headline-md:  600;
-    --fs-headline-lg:  28px;
-    --lh-headline-lg:  36px;
-    --fw-headline-lg:  600;
-    --fs-display-xl:   32px;
-    --lh-display-xl:   40px;
-    --fw-display-xl:   700;
-    --fs-meta-numeric: 24px;
-    --lh-meta-numeric: 32px;
-    --fw-meta-numeric: 700;
+    --fs-headline-sm:    20px;
+    --lh-headline-sm:    28px;
+    --fw-headline-sm:    600;
+    --fs-headline-md:    24px;
+    --lh-headline-md:    32px;
+    --fw-headline-md:    600;
+    --fs-headline-lg:    30px;
+    --lh-headline-lg:    36px;
+    --fw-headline-lg:    700;
+    --fs-display-xl:     36px;
+    --lh-display-xl:     40px;
+    --fw-display-xl:     700;
+    --fs-meta-numeric:   36px;
+    --lh-meta-numeric:   40px;
+    --fw-meta-numeric:   700;
   }
 }
 
@@ -234,9 +249,16 @@
   --font-family-meta-numeric: var(--font-family-base);
 
   /* Font Sizes */
+  --font-size-display:      var(--fs-display);
+  --font-size-h1:           var(--fs-h1);
+  --font-size-h2:           var(--fs-h2);
+  --font-size-h3:           var(--fs-h3);
+  --font-size-subheading:   var(--fs-subheading);
+  --font-size-body-lg:      var(--fs-body-lg);
+  --font-size-body-base:    var(--fs-body-base);
+  --font-size-body:         var(--fs-body-base);
   --font-size-body-sm:      var(--fs-body-sm);
   --font-size-body-md:      var(--fs-body-md);
-  --font-size-body-lg:      var(--fs-body-lg);
   --font-size-label-sm:     var(--fs-label-sm);
   --font-size-label-md:     var(--fs-label-md);
   --font-size-headline-sm:  var(--fs-headline-sm);
@@ -260,8 +282,8 @@ html, body {
   background-color: var(--color-background);
   color: var(--color-on-surface);
   font-family: var(--font-family-base);
-  font-size: var(--fs-body-md);
-  line-height: var(--lh-body-md);
+  font-size: var(--fs-body-base);
+  line-height: var(--lh-body-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
@@ -278,62 +300,79 @@ html, body {
 /* --------------------------------------------------------------------------
    TYPOGRAPHY UTILITIES (User Typography Specification)
    -------------------------------------------------------------------------- */
-/* H1: 24-32px (28px), Weight: 600, Color: Primary */
-h1, .text-h1, .text-display-xl, .text-headline-lg {
-  font-size: var(--fs-h1);
-  line-height: var(--lh-h1);
-  font-weight: var(--fw-h1);
+/* Display: 36px (2.25rem), Line Height: 40px (1.1), Weight: 700 (Bold) - Analytics overview major metrics */
+.type-display, .text-display, .text-data-value, .text-meta-numeric, .text-display-xl {
+  font-size: 36px !important;
+  line-height: 40px !important;
+  font-weight: 700 !important;
+  color: var(--color-on-surface);
+  letter-spacing: -0.025em;
+}
+
+/* Heading 1: 30px (1.875rem), Line Height: 36px (1.2), Weight: 700 (Bold) - Main page titles */
+h1, .type-heading-1, .text-heading-1, .text-h1, .text-headline-lg {
+  font-size: 30px !important;
+  line-height: 36px !important;
+  font-weight: 700 !important;
   color: var(--color-on-surface);
   letter-spacing: -0.02em;
 }
 
-/* H2: 18-20px (20px), Weight: 600, Color: Primary */
-h2, .text-h2, .text-headline-md {
-  font-size: var(--fs-h2);
-  line-height: var(--lh-h2);
-  font-weight: var(--fw-h2);
+/* Heading 2: 24px (1.5rem), Line Height: 32px (1.3), Weight: 600 (SemiBold) - Section headers, card titles */
+h2, .type-heading-2, .text-heading-2, .text-h2, .text-headline-md {
+  font-size: 24px !important;
+  line-height: 32px !important;
+  font-weight: 600 !important;
+  color: var(--color-on-surface);
+  letter-spacing: -0.015em;
+}
+
+/* Heading 3: 20px (1.25rem), Line Height: 28px (1.4), Weight: 600 (SemiBold) - Modal titles, small card titles */
+h3, .type-heading-3, .text-heading-3, .text-h3, .text-headline-sm {
+  font-size: 20px !important;
+  line-height: 28px !important;
+  font-weight: 600 !important;
   color: var(--color-on-surface);
   letter-spacing: -0.01em;
 }
 
-/* H3: 15-16px (16px), Weight: 500, Color: Primary */
-h3, .text-h3, .text-headline-sm {
-  font-size: var(--fs-h3);
-  line-height: var(--lh-h3);
-  font-weight: var(--fw-h3);
+/* Subheading: 16px (1rem), Line Height: 24px (1.5), Weight: 500 (Medium) - Table headers, form labels */
+.type-subheading, .text-subheading, .df-label, label {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  font-weight: 500 !important;
   color: var(--color-on-surface);
 }
 
-/* Body: 14px, Weight: 400, Color: Primary */
-body, .text-body, .text-body-md, .text-body-lg {
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  font-weight: var(--fw-body);
+/* Body (Large): 16px (1rem), Line Height: 24px (1.5), Weight: 400 (Regular) - Blog posts, long-form descriptions */
+.type-body-lg, .text-body-lg {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  font-weight: 400 !important;
+  color: var(--color-on-surface-variant);
+}
+
+/* Body (Base): 14px (0.875rem), Line Height: 20px (1.4), Weight: 400 (Regular) - Standard UI text, inputs, sidebar links */
+body, .type-body-base, .text-body-base, .text-body, .text-body-md {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 400 !important;
   color: var(--color-on-surface-variant);
 }
 
 /* Caption: 12px, Weight: 400, Color: Muted */
-.text-caption, .text-body-sm, .text-label-sm {
-  font-size: var(--fs-caption);
-  line-height: var(--lh-caption);
-  font-weight: var(--fw-caption);
+.type-caption, .text-caption, .text-body-sm, .text-label-sm {
+  font-size: 12px !important;
+  line-height: 16px !important;
+  font-weight: 400 !important;
   color: var(--color-outline);
 }
 
 .text-label-md {
-  font-size: var(--fs-body);
-  line-height: var(--lh-body);
-  font-weight: 500;
+  font-size: 16px !important;
+  line-height: 24px !important;
+  font-weight: 500 !important;
   color: var(--color-on-surface);
-}
-
-/* Data values: Larger than label (28px), Weight: 600+ (700), Color: Primary/Accent */
-.text-data-value, .text-meta-numeric {
-  font-size: var(--fs-data-value);
-  line-height: var(--lh-data-value);
-  font-weight: var(--fw-data-value);
-  color: var(--color-on-surface);
-  letter-spacing: -0.02em;
 }
 
 /* --------------------------------------------------------------------------
@@ -486,11 +525,11 @@ body, .text-body, .text-body-md, .text-body-lg {
 .df-table thead th {
   padding: 0.75rem 1rem;
   text-align: left;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #64748b;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #475569;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;

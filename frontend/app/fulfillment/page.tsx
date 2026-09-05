@@ -97,80 +97,79 @@ export default function FulfillmentPage() {
 
   return (
     <AppLayout>
-      <div className="p-8 space-y-6">
+      <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-white">Fulfillment & Stock Allocation</h1>
-              <span className="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              <h1 className="text-heading-1 text-slate-900">Fulfillment & Stock Allocation</h1>
+              <span className="badge badge-primary">
                 ROLE: {userRole}
               </span>
             </div>
-            <p className="text-sm mt-1" style={{ color: 'hsl(215 20% 65%)' }}>Warehouse split recommendations, multi-node routing, and stock availability</p>
+            <p className="text-body-lg text-slate-600 mt-1">Warehouse split recommendations, multi-node routing, and stock availability</p>
           </div>
         </div>
 
-        {msg && <div className="p-3 rounded-lg text-sm bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">{msg}</div>}
+        {msg && <div className="p-4 rounded-xl text-body-base font-medium bg-emerald-50 border border-emerald-200 text-emerald-800">{msg}</div>}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Orders List */}
-          <div className="glass-card overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: 'hsl(222 47% 22%)' }}>
-              <h2 className="font-semibold text-white text-sm">Orders Awaiting Fulfillment ({orders.length})</h2>
-              <button onClick={loadData} className="text-xs text-indigo-400 hover:text-indigo-300 transition">
+          <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <h2 className="text-heading-3 text-slate-900">Orders Awaiting Fulfillment ({orders.length})</h2>
+              <button onClick={loadData} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition cursor-pointer">
                 Refresh
               </button>
             </div>
-            <div className="divide-y" style={{ borderColor: 'hsl(222 47% 22%)' }}>
+            <div className="divide-y divide-slate-100">
               {loading ? (
-                <div className="p-6 text-center text-sm" style={{ color: 'hsl(215 20% 65%)' }}>Loading fulfillment records…</div>
+                <div className="p-6 text-center text-body-base text-slate-500">Loading fulfillment records…</div>
               ) : orders.map((o: any) => {
                 const sc = STATUS_COLOR[o.status] || STATUS_COLOR.PENDING;
                 return (
                   <div
                     key={o.id}
                     onClick={() => setSelected(o)}
-                    className="p-4 cursor-pointer transition-all"
-                    style={{ background: selected?.id === o.id ? 'hsl(220 90% 56% / 0.12)' : 'transparent' }}
+                    className={`p-4 cursor-pointer transition-all ${selected?.id === o.id ? 'bg-indigo-50/70 border-l-4 border-indigo-600' : 'hover:bg-slate-50'}`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-mono font-bold" style={{ color: 'hsl(220 90% 70%)' }}>
+                      <span className="text-subheading font-mono font-bold text-slate-900">
                         {o.quotation?.quoteNumber || `FO-${o.id}`}
                       </span>
-                      <span className="text-xs font-medium" style={{ color: sc.text }}>{sc.label}</span>
+                      <span className="badge badge-outline">{sc.label}</span>
                     </div>
-                    <p className="text-sm font-medium text-white">{o.quotation?.customer?.name || '—'}</p>
-                    <p className="text-xs mt-1" style={{ color: 'hsl(215 20% 65%)' }}>
+                    <p className="text-body-base font-semibold text-slate-800">{o.quotation?.customer?.name || '—'}</p>
+                    <p className="text-caption text-slate-500 mt-1">
                       {o.totalShipments || 1} shipment(s) · ₹{Number(o.totalShippingCost || 0).toLocaleString()} cost
                     </p>
                   </div>
                 );
               })}
               {orders.length === 0 && !loading && (
-                <div className="p-8 text-center text-sm" style={{ color: 'hsl(215 15% 45%)' }}>No pending fulfillment orders</div>
+                <div className="p-8 text-center text-body-base text-slate-500">No pending fulfillment orders</div>
               )}
             </div>
           </div>
 
           {/* Detail */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-6">
             {!selected ? (
-              <div className="glass-card p-12 text-center">
-                <Truck size={28} className="mx-auto mb-3" style={{ color: 'hsl(215 15% 45%)' }} />
-                <p className="text-sm font-medium text-white">Select a fulfillment order to inspect warehouse split</p>
-                <p className="text-xs mt-1" style={{ color: 'hsl(215 20% 65%)' }}>Review stock allocation across regional warehouses</p>
+              <div className="rounded-xl p-12 text-center bg-white border border-slate-200 shadow-xs">
+                <Truck size={28} className="mx-auto mb-3 text-slate-400" />
+                <p className="text-heading-3 text-slate-800">Select a fulfillment order to inspect warehouse split</p>
+                <p className="text-body-base text-slate-500 mt-1">Review stock allocation across regional warehouses</p>
               </div>
             ) : (
-              <div className="glass-card p-6 space-y-5">
+              <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs space-y-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-bold text-white text-lg">{selected.quotation?.quoteNumber || `FO-${selected.id}`}</h3>
-                    <p className="text-sm" style={{ color: 'hsl(215 20% 65%)' }}>{selected.quotation?.customer?.name}</p>
+                    <h3 className="text-heading-3 text-slate-900">{selected.quotation?.quoteNumber || `FO-${selected.id}`}</h3>
+                    <p className="text-body-base text-slate-600">{selected.quotation?.customer?.name}</p>
                   </div>
-                  <div className="text-right text-xs" style={{ color: 'hsl(215 20% 65%)' }}>
+                  <div className="text-right text-caption text-slate-500">
                     <p>{selected.totalShipments || 1} warehouse(s) · ₹{Number(selected.totalShippingCost || 0).toLocaleString()} est. cost</p>
                     {selected.status === 'PARTIALLY_FULFILLED' && (
-                      <p className="mt-1 text-xs px-2 py-1 rounded" style={{ background: 'hsl(38 92% 50% / 0.1)', color: 'hsl(38 92% 65%)' }}>
+                      <p className="mt-1 text-xs px-2 py-1 rounded font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                         ⚠ Consolidate Remaining Backorder prompt active
                       </p>
                     )}
@@ -192,14 +191,14 @@ export default function FulfillmentPage() {
                     <tbody>
                       {(selected.lines || selected.fulfillmentLines || []).map((line: any) => (
                         <tr key={line.id}>
-                          <td className="font-medium text-white">{line.product?.name || `Product #${line.productId}`}</td>
-                          <td style={{ color: 'hsl(215 20% 65%)' }}>{line.warehouse?.name || 'Regional Depot'}</td>
-                          <td>{line.quantityAllocated}</td>
-                          <td>{line.quantityFulfilled}</td>
-                          <td>₹{Number(line.shippingCost || 0).toFixed(2)}</td>
+                          <td className="font-medium text-slate-900">{line.product?.name || `Product #${line.productId}`}</td>
+                          <td className="text-slate-600">{line.warehouse?.name || 'Regional Depot'}</td>
+                          <td><span>{line.quantityAllocated}</span></td>
+                          <td><span>{line.quantityFulfilled}</span></td>
+                          <td><span>₹{Number(line.shippingCost || 0).toFixed(2)}</span></td>
                           <td>
                             {line.isBackorder
-                              ? <span className="badge badge-danger">Backorder</span>
+                              ? <span className="badge badge-error">Backorder</span>
                               : <span className="badge badge-success">Allocated</span>}
                           </td>
                         </tr>
@@ -208,23 +207,23 @@ export default function FulfillmentPage() {
                   </table>
                 </div>
 
-                <div className="flex gap-3">
-                  <button onClick={() => acceptSplit(selected.id)} className="btn-primary">
-                    <CheckCircle size={14} /> Accept Suggested Split
+                <div className="flex gap-3 pt-2">
+                  <button onClick={() => acceptSplit(selected.id)} className="btn-primary text-body-base">
+                    <CheckCircle size={15} /> Accept Suggested Split
                   </button>
                 </div>
               </div>
             )}
 
             {/* Warehouse Stock Summary */}
-            <div className="glass-card p-5">
-              <h3 className="font-semibold text-white text-sm mb-4">Regional Warehouse Nodes & Weight</h3>
+            <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs">
+              <h3 className="text-heading-3 text-slate-900 mb-4">Regional Warehouse Nodes & Weight</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {warehouses.map((w: any) => (
-                  <div key={w.id} className="p-3 rounded-lg" style={{ background: 'hsl(222 47% 15%)', border: '1px solid hsl(222 47% 22%)' }}>
-                    <p className="text-xs font-semibold text-white">{w.name}</p>
-                    <p className="text-xs mt-1" style={{ color: 'hsl(215 20% 65%)' }}>{w.city}, {w.state || 'IN'}</p>
-                    <p className="text-xs mt-1" style={{ color: 'hsl(215 15% 45%)' }}>
+                  <div key={w.id} className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                    <p className="text-subheading font-bold text-slate-900">{w.name}</p>
+                    <p className="text-body-base text-slate-600 mt-0.5">{w.city}, {w.state || 'IN'}</p>
+                    <p className="text-caption text-slate-500 mt-1">
                       Weight: {Number(w.shippingCostWeight || 1).toFixed(1)}x
                     </p>
                   </div>

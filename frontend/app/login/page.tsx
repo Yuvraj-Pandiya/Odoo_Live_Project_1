@@ -65,19 +65,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative py-12 px-4 overflow-hidden"
-      style={{ background: 'var(--color-background)' }}
-    >
+    <div className="min-h-screen flex items-center justify-center relative py-12 px-4 overflow-hidden bg-slate-950 text-slate-100 font-sans antialiased">
       {/* Background ambient blobs */}
-      <div
-        className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl pointer-events-none"
-        style={{ background: 'color-mix(in srgb, var(--color-primary-container) 8%, transparent)' }}
-      />
-      <div
-        className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-3xl pointer-events-none"
-        style={{ background: 'color-mix(in srgb, var(--color-tertiary) 6%, transparent)' }}
-      />
+      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md mx-4">
         {/* Logo */}
@@ -95,21 +86,12 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div
-          className="rounded-2xl p-8"
-          style={{
-            background: 'var(--color-surface-container-low)',
-            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent)',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
-          }}
-        >
+        <div className="df-card p-8 shadow-2xl border border-slate-800 bg-slate-900/95 backdrop-blur-xl">
           <div className="mb-6">
-            <h1
-              className="text-display-sm font-bold text-white mb-1"
-            >
+            <h1 className="text-heading-1 font-bold text-white mb-1">
               Sign in to DealFlow360
             </h1>
-            <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+            <p className="type-body-base text-slate-400">
               Enterprise CPQ & Sales Platform
             </p>
           </div>
@@ -117,10 +99,7 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div>
-              <label
-                className="block text-label-md font-semibold mb-1.5"
-                style={{ color: 'var(--color-on-surface)' }}
-              >
+              <label className="type-subheading block text-xs font-semibold text-slate-300 mb-1.5">
                 Work Email Address
               </label>
               <input
@@ -129,17 +108,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="input text-body-md w-full"
+                className="df-input w-full text-sm"
                 autoComplete="email"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label
-                  className="block text-label-md font-semibold"
-                  style={{ color: 'var(--color-on-surface)' }}
-                >
+                <label className="type-subheading block text-xs font-semibold text-slate-300">
                   Password
                 </label>
               </div>
@@ -150,7 +126,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="input text-body-md w-full pr-10"
+                  className="df-input w-full text-sm pr-10"
                   autoComplete="current-password"
                 />
                 <button
@@ -167,14 +143,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div
-                className="rounded-lg px-4 py-3 text-body-sm animate-in fade-in"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-error) 15%, transparent)',
-                  color: 'var(--color-error)',
-                  border: '1px solid color-mix(in srgb, var(--color-error) 30%, transparent)',
-                }}
-              >
+              <div className="rounded-xl px-4 py-3 text-xs bg-rose-950/40 text-rose-400 border border-rose-800/60 animate-in fade-in">
                 {error}
               </div>
             )}
@@ -189,18 +158,17 @@ export default function LoginPage() {
               ) : (
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>login</span>
               )}
-              {loading ? 'Signing in...' : 'Sign In'}
+              <span>{loading ? 'Signing in...' : 'Sign In'}</span>
             </button>
           </form>
 
           {/* Don't have an account? Sign Up Link */}
           <div className="mt-5 text-center">
-            <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+            <p className="type-body-base text-xs text-slate-400">
               Don&apos;t have an account?{' '}
               <Link
                 href="/signup"
-                className="font-bold transition hover:underline"
-                style={{ color: 'var(--color-primary)' }}
+                className="font-bold text-indigo-400 hover:text-indigo-300 hover:underline"
               >
                 Create an Account
               </Link>
@@ -209,50 +177,38 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
-            <div style={{ flex: 1, height: '1px', background: 'var(--color-outline-variant)' }} />
-            <span className="text-label-sm uppercase tracking-wider text-[11px] font-semibold" style={{ color: 'var(--color-outline)' }}>
+            <div className="flex-1 h-px bg-slate-800" />
+            <span className="type-subheading text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               Quick Demo Personas
             </span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--color-outline-variant)' }} />
+            <div className="flex-1 h-px bg-slate-800" />
           </div>
 
           {/* Demo Role Switcher */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             {DEMO_ACCOUNTS.map((account) => (
               <button
                 key={account.email}
                 type="button"
                 onClick={() => handleDemoLogin(account)}
                 disabled={loadingDemo !== null}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all text-center cursor-pointer relative"
-                style={{
-                  background: 'var(--color-surface-container)',
-                  border: `1px solid color-mix(in srgb, ${account.color} 20%, transparent)`,
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-container-high)';
-                  (e.currentTarget as HTMLElement).style.borderColor = `color-mix(in srgb, ${account.color} 40%, transparent)`;
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-container)';
-                  (e.currentTarget as HTMLElement).style.borderColor = `color-mix(in srgb, ${account.color} 20%, transparent)`;
-                }}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all text-center cursor-pointer bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50"
               >
                 {loadingDemo === account.email ? (
-                  <span className="material-symbols-outlined animate-spin" style={{ fontSize: '20px', color: account.color }}>refresh</span>
+                  <span className="material-symbols-outlined animate-spin text-lg text-indigo-400">refresh</span>
                 ) : (
-                  <span className="material-symbols-outlined" style={{ fontSize: '20px', color: account.color }}>
+                  <span className="material-symbols-outlined text-lg text-indigo-400">
                     {account.icon}
                   </span>
                 )}
                 <span className="text-xs font-bold text-white leading-tight">{account.label}</span>
-                <span className="text-[10px]" style={{ color: 'var(--color-outline)' }}>{account.name}</span>
+                <span className="type-body-base text-[10px] text-slate-400">{account.name}</span>
               </button>
             ))}
           </div>
 
-          <p className="text-center text-label-sm mt-4 text-[11px]" style={{ color: 'var(--color-outline)' }}>
-            Demo password for all personas: <code className="text-label-sm font-bold" style={{ color: 'var(--color-primary)' }}>Password123!</code>
+          <p className="text-center type-body-base text-[11px] text-slate-500 mt-4">
+            Demo password for all personas: <code className="font-mono font-bold text-indigo-400">Password123!</code>
           </p>
         </div>
       </div>

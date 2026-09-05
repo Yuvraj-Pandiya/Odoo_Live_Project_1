@@ -16,25 +16,31 @@ public class UpsellRule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "trigger_product_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"category", "variants", "hibernateLazyInitializer", "handler"})
     private Product triggerProduct;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "suggest_product_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"category", "variants", "hibernateLazyInitializer", "handler"})
     private Product suggestProduct;
 
+    @Builder.Default
     @Column(name = "co_purchase_count")
     private Integer coPurchaseCount = 0;
 
+    @Builder.Default
     @Column(name = "is_promoted")
     private Boolean isPromoted = false;
 
     @Column(name = "min_margin_pct")
     private BigDecimal minMarginPct;
 
+    @Builder.Default
     private Integer priority = 0;
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 

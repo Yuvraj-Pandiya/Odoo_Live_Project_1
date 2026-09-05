@@ -82,10 +82,10 @@ export default function DashboardPage() {
                 <span className="text-slate-400">•</span>
                 <span className="text-slate-600">Day 67 of 90</span>
               </div>
-              <h1 className="text-h1 mb-2">
+              <h1 className="text-heading-1 mb-2">
                 Welcome back, {firstName}
               </h1>
-              <p className="text-body">
+              <p className="text-body-lg text-slate-600">
                 Central command hub linking active pipeline velocity, governance bottlenecks, and cross-tier fulfillment handoffs.
               </p>
             </div>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center justify-between gap-4 mb-1">
                     <span className="text-caption font-semibold uppercase tracking-wider">Quota Attainment</span>
-                    <span className="text-sm font-bold text-emerald-600">84.2%</span>
+                    <span className="text-subheading font-bold text-emerald-600">84.2%</span>
                   </div>
                   <div className="h-2 rounded-full overflow-hidden w-40 bg-slate-200">
                     <div className="h-full rounded-full bg-emerald-600" style={{ width: '84.2%' }} />
@@ -110,7 +110,7 @@ export default function DashboardPage() {
               </div>
               {/* CTAs */}
               <div className="flex items-center gap-3">
-                <Link href="/approvals" className="btn-secondary relative">
+                <Link href="/approvals" className="btn-secondary relative text-body-base">
                   View Approvals
                   {stats.pendingApprovals > 0 && (
                     <span
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </Link>
-                <Link href="/quotations" className="btn-primary">
+                <Link href="/quotations" className="btn-primary text-body-base">
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
                   New Quotation
                 </Link>
@@ -147,10 +147,10 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined" style={{ color: card.color, fontSize: '22px' }}>{card.icon}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-data-value" style={{ color: card.color }}>
+                <div className="text-display" style={{ color: card.color }}>
                   {card.value}
                 </div>
-                <div className="text-h3 text-slate-900 mt-1">{card.label}</div>
+                <div className="text-heading-3 text-slate-900 mt-1">{card.label}</div>
                 <div className="text-caption mt-0.5">{card.sub}</div>
               </div>
               <span className="material-symbols-outlined text-slate-400 group-hover:text-slate-900 transition-transform group-hover:translate-x-1" style={{ fontSize: '18px', marginTop: '2px' }}>arrow_forward</span>
@@ -162,16 +162,12 @@ export default function DashboardPage() {
           {/* ── Recent Activity / Alerts ───────────────────────── */}
           <div className="xl:col-span-2">
             <div
-              className="rounded-xl overflow-hidden"
-              style={{
-                background: 'var(--color-surface-container-low)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-              }}
+              className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs"
             >
-              <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)' }}>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
                 <div>
-                  <h2 className="text-headline-sm" style={{ color: 'var(--color-on-surface)' }}>Recent Activity</h2>
-                  <p className="text-body-sm mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>Live deal health alerts requiring attention</p>
+                  <h2 className="text-heading-2 text-slate-900">Recent Activity</h2>
+                  <p className="text-body-base text-slate-500 mt-0.5">Live deal health alerts requiring attention</p>
                 </div>
                 <Link href="/deal-health" className="btn-ghost" style={{ padding: '0.25rem 0.75rem' }}>
                   View all
@@ -182,8 +178,7 @@ export default function DashboardPage() {
                 {(alerts.length ? alerts : MOCK_ALERTS).map((alert) => (
                   <div
                     key={alert.id}
-                    className="flex items-start gap-3 p-3 rounded-lg transition-all"
-                    style={{ background: 'var(--color-surface-container)' }}
+                    className="flex items-start gap-3 p-3 rounded-lg transition-all bg-slate-50 border border-slate-200"
                   >
                     <div
                       className="rounded-lg flex items-center justify-center shrink-0 mt-0.5"
@@ -197,7 +192,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface)' }}>{alert.description}</p>
+                      <p className="text-body-base text-slate-800">{alert.description}</p>
                       <span
                         className="badge mt-1"
                         style={{
@@ -212,7 +207,7 @@ export default function DashboardPage() {
                   </div>
                 ))}
                 {!alerts.length && (
-                  <p className="text-body-md text-center py-6" style={{ color: 'var(--color-on-surface-variant)' }}>
+                  <p className="text-body-base text-center py-6 text-slate-500">
                     No active alerts — deal health looks good!
                   </p>
                 )}
@@ -223,38 +218,30 @@ export default function DashboardPage() {
           {/* ── Quick Stats ─────────────────────────────────────── */}
           <div className="flex flex-col gap-4">
             <div
-              className="rounded-xl p-5"
-              style={{
-                background: 'var(--color-surface-container-low)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-              }}
+              className="rounded-xl p-5 bg-white border border-slate-200 shadow-xs"
             >
-              <h2 className="text-headline-sm mb-4" style={{ color: 'var(--color-on-surface)' }}>Pipeline Snapshot</h2>
+              <h2 className="text-heading-2 text-slate-900 mb-4">Pipeline Snapshot</h2>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: 'Open Quotations', value: stats.openQuotations, color: 'var(--color-primary)' },
-                  { label: 'Confirmed This Month', value: stats.confirmedThisMonth, color: 'var(--color-tertiary)' },
-                  { label: 'Pending Approvals', value: stats.pendingApprovals, color: '#ffc85a' },
-                  { label: 'Active Alerts', value: stats.activeAlerts, color: 'var(--color-error)' },
+                  { label: 'Open Quotations', value: stats.openQuotations, color: '#0f172a' },
+                  { label: 'Confirmed This Month', value: stats.confirmedThisMonth, color: '#059669' },
+                  { label: 'Pending Approvals', value: stats.pendingApprovals, color: '#d97706' },
+                  { label: 'Active Alerts', value: stats.activeAlerts, color: '#dc2626' },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between">
-                    <span className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{item.label}</span>
-                    <span className="text-meta-numeric" style={{ color: item.color }}>{item.value}</span>
+                    <span className="text-body-base text-slate-600">{item.label}</span>
+                    <span className="text-heading-3" style={{ color: item.color }}>{item.value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             <div
-              className="rounded-xl p-4"
-              style={{
-                background: 'color-mix(in srgb, var(--color-primary-container) 10%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)',
-              }}
+              className="rounded-xl p-4 bg-slate-50 border border-slate-200"
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: '18px' }}>bolt</span>
-                <span className="text-headline-sm" style={{ color: 'var(--color-primary)' }}>Quick Actions</span>
+                <span className="material-symbols-outlined text-slate-900" style={{ fontSize: '20px' }}>bolt</span>
+                <span className="text-heading-3 text-slate-900">Quick Actions</span>
               </div>
               <div className="flex flex-col gap-2">
                 <Link href="/quotations" className="btn-primary w-full justify-center" style={{ padding: '0.5rem' }}>
@@ -277,7 +264,7 @@ export default function DashboardPage() {
         {/* ── Enterprise Modules Grid ────────────────────────────── */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-headline-md" style={{ color: 'var(--color-on-surface)' }}>Enterprise Modules</h2>
+            <h2 className="text-heading-2 text-slate-900">Enterprise Modules</h2>
             <span className="badge badge-primary">8 ACTIVE</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

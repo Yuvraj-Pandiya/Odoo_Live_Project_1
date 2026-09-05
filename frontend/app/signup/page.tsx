@@ -69,19 +69,10 @@ export default function SignupPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative py-12 px-4 overflow-hidden"
-      style={{ background: 'var(--color-background)' }}
-    >
+    <div className="min-h-screen flex items-center justify-center relative py-12 px-4 overflow-hidden bg-slate-950 text-slate-100 font-sans antialiased">
       {/* Background ambient blobs */}
-      <div
-        className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl pointer-events-none"
-        style={{ background: 'color-mix(in srgb, var(--color-primary-container) 10%, transparent)' }}
-      />
-      <div
-        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full blur-3xl pointer-events-none"
-        style={{ background: 'color-mix(in srgb, var(--color-tertiary) 8%, transparent)' }}
-      />
+      <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-xl">
         {/* Logo */}
@@ -99,33 +90,17 @@ export default function SignupPage() {
         </div>
 
         {/* Card */}
-        <div
-          className="rounded-2xl p-8 shadow-2xl"
-          style={{
-            background: 'var(--color-surface-container-low)',
-            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent)',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
-          }}
-        >
+        <div className="df-card p-8 shadow-2xl border border-slate-800 bg-slate-900/95 backdrop-blur-xl">
           <div className="mb-6">
             <div className="flex items-center justify-between">
-              <h1
-                className="text-display-sm font-bold text-white mb-1"
-              >
+              <h1 className="text-heading-1 font-bold text-white mb-1">
                 Create your Account
               </h1>
-              <span
-                className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full font-bold"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-primary) 15%, transparent)',
-                  color: 'var(--color-primary)',
-                  border: '1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)',
-                }}
-              >
+              <span className="badge badge-indigo">
                 Enterprise CPQ
               </span>
             </div>
-            <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+            <p className="type-body-base text-slate-400">
               Join DealFlow360 to manage quotations, approvals, and deal pipelines.
             </p>
           </div>
@@ -135,8 +110,8 @@ export default function SignupPage() {
             {/* First & Last Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-label-md font-semibold mb-1.5" style={{ color: 'var(--color-on-surface)' }}>
-                  First Name <span style={{ color: 'var(--color-error)' }}>*</span>
+                <label className="type-subheading block text-xs font-semibold text-slate-300 mb-1.5">
+                  First Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -144,14 +119,14 @@ export default function SignupPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="e.g. Rahul"
-                  className="input text-body-md w-full"
+                  className="df-input w-full text-sm"
                   autoComplete="given-name"
                 />
               </div>
 
               <div>
-                <label className="block text-label-md font-semibold mb-1.5" style={{ color: 'var(--color-on-surface)' }}>
-                  Last Name <span style={{ color: 'var(--color-error)' }}>*</span>
+                <label className="type-subheading block text-xs font-semibold text-slate-300 mb-1.5">
+                  Last Name <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -159,7 +134,7 @@ export default function SignupPage() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="e.g. Verma"
-                  className="input text-body-md w-full"
+                  className="df-input w-full text-sm"
                   autoComplete="family-name"
                 />
               </div>
@@ -167,8 +142,8 @@ export default function SignupPage() {
 
             {/* Email Address */}
             <div>
-              <label className="block text-label-md font-semibold mb-1.5" style={{ color: 'var(--color-on-surface)' }}>
-                Work Email Address <span style={{ color: 'var(--color-error)' }}>*</span>
+              <label className="type-subheading block text-xs font-semibold text-slate-300 mb-1.5">
+                Work Email Address <span className="text-rose-500">*</span>
               </label>
               <input
                 type="email"
@@ -176,15 +151,15 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="input text-body-md w-full"
+                className="df-input w-full text-sm"
                 autoComplete="email"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-label-md font-semibold mb-1.5" style={{ color: 'var(--color-on-surface)' }}>
-                Password <span style={{ color: 'var(--color-error)' }}>*</span>
+              <label className="type-subheading block text-xs font-semibold text-slate-300 mb-1.5">
+                Password <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -193,7 +168,7 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="input text-body-md w-full pr-10"
+                  className="df-input w-full text-sm pr-10"
                   autoComplete="new-password"
                   minLength={6}
                 />
@@ -208,15 +183,15 @@ export default function SignupPage() {
                   </span>
                 </button>
               </div>
-              <p className="text-[11px] mt-1" style={{ color: 'var(--color-outline)' }}>
+              <p className="type-body-base text-[11px] text-slate-500 mt-1">
                 Must be at least 6 characters.
               </p>
             </div>
 
             {/* Role Selection */}
             <div>
-              <label className="block text-label-md font-semibold mb-2" style={{ color: 'var(--color-on-surface)' }}>
-                Select Your Role <span style={{ color: 'var(--color-error)' }}>*</span>
+              <label className="type-subheading block text-xs font-semibold text-slate-300 mb-2">
+                Select Your Role <span className="text-rose-500">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {ROLES.map((r) => {
@@ -225,12 +200,11 @@ export default function SignupPage() {
                     <div
                       key={r.id}
                       onClick={() => setRole(r.id)}
-                      className={`p-3 rounded-xl cursor-pointer transition-all border ${isSelected ? 'ring-2' : ''}`}
-                      style={{
-                        background: isSelected ? 'var(--color-surface-container-high)' : 'var(--color-surface-container)',
-                        borderColor: isSelected ? r.color : 'color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-                        boxShadow: isSelected ? `0 0 16px ${r.color}25` : 'none',
-                      }}
+                      className={`p-3.5 rounded-xl cursor-pointer transition-all border ${
+                        isSelected
+                          ? 'bg-slate-800 border-indigo-500 shadow-md ring-1 ring-indigo-500/50'
+                          : 'bg-slate-800/50 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600'
+                      }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="material-symbols-outlined text-lg" style={{ color: r.color }}>
@@ -238,12 +212,12 @@ export default function SignupPage() {
                         </span>
                         <span className="text-xs font-bold text-white flex-1">{r.label}</span>
                         {isSelected && (
-                          <span className="material-symbols-outlined text-sm" style={{ color: r.color }}>
+                          <span className="material-symbols-outlined text-sm text-indigo-400">
                             check_circle
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] leading-tight" style={{ color: 'var(--color-outline)' }}>
+                      <p className="type-body-base text-[11px] text-slate-400 leading-tight">
                         {r.desc}
                       </p>
                     </div>
@@ -254,28 +228,14 @@ export default function SignupPage() {
 
             {/* Error Message */}
             {error && (
-              <div
-                className="rounded-lg px-4 py-3 text-body-sm animate-in fade-in"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-error) 15%, transparent)',
-                  color: 'var(--color-error)',
-                  border: '1px solid color-mix(in srgb, var(--color-error) 30%, transparent)',
-                }}
-              >
+              <div className="rounded-xl px-4 py-3 text-xs bg-rose-950/40 text-rose-400 border border-rose-800/60 animate-in fade-in">
                 {error}
               </div>
             )}
 
             {/* Success Message */}
             {success && (
-              <div
-                className="rounded-lg px-4 py-3 text-body-sm animate-in fade-in flex items-center gap-2"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-tertiary) 15%, transparent)',
-                  color: 'var(--color-tertiary)',
-                  border: '1px solid color-mix(in srgb, var(--color-tertiary) 30%, transparent)',
-                }}
-              >
+              <div className="rounded-xl px-4 py-3 text-xs bg-emerald-950/40 text-emerald-400 border border-emerald-800/60 animate-in fade-in flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">check_circle</span>
                 <span>Account created successfully! Redirecting to dashboard...</span>
               </div>
@@ -292,18 +252,17 @@ export default function SignupPage() {
               ) : (
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>how_to_reg</span>
               )}
-              {loading ? 'Creating account...' : success ? 'Redirecting...' : 'Create Account & Sign In'}
+              <span>{loading ? 'Creating account...' : success ? 'Redirecting...' : 'Create Account & Sign In'}</span>
             </button>
           </form>
 
           {/* Already have an account footer */}
-          <div className="mt-6 pt-6 border-t text-center" style={{ borderColor: 'var(--color-outline-variant)' }}>
-            <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <div className="mt-6 pt-6 border-t border-slate-800 text-center">
+            <p className="type-body-base text-xs text-slate-400">
               Already have an account?{' '}
               <Link
                 href="/login"
-                className="font-bold transition hover:underline"
-                style={{ color: 'var(--color-primary)' }}
+                className="font-bold text-indigo-400 hover:text-indigo-300 hover:underline"
               >
                 Sign In
               </Link>

@@ -89,7 +89,7 @@ export default function DealHealthPage() {
       <div className="p-8 max-w-7xl mx-auto space-y-8">
         {/* Toast */}
         {toastMsg && (
-          <div className="fixed top-20 right-8 z-50 bg-emerald-600 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
+          <div className="fixed top-20 right-8 z-50 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce">
             <span className="material-symbols-outlined">check_circle</span>
             <span className="text-sm font-semibold">{toastMsg}</span>
           </div>
@@ -98,12 +98,12 @@ export default function DealHealthPage() {
         {/* Top Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-red-400 uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+            <div className="flex items-center gap-2 type-subheading text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
               LIVE AUDIT MONITOR • ANOMALY DETECTOR v4.2
             </div>
-            <h1 className="text-3xl font-black text-white mt-1">Deal Health & Anomaly Dashboard</h1>
-            <p className="text-sm text-slate-400 mt-1 max-w-3xl">
+            <h1 className="text-heading-1 font-bold text-slate-900 dark:text-white mt-1">Deal Health & Anomaly Dashboard</h1>
+            <p className="type-body-base text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
               Real-time automated diagnostic flags for stalled pipeline deals, discount margin leaks, and delivery SLA risks.
             </p>
           </div>
@@ -111,7 +111,7 @@ export default function DealHealthPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => triggerToast('Full pipeline rescan completed. 0 new anomalies detected.')}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg transition flex items-center gap-2"
+              className="btn-primary flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-base">autorenew</span>
               <span>Force Rescan</span>
@@ -122,154 +122,158 @@ export default function DealHealthPage() {
         {/* 3 Bento Pillar Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1: Stalled Deals */}
-          <div className="glass-card p-6 space-y-4 relative overflow-hidden">
+          <div className="df-card p-6 space-y-4 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <div className="type-subheading text-xs text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm">pause_circle</span>
                   Velocity Bottleneck
                 </div>
-                <h3 className="text-xl font-bold text-white mt-1">Stalled Deals</h3>
+                <h3 className="text-heading-3 font-bold text-slate-900 dark:text-white mt-1">Stalled Deals</h3>
               </div>
-              <span className="text-4xl font-black text-amber-400">05</span>
+              <span className="text-display font-bold text-amber-500 dark:text-amber-400">05</span>
             </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs text-slate-400">
+            <div className="space-y-1.5">
+              <div className="flex justify-between type-body-base text-xs text-slate-500 dark:text-slate-400">
                 <span>Quotes idle &gt; 7 days</span>
-                <span className="text-amber-300 font-semibold">$1.42M ARR at risk</span>
+                <span className="text-amber-600 dark:text-amber-400 font-semibold">$1.42M ARR at risk</span>
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-amber-400 h-full w-2/3"></div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="bg-amber-500 h-full w-2/3 rounded-full"></div>
               </div>
             </div>
           </div>
 
           {/* Card 2: Discount Anomalies */}
-          <div className="glass-card p-6 space-y-4 relative overflow-hidden">
+          <div className="df-card p-6 space-y-4 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-red-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <div className="type-subheading text-xs text-rose-600 dark:text-rose-400 font-bold uppercase tracking-wider flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm">percent</span>
                   Margin Leakage
                 </div>
-                <h3 className="text-xl font-bold text-white mt-1">Discount Anomalies</h3>
+                <h3 className="text-heading-3 font-bold text-slate-900 dark:text-white mt-1">Discount Anomalies</h3>
               </div>
-              <span className="text-4xl font-black text-red-400">02</span>
+              <span className="text-display font-bold text-rose-500 dark:text-rose-400">02</span>
             </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs text-slate-400">
+            <div className="space-y-1.5">
+              <div className="flex justify-between type-body-base text-xs text-slate-500 dark:text-slate-400">
                 <span>Exceeds peer limit &gt; 14%</span>
-                <span className="text-red-300 font-semibold">-$218k Gross Margin</span>
+                <span className="text-rose-600 dark:text-rose-400 font-semibold">-$218k Gross Margin</span>
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-red-400 h-full w-[84%]"></div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="bg-rose-500 h-full w-[84%] rounded-full"></div>
               </div>
             </div>
           </div>
 
           {/* Card 3: Delivery Slippage */}
-          <div className="glass-card p-6 space-y-4 relative overflow-hidden">
+          <div className="df-card p-6 space-y-4 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-purple-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                <div className="type-subheading text-xs text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm">local_shipping</span>
                   SLA Commitment Risk
                 </div>
-                <h3 className="text-xl font-bold text-white mt-1">Delivery Slippage</h3>
+                <h3 className="text-heading-3 font-bold text-slate-900 dark:text-white mt-1">Delivery Slippage</h3>
               </div>
-              <span className="text-4xl font-black text-purple-400">03</span>
+              <span className="text-display font-bold text-purple-500 dark:text-purple-400">03</span>
             </div>
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs text-slate-400">
+            <div className="space-y-1.5">
+              <div className="flex justify-between type-body-base text-xs text-slate-500 dark:text-slate-400">
                 <span>Warehouse transit delays</span>
-                <span className="text-purple-300 font-semibold">3 Enterprise Accounts</span>
+                <span className="text-purple-600 dark:text-purple-400 font-semibold">3 Enterprise Accounts</span>
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-purple-400 h-full w-[45%]"></div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="bg-purple-500 h-full w-[45%] rounded-full"></div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Filter Ribbon */}
-        <div className="glass-card p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-400 mr-2">Filter Pillar:</span>
+        <div className="df-card p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="type-subheading text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2">Filter Pillar:</span>
             {['All', 'Stalled Deal', 'Discount Anomaly', 'Delivery Slippage'].map((p) => (
               <button
                 key={p}
                 onClick={() => setPillarFilter(p)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                  pillarFilter === p ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                  pillarFilter === p
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {p}
               </button>
             ))}
           </div>
-          <div className="text-xs text-slate-400">
-            Showing <span className="text-white font-semibold">{filtered.length}</span> active anomalies
+          <div className="type-body-base text-xs text-slate-500 dark:text-slate-400">
+            Showing <span className="text-slate-900 dark:text-white font-semibold">{filtered.length}</span> active anomalies
           </div>
         </div>
 
         {/* Active Anomalies Table */}
-        <div className="glass-card overflow-hidden">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-900/80 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
-              <tr>
-                <th className="px-6 py-4">Anomaly ID</th>
-                <th className="px-6 py-4">Pillar</th>
-                <th className="px-6 py-4">Account / Quote</th>
-                <th className="px-6 py-4">Metric Diagnostic</th>
-                <th className="px-6 py-4">Impact</th>
-                <th className="px-6 py-4">Severity</th>
-                <th className="px-6 py-4 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {filtered.map((a) => (
-                <tr key={a.id} className={`hover:bg-slate-800/40 transition ${a.status === 'Resolved' ? 'opacity-40' : ''}`}>
-                  <td className="px-6 py-4 font-mono font-medium text-indigo-400">{a.id}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${
-                      a.pillar === 'Stalled Deal' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                      a.pillar === 'Discount Anomaly' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                      'bg-purple-500/10 text-purple-300 border-purple-500/20'
-                    }`}>
-                      {a.pillar}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-white">{a.account}</div>
-                    <div className="text-xs text-slate-400 font-mono">Ref: {a.quotationRef} • Owner: {a.owner}</div>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-slate-300 max-w-xs">{a.metric}</td>
-                  <td className="px-6 py-4 text-xs font-mono font-bold text-red-400">{a.impact}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-0.5 text-xs font-bold rounded ${
-                      a.severity === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
-                    }`}>
-                      {a.severity}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    {a.status === 'Open' ? (
-                      <button
-                        onClick={() => handleResolve(a.id)}
-                        className="px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition shadow"
-                      >
-                        {a.suggestedAction}
-                      </button>
-                    ) : (
-                      <span className="text-xs text-emerald-400 font-bold flex items-center justify-center gap-1">
-                        <span className="material-symbols-outlined text-xs">check_circle</span> Resolved
-                      </span>
-                    )}
-                  </td>
+        <div className="df-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="df-table">
+              <thead>
+                <tr>
+                  <th>Anomaly ID</th>
+                  <th>Pillar</th>
+                  <th>Account / Quote</th>
+                  <th>Metric Diagnostic</th>
+                  <th>Impact</th>
+                  <th>Severity</th>
+                  <th className="text-center">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((a) => (
+                  <tr key={a.id} className={`transition ${a.status === 'Resolved' ? 'opacity-40' : ''}`}>
+                    <td className="font-mono font-medium text-indigo-600 dark:text-indigo-400">{a.id}</td>
+                    <td>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                        a.pillar === 'Stalled Deal' ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800' :
+                        a.pillar === 'Discount Anomaly' ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800' :
+                        'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800'
+                      }`}>
+                        {a.pillar}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="font-semibold text-slate-900 dark:text-white">{a.account}</div>
+                      <div className="type-body-base text-xs text-slate-500 dark:text-slate-400 font-mono">Ref: {a.quotationRef} • Owner: {a.owner}</div>
+                    </td>
+                    <td className="type-body-base text-xs text-slate-600 dark:text-slate-300 max-w-xs">{a.metric}</td>
+                    <td className="font-mono font-bold text-rose-600 dark:text-rose-400 text-xs">{a.impact}</td>
+                    <td>
+                      <span className={`badge ${
+                        a.severity === 'High' ? 'badge-danger' : 'badge-warning'
+                      }`}>
+                        {a.severity}
+                      </span>
+                    </td>
+                    <td className="text-center">
+                      {a.status === 'Open' ? (
+                        <button
+                          onClick={() => handleResolve(a.id)}
+                          className="btn-primary text-xs px-3 py-1.5"
+                        >
+                          {a.suggestedAction}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold flex items-center justify-center gap-1">
+                          <span className="material-symbols-outlined text-xs">check_circle</span> Resolved
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </AppLayout>

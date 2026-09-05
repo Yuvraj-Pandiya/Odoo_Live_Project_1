@@ -71,10 +71,10 @@ export default function QuotationsPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-h1">Quotations</h1>
+                <h1 className="text-heading-1 text-slate-900">Quotations</h1>
                 <span className="badge badge-primary">CPQ CORE</span>
               </div>
-              <p className="text-body mt-1">
+              <p className="text-body-lg text-slate-600 mt-1">
                 Every quotation in the system — click a row to open details
               </p>
             </div>
@@ -91,7 +91,7 @@ export default function QuotationsPage() {
                   style={{ width: '240px' }}
                 />
               </div>
-              <Link href="/quotations/new" className="btn-primary">
+              <Link href="/quotations/new" className="btn-primary text-body-base">
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
                 New Quotation
               </Link>

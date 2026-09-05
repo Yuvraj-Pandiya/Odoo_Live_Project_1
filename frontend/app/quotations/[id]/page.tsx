@@ -70,18 +70,18 @@ export default function QuotationDetailPage() {
         {/* ── Breadcrumb + Header ────────────────────────────────── */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <nav className="flex items-center gap-2 text-label-md mb-2" style={{ color: 'var(--color-outline)' }}>
-              <Link href="/quotations" className="flex items-center gap-1 hover:text-[var(--color-on-surface)] transition-colors">
+            <nav className="flex items-center gap-2 text-subheading mb-2 text-slate-500">
+              <Link href="/quotations" className="flex items-center gap-1 hover:text-slate-900 transition-colors">
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>receipt_long</span>
                 Quotations
               </Link>
-              <span style={{ color: 'var(--color-outline-variant)' }}>/</span>
-              <span style={{ color: 'var(--color-primary)' }} className="text-headline-sm">{q.quoteNumber}</span>
-              <span style={{ color: 'var(--color-outline-variant)' }}>/</span>
-              <span style={{ color: 'var(--color-on-surface)' }}>{q.customer?.name}</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-indigo-600 font-semibold">{q.quoteNumber}</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-800">{q.customer?.name}</span>
             </nav>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-headline-lg" style={{ color: 'var(--color-on-surface)' }}>
+              <h1 className="text-heading-1 text-slate-900">
                 Quotation Detail: {q.quoteNumber}
               </h1>
               <span className={`badge ${STATUS_BADGE[q.status] || 'badge-outline'}`}>{q.status?.replace(/_/g, ' ')}</span>
@@ -90,19 +90,19 @@ export default function QuotationDetailPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {q.portalToken && (
-              <Link href={`/portal/${q.portalToken}`} className="btn-ghost">
+              <Link href={`/portal/${q.portalToken}`} className="btn-ghost text-body-base">
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>open_in_new</span>
                 Customer Portal
               </Link>
             )}
             {q.status === 'DRAFT' && (
-              <button onClick={handleSubmit} disabled={submitting} className="btn-primary">
+              <button onClick={handleSubmit} disabled={submitting} className="btn-primary text-body-base">
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>send</span>
                 {submitting ? 'Submitting...' : 'Submit for Approval'}
               </button>
             )}
             {(q.status === 'PENDING_APPROVAL') && (
-              <Link href="/approvals" className="btn-secondary">
+              <Link href="/approvals" className="btn-secondary text-body-base">
                 <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>approval</span>
                 View Approval Queue
               </Link>
@@ -115,19 +115,15 @@ export default function QuotationDetailPage() {
           <div className="xl:col-span-3 flex flex-col gap-6">
             {/* Customer + Financials Card */}
             <div
-              className="rounded-xl p-5"
-              style={{
-                background: 'var(--color-surface-container-low)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-              }}
+              className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs"
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <h3 className="text-label-md mb-2" style={{ color: 'var(--color-outline)' }}>CUSTOMER</h3>
-                  <p className="text-headline-sm" style={{ color: 'var(--color-on-surface)' }}>{q.customer?.name}</p>
-                  <p className="text-body-sm mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>{q.customer?.company}</p>
-                  <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{q.customer?.email}</p>
-                  <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{q.customer?.phone}</p>
+                  <h3 className="text-subheading text-slate-500 mb-2 uppercase tracking-wider">CUSTOMER</h3>
+                  <p className="text-heading-3 text-slate-900">{q.customer?.name}</p>
+                  <p className="text-body-base text-slate-600 mt-0.5">{q.customer?.company}</p>
+                  <p className="text-body-base text-slate-600">{q.customer?.email}</p>
+                  <p className="text-body-base text-slate-600">{q.customer?.phone}</p>
                   {q.customer?.tier && (
                     <span className={`badge mt-2 ${q.customer.tier === 'GOLD' ? 'badge-warning' : q.customer.tier === 'SILVER' ? 'badge-outline' : 'badge-muted'}`}>
                       {q.customer.tier}
@@ -135,20 +131,20 @@ export default function QuotationDetailPage() {
                   )}
                 </div>
                 <div>
-                  <h3 className="text-label-md mb-2" style={{ color: 'var(--color-outline)' }}>SALES REP</h3>
-                  <p className="text-headline-sm" style={{ color: 'var(--color-on-surface)' }}>{q.salesRep?.fullName}</p>
-                  <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{q.salesRep?.email}</p>
+                  <h3 className="text-subheading text-slate-500 mb-2 uppercase tracking-wider">SALES REP</h3>
+                  <p className="text-heading-3 text-slate-900">{q.salesRep?.fullName}</p>
+                  <p className="text-body-base text-slate-600">{q.salesRep?.email}</p>
                   {q.validUntil && (
                     <div className="mt-3">
-                      <h3 className="text-label-md mb-1" style={{ color: 'var(--color-outline)' }}>VALID UNTIL</h3>
-                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface)' }}>
+                      <h3 className="text-subheading text-slate-500 mb-1 uppercase tracking-wider">VALID UNTIL</h3>
+                      <p className="text-body-base text-slate-800">
                         {new Date(q.validUntil).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </p>
                     </div>
                   )}
                 </div>
                 <div>
-                  <h3 className="text-label-md mb-2" style={{ color: 'var(--color-outline)' }}>FINANCIALS</h3>
+                  <h3 className="text-subheading text-slate-500 mb-2 uppercase tracking-wider">FINANCIALS</h3>
                   <div className="flex flex-col gap-1.5">
                     {[
                       { label: 'Subtotal', value: q.subtotal },
@@ -156,16 +152,16 @@ export default function QuotationDetailPage() {
                       { label: 'Tax', value: q.taxTotal },
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between">
-                        <span className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>{item.label}</span>
-                        <span className="text-body-sm" style={{ color: item.value < 0 ? 'var(--color-error)' : 'var(--color-on-surface)' }}>
+                        <span className="text-body-base text-slate-600">{item.label}</span>
+                        <span className="text-body-base" style={{ color: item.value < 0 ? '#dc2626' : '#0f172a' }}>
                           {item.value < 0 ? '-' : ''}${Math.abs(item.value || 0).toFixed(2)}
                         </span>
                       </div>
                     ))}
-                    <div style={{ height: '1px', background: 'var(--color-outline-variant)', margin: '0.25rem 0' }} />
-                    <div className="flex justify-between">
-                      <span className="text-headline-sm" style={{ color: 'var(--color-on-surface)' }}>Grand Total</span>
-                      <span className="text-meta-numeric" style={{ color: 'var(--color-primary)' }}>
+                    <div className="h-px bg-slate-200 my-1" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-heading-3 text-slate-900">Grand Total</span>
+                      <span className="text-display text-slate-900">
                         ${(q.grandTotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
@@ -177,16 +173,12 @@ export default function QuotationDetailPage() {
             {/* Risk Warning */}
             {q.riskLevel === 'HIGH' && (
               <div
-                className="rounded-xl p-4 flex items-start gap-3"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-error) 10%, transparent)',
-                  border: '1px solid color-mix(in srgb, var(--color-error) 30%, transparent)',
-                }}
+                className="rounded-xl p-4 flex items-start gap-3 bg-red-50 border border-red-200"
               >
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-error)', fontSize: '22px', marginTop: '2px' }}>warning</span>
+                <span className="material-symbols-outlined text-red-600 shrink-0 mt-0.5" style={{ fontSize: '22px' }}>warning</span>
                 <div>
-                  <p className="text-headline-sm" style={{ color: 'var(--color-error)' }}>High Risk — Dual Approval Required</p>
-                  <p className="text-body-sm mt-0.5" style={{ color: 'var(--color-on-surface-variant)' }}>
+                  <p className="text-heading-3 text-red-700">High Risk — Dual Approval Required</p>
+                  <p className="text-body-base text-red-600 mt-0.5">
                     Blended risk score {q.blendedRiskScore} ≥ 8. Both Manager and Finance approval required before confirmation.
                   </p>
                 </div>
@@ -195,14 +187,10 @@ export default function QuotationDetailPage() {
 
             {/* Line Items */}
             <div
-              className="rounded-xl overflow-hidden"
-              style={{
-                background: 'var(--color-surface-container-low)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-              }}
+              className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs"
             >
-              <div className="px-5 py-4" style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)' }}>
-                <h2 className="text-headline-sm" style={{ color: 'var(--color-on-surface)' }}>Product Line Items</h2>
+              <div className="px-5 py-4 border-b border-slate-200">
+                <h2 className="text-heading-2 text-slate-900">Product Line Items</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="df-table">
@@ -224,27 +212,27 @@ export default function QuotationDetailPage() {
                       return (
                         <tr key={line.id} style={{ cursor: 'default' }}>
                           <td style={{ minWidth: '200px' }}>
-                            <span style={{ color: 'var(--color-on-surface)' }}>{line.description || `Product #${line.productId}`}</span>
+                            <span className="text-slate-900 font-medium">{line.description || `Product #${line.productId}`}</span>
                           </td>
                           <td>
                             <span className={`badge ${line.lineType === 'RECURRING' ? 'badge-confirmed' : 'badge-outline'}`}>
                               {line.lineType === 'RECURRING' ? '🔄 Recurring' : 'One-time'}
                             </span>
                           </td>
-                          <td><span className="text-meta-numeric">{line.quantity}</span></td>
-                          <td><span className="text-meta-numeric">${line.unitPrice?.toFixed(2)}</span></td>
+                          <td><span>{line.quantity}</span></td>
+                          <td><span>${line.unitPrice?.toFixed(2)}</span></td>
                           <td>
                             <span className={`badge ${overLimit ? 'badge-error' : 'badge-outline'}`}>
                               {line.discountPct}%
                               {overLimit && <span className="ml-1">⚠</span>}
                             </span>
-                            <div className="text-label-sm mt-0.5" style={{ color: 'var(--color-outline)' }}>
+                            <div className="text-caption mt-0.5 text-slate-400">
                               Allowed: {line.discountAllowed}%
                             </div>
                           </td>
                           <td><span>{line.taxPct}%</span></td>
                           <td>
-                            <span className="text-meta-numeric" style={{ color: 'var(--color-on-surface)' }}>
+                            <span className="font-semibold text-slate-900">
                               ${line.lineTotal?.toFixed(2)}
                             </span>
                           </td>
@@ -268,31 +256,27 @@ export default function QuotationDetailPage() {
           <div className="flex flex-col gap-4">
             {/* Approval Chain */}
             <div
-              className="rounded-xl p-4"
-              style={{
-                background: 'var(--color-surface-container-low)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
-              }}
+              className="rounded-xl p-5 bg-white border border-slate-200 shadow-xs"
             >
-              <h3 className="text-headline-sm mb-4" style={{ color: 'var(--color-on-surface)' }}>Approval Chain</h3>
+              <h3 className="text-heading-3 text-slate-900 mb-4">Approval Chain</h3>
               <div className="flex flex-col gap-3">
                 {(q.approvals || []).map((approval: any, idx: number) => (
                   <div key={idx} className="flex items-center gap-3">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                       style={{
-                        background: approval.status === 'APPROVED' ? 'color-mix(in srgb, var(--color-tertiary) 20%, transparent)' :
-                          approval.status === 'REJECTED' ? 'color-mix(in srgb, var(--color-error) 20%, transparent)' :
-                          'var(--color-surface-container-high)',
-                        color: approval.status === 'APPROVED' ? 'var(--color-tertiary)' :
-                          approval.status === 'REJECTED' ? 'var(--color-error)' : 'var(--color-outline)',
+                        background: approval.status === 'APPROVED' ? '#dcfce7' :
+                          approval.status === 'REJECTED' ? '#fee2e2' :
+                          '#f1f5f9',
+                        color: approval.status === 'APPROVED' ? '#15803d' :
+                          approval.status === 'REJECTED' ? '#b91c1c' : '#64748b',
                       }}
                     >
                       {idx + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-label-md" style={{ color: 'var(--color-on-surface)' }}>{approval.level}</p>
-                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+                      <p className="text-subheading text-slate-900">{approval.level}</p>
+                      <p className="text-body-base text-slate-500">
                         {approval.approver?.fullName || 'Unassigned'}
                       </p>
                     </div>
@@ -302,11 +286,11 @@ export default function QuotationDetailPage() {
                   </div>
                 ))}
                 {!(q.approvals?.length) && (
-                  <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>No approval chain assigned yet.</p>
+                  <p className="text-body-base text-slate-500">No approval chain assigned yet.</p>
                 )}
               </div>
               {q.status === 'PENDING_APPROVAL' && (
-                <Link href="/approvals" className="btn-secondary w-full justify-center mt-4" style={{ padding: '0.5rem' }}>
+                <Link href="/approvals" className="btn-secondary w-full justify-center mt-4 text-body-base" style={{ padding: '0.5rem' }}>
                   Go to Approval Queue
                 </Link>
               )}
@@ -315,22 +299,18 @@ export default function QuotationDetailPage() {
             {/* Upsell Recommendations */}
             {upsells.length > 0 && (
               <div
-                className="rounded-xl p-4"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-primary-container) 8%, transparent)',
-                  border: '1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)',
-                }}
+                className="rounded-xl p-5 bg-slate-50 border border-slate-200"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: '18px' }}>auto_awesome</span>
-                  <h3 className="text-headline-sm" style={{ color: 'var(--color-primary)' }}>Upsell Recommendations</h3>
+                  <span className="material-symbols-outlined text-indigo-600" style={{ fontSize: '18px' }}>auto_awesome</span>
+                  <h3 className="text-heading-3 text-slate-900">Upsell Recommendations</h3>
                 </div>
                 {upsells.map((item: any) => (
-                  <div key={item.id} className="flex items-center gap-3 py-2" style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-outline-variant) 20%, transparent)' }}>
-                    <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)', fontSize: '18px' }}>add_shopping_cart</span>
+                  <div key={item.id} className="flex items-center gap-3 py-2 border-b border-slate-200 last:border-0">
+                    <span className="material-symbols-outlined text-slate-500" style={{ fontSize: '18px' }}>add_shopping_cart</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface)' }}>{item.suggestProduct?.name || `Product #${item.suggestProductId}`}</p>
-                      <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>
+                      <p className="text-body-base text-slate-900 font-medium">{item.suggestProduct?.name || `Product #${item.suggestProductId}`}</p>
+                      <p className="text-caption text-slate-500">
                         ${item.suggestProduct?.basePrice?.toFixed(2) || '—'}/unit
                       </p>
                     </div>
@@ -342,20 +322,16 @@ export default function QuotationDetailPage() {
             {/* Portal Link */}
             {q.portalToken && (
               <div
-                className="rounded-xl p-4"
-                style={{
-                  background: 'color-mix(in srgb, var(--color-tertiary) 8%, transparent)',
-                  border: '1px solid color-mix(in srgb, var(--color-tertiary) 20%, transparent)',
-                }}
+                className="rounded-xl p-5 bg-emerald-50 border border-emerald-200"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-tertiary)', fontSize: '18px' }}>group</span>
-                  <h3 className="text-headline-sm" style={{ color: 'var(--color-tertiary)' }}>Customer Portal</h3>
+                  <span className="material-symbols-outlined text-emerald-700" style={{ fontSize: '18px' }}>group</span>
+                  <h3 className="text-heading-3 text-emerald-900">Customer Portal</h3>
                 </div>
-                <p className="text-body-sm mb-3" style={{ color: 'var(--color-on-surface-variant)' }}>
+                <p className="text-body-base text-emerald-800 mb-3">
                   Customer can view and negotiate this quotation in real-time.
                 </p>
-                <Link href={`/portal/${q.portalToken}`} className="btn-ghost w-full justify-center" style={{ padding: '0.5rem', color: 'var(--color-tertiary)', border: '1px solid color-mix(in srgb, var(--color-tertiary) 30%, transparent)' }}>
+                <Link href={`/portal/${q.portalToken}`} className="btn-ghost w-full justify-center text-emerald-700 border-emerald-300 hover:bg-emerald-100" style={{ padding: '0.5rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>open_in_new</span>
                   Open Portal
                 </Link>

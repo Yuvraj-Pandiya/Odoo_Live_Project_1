@@ -21,17 +21,17 @@ export default function CustomersPage() {
 
   return (
     <AppLayout>
-      <div className="p-8 space-y-6">
+      <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Customers</h1>
-            <p className="text-sm mt-1" style={{ color: 'hsl(215 20% 65%)' }}>Manage your customer accounts and tiers</p>
+            <h1 className="text-heading-1 text-slate-900">Customers</h1>
+            <p className="text-body-lg text-slate-600 mt-1">Manage your customer accounts and commercial tiers</p>
           </div>
-          <button className="btn-primary"><Plus size={14} /> Add Customer</button>
+          <button className="btn-primary text-body-base"><Plus size={15} /> Add Customer</button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 glass-card overflow-hidden">
+          <div className="lg:col-span-2 rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs">
             <table className="df-table">
               <thead>
                 <tr>
@@ -45,16 +45,19 @@ export default function CustomersPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={6} className="py-8 text-center" style={{ color: 'hsl(215 15% 45%)' }}>Loading…</td></tr>
+                  <tr><td colSpan={6} className="py-8 text-center text-body-base text-slate-500">Loading customer accounts…</td></tr>
                 ) : customers.map((c: any) => {
-                  const tc = TIER_COLOR[c.tier] || TIER_COLOR.BRONZE;
                   return (
                     <tr key={c.id} onClick={() => setSelected(c)}>
-                      <td className="font-medium text-white">{c.name}</td>
-                      <td style={{ color: 'hsl(215 20% 65%)' }}>{c.company || '—'}</td>
-                      <td style={{ color: 'hsl(215 20% 65%)' }}>{c.email}</td>
-                      <td><span className="badge" style={tc}>{c.tier}</span></td>
-                      <td style={{ color: 'hsl(215 20% 65%)' }}>{c.currency}</td>
+                      <td className="font-semibold text-slate-900">{c.name}</td>
+                      <td className="text-slate-600">{c.company || '—'}</td>
+                      <td className="text-slate-600">{c.email}</td>
+                      <td>
+                        <span className={`badge ${c.tier === 'GOLD' ? 'badge-warning' : c.tier === 'SILVER' ? 'badge-outline' : 'badge-muted'}`}>
+                          {c.tier}
+                        </span>
+                      </td>
+                      <td className="text-slate-600 font-mono">{c.currency}</td>
                       <td><span className={`badge ${c.isActive ? 'badge-success' : 'badge-muted'}`}>{c.isActive ? 'Active' : 'Inactive'}</span></td>
                     </tr>
                   );
@@ -65,17 +68,18 @@ export default function CustomersPage() {
 
           <div>
             {!selected ? (
-              <div className="glass-card p-8 text-center">
-                <Users size={24} className="mx-auto mb-3" style={{ color: 'hsl(215 15% 45%)' }} />
-                <p className="text-sm" style={{ color: 'hsl(215 20% 65%)' }}>Select a customer to view</p>
+              <div className="rounded-xl p-10 text-center bg-white border border-slate-200 shadow-xs">
+                <Users size={28} className="mx-auto mb-3 text-slate-400" />
+                <p className="text-heading-3 text-slate-800">Select a customer</p>
+                <p className="text-body-base text-slate-500 mt-1">View account profile and direct portal token</p>
               </div>
             ) : (
-              <div className="glass-card p-5 space-y-4">
+              <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs space-y-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-white">{selected.name}</h3>
-                  <span className="badge" style={TIER_COLOR[selected.tier]}>{selected.tier}</span>
+                  <h3 className="text-heading-3 text-slate-900">{selected.name}</h3>
+                  <span className={`badge ${selected.tier === 'GOLD' ? 'badge-warning' : selected.tier === 'SILVER' ? 'badge-outline' : 'badge-muted'}`}>{selected.tier}</span>
                 </div>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2.5 text-body-base">
                   {[
                     ['Company',  selected.company || '—'],
                     ['Email',    selected.email],
@@ -84,19 +88,18 @@ export default function CustomersPage() {
                     ['Country',  selected.country || '—'],
                     ['Currency', selected.currency],
                   ].map(([l, v]) => (
-                    <div key={l as string} className="flex justify-between">
-                      <span style={{ color: 'hsl(215 20% 65%)' }}>{l}</span>
-                      <span className="font-medium text-white">{v as string}</span>
+                    <div key={l as string} className="flex justify-between py-1 border-b border-slate-100 last:border-0">
+                      <span className="text-slate-500">{l}</span>
+                      <span className="font-medium text-slate-900">{v as string}</span>
                     </div>
                   ))}
                 </div>
                 {selected.portalToken && (
-                  <div>
-                    <p className="text-xs font-semibold mb-2" style={{ color: 'hsl(215 20% 65%)' }}>PORTAL LINK</p>
+                  <div className="pt-2">
+                    <p className="text-caption font-bold text-slate-500 uppercase tracking-wider mb-2">CUSTOMER PORTAL LINK</p>
                     <a href={`/portal/${selected.portalToken}`} target="_blank"
-                       className="text-xs block p-2 rounded font-mono break-all"
-                       style={{ background: 'hsl(222 47% 15%)', color: 'hsl(220 90% 70%)' }}>
-                      /portal/{selected.portalToken?.substring(0,16)}…
+                       className="text-xs block p-2.5 rounded-lg font-mono break-all bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition">
+                      /portal/{selected.portalToken?.substring(0,20)}…
                     </a>
                   </div>
                 )}
