@@ -91,17 +91,17 @@ public class QuotationController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<Quotation>> listAll(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails != null) {
-            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-            if (user != null && user.getRole() == User.UserRole.SALES_REP) {
-                return ResponseEntity.ok(quotationRepository.findBySalesRepIdOrderByCreatedAtDesc(user.getId()));
-            }
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        if (user.getRole() == User.UserRole.SALES_REP) {
+            return ResponseEntity.ok(quotationRepository.findBySalesRepIdOrderByCreatedAtDesc(user.getId()));
         }
         return ResponseEntity.ok(quotationRepository.findAllOrderByCreatedAtDesc());
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Quotation> getById(@PathVariable Long id) {
         return quotationRepository.findById(id)
             .map(ResponseEntity::ok)
@@ -109,26 +109,23 @@ public class QuotationController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Quotation> create(
         @RequestBody(required = false) CreateQuotationRequest req,
         @AuthenticationPrincipal UserDetails userDetails
     ) {
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         Long customerId = req != null ? req.getEffectiveCustomerId() : 1L;
-        Long repId = null;
-        if (userDetails != null) {
-            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-            if (user != null) repId = user.getId();
-        }
-        if (repId == null && req != null && req.getEffectiveSalesRepId() != null) {
+        Long repId = user.getId();
+        if ((user.getRole() == User.UserRole.MANAGER || user.getRole() == User.UserRole.ADMIN) 
+                && req != null && req.getEffectiveSalesRepId() != null) {
             repId = req.getEffectiveSalesRepId();
-        }
-        if (repId == null) {
-            repId = 1L;
         }
         return ResponseEntity.ok(quotationService.createQuotation(customerId, repId));
     }
 
     @PostMapping({"/{id}/lines", "/{id}/line"})
+    @PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Quotation> addLine(
         @PathVariable Long id,
         @RequestBody(required = false) AddLineRequest req
@@ -140,36 +137,38 @@ public class QuotationController {
     }
 
     @PostMapping("/{id}/submit")
+    @PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Quotation> submit(
         @PathVariable Long id,
         @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = 1L;
-        if (userDetails != null) {
-            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-            if (user != null) userId = user.getId();
-        }
-        return ResponseEntity.ok(quotationService.submitForApproval(id, userId));
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        return ResponseEntity.ok(quotationService.submitForApproval(id, user.getId()));
     }
 
     @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAnyRole('MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Quotation> approve(
         @PathVariable Long id,
         @RequestParam(name = "level", required = false) String levelParam,
         @RequestBody(required = false) ApprovalRequest req,
         @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = 1L;
-        if (userDetails != null) {
-            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-            if (user != null) userId = user.getId();
-        }
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
 
         Approval.ApprovalLevel level = Approval.ApprovalLevel.MANAGER;
         if (levelParam != null && !levelParam.isBlank()) {
             if (levelParam.trim().equalsIgnoreCase("FINANCE")) level = Approval.ApprovalLevel.FINANCE;
         } else if (req != null) {
             level = req.getEffectiveLevel(Approval.ApprovalLevel.MANAGER);
+        }
+
+        // Validate role matches required level
+        if (level == Approval.ApprovalLevel.FINANCE && user.getRole() == User.UserRole.MANAGER) {
+            throw new org.springframework.security.access.AccessDeniedException("Manager role cannot execute Finance level approval");
+        }
+        if (level == Approval.ApprovalLevel.MANAGER && user.getRole() == User.UserRole.FINANCE) {
+            throw new org.springframework.security.access.AccessDeniedException("Finance role cannot execute Manager level approval");
         }
 
         Approval.ApprovalStatus decision = req != null
@@ -177,21 +176,18 @@ public class QuotationController {
             : Approval.ApprovalStatus.APPROVED;
 
         String notes = req != null && req.notes != null ? req.notes : "Approved via API";
-        return ResponseEntity.ok(quotationService.processApproval(id, userId, level, decision, notes));
+        return ResponseEntity.ok(quotationService.processApproval(id, user.getId(), level, decision, notes));
     }
 
     @PostMapping("/{id}/reject")
+    @PreAuthorize("hasAnyRole('MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Quotation> reject(
         @PathVariable Long id,
         @RequestParam(name = "level", required = false) String levelParam,
         @RequestBody(required = false) ApprovalRequest req,
         @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = 1L;
-        if (userDetails != null) {
-            User user = userRepository.findByEmail(userDetails.getUsername()).orElse(null);
-            if (user != null) userId = user.getId();
-        }
+        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
 
         Approval.ApprovalLevel level = Approval.ApprovalLevel.MANAGER;
         if (levelParam != null && !levelParam.isBlank()) {
@@ -200,15 +196,23 @@ public class QuotationController {
             level = req.getEffectiveLevel(Approval.ApprovalLevel.MANAGER);
         }
 
+        if (level == Approval.ApprovalLevel.FINANCE && user.getRole() == User.UserRole.MANAGER) {
+            throw new org.springframework.security.access.AccessDeniedException("Manager role cannot execute Finance level rejection");
+        }
+        if (level == Approval.ApprovalLevel.MANAGER && user.getRole() == User.UserRole.FINANCE) {
+            throw new org.springframework.security.access.AccessDeniedException("Finance role cannot execute Manager level rejection");
+        }
+
         Approval.ApprovalStatus decision = req != null
             ? req.getEffectiveDecision(Approval.ApprovalStatus.REJECTED)
             : Approval.ApprovalStatus.REJECTED;
 
         String notes = req != null && req.notes != null ? req.notes : "Rejected via API";
-        return ResponseEntity.ok(quotationService.processApproval(id, userId, level, decision, notes));
+        return ResponseEntity.ok(quotationService.processApproval(id, user.getId(), level, decision, notes));
     }
 
     @GetMapping("/stats")
+    @PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> stats() {
         return ResponseEntity.ok(Map.of(
             "total",       quotationRepository.count(),

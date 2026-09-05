@@ -18,11 +18,13 @@ public class ProductController {
     private final UpsellRuleRepository upsellRuleRepository;
 
     @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<Product>> listAll() {
         return ResponseEntity.ok(productRepository.findByIsActiveTrue());
     }
 
     @GetMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Product> getById(@PathVariable Long id) {
         return productRepository.findById(id)
             .map(ResponseEntity::ok)
@@ -30,17 +32,20 @@ public class ProductController {
     }
 
     @GetMapping("/categories")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<ProductCategory>> listCategories() {
         return ResponseEntity.ok(categoryRepository.findAll());
     }
 
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Product> create(@RequestBody Product product) {
         product.setIsActive(true);
         return ResponseEntity.ok(productRepository.save(product));
     }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Product> update(@PathVariable Long id, @RequestBody Product updated) {
         return productRepository.findById(id).map(existing -> {
             existing.setName(updated.getName());
@@ -57,6 +62,7 @@ public class ProductController {
     }
 
     @GetMapping({"/upsell", "/upsell-recommendations", "/recommendations", "/upsell/recommendations"})
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<UpsellRule>> upsellRules(
         @RequestParam(name = "productIds", required = false) List<Long> productIds,
         @RequestParam(name = "product_ids", required = false) List<Long> productIdsSnake,

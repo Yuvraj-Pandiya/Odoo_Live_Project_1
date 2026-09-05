@@ -22,6 +22,7 @@ public class DashboardController {
     private final DealHealthService dealHealthService;
 
     @GetMapping("/stats")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Map<String, Object>> stats() {
         long totalQuotes   = quotationRepository.count();
         long pendingApprovals = approvalRepository.countByStatus(Approval.ApprovalStatus.PENDING);
@@ -37,16 +38,19 @@ public class DashboardController {
     }
 
     @GetMapping("/alerts")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<DealHealthAlert>> activeAlerts() {
         return ResponseEntity.ok(dealHealthService.getActiveAlerts());
     }
 
     @PostMapping("/alerts/{id}/resolve")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<DealHealthAlert> resolve(@PathVariable Long id, @RequestParam String action) {
         return ResponseEntity.ok(dealHealthService.resolveAlert(id, action));
     }
 
     @GetMapping("/approvals/pending")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<Approval>> pendingApprovals() {
         return ResponseEntity.ok(approvalRepository.findByStatusAndLevel(
             Approval.ApprovalStatus.PENDING, Approval.ApprovalLevel.MANAGER
@@ -54,6 +58,7 @@ public class DashboardController {
     }
 
     @GetMapping("/invoices")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('FINANCE', 'ADMIN')")
     public ResponseEntity<List<Invoice>> recentInvoices() {
         return ResponseEntity.ok(invoiceRepository.findByStatusOrderByCreatedAtDesc(Invoice.InvoiceStatus.UNPAID));
     }

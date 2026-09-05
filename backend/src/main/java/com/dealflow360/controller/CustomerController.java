@@ -18,11 +18,13 @@ public class CustomerController {
     private final CustomerRepository customerRepository;
 
     @GetMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<List<Customer>> listAll() {
         return ResponseEntity.ok(customerRepository.findAll());
     }
 
     @GetMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'FINANCE', 'ADMIN')")
     public ResponseEntity<Customer> getById(@PathVariable Long id) {
         return customerRepository.findById(id)
             .map(ResponseEntity::ok)
@@ -30,12 +32,14 @@ public class CustomerController {
     }
 
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Customer> create(@RequestBody Customer customer) {
         customer.setIsActive(true);
         return ResponseEntity.ok(customerRepository.save(customer));
     }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('SALES_REP', 'MANAGER', 'ADMIN')")
     public ResponseEntity<Customer> update(@PathVariable Long id, @RequestBody Customer updated) {
         return customerRepository.findById(id).map(existing -> {
             existing.setName(updated.getName());
