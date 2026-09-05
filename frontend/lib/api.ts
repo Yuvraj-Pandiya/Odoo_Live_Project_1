@@ -69,21 +69,38 @@ export const customerApi = {
 
 // ── Dashboard ───────────────────────────────────────────────
 export const dashboardApi = {
-  stats:           () => api.get('/api/dashboard/stats'),
-  alerts:          () => api.get('/api/dashboard/alerts'),
-  resolveAlert:    (id: number, action: string) =>
+  stats:            () => api.get('/api/dashboard/stats'),
+  alerts:           () => api.get('/api/dashboard/alerts'),
+  resolveAlert:     (id: number, action: string) =>
     api.post(`/api/dashboard/alerts/${id}/resolve?action=${encodeURIComponent(action)}`),
   pendingApprovals: () => api.get('/api/dashboard/approvals/pending'),
-  invoices:        () => api.get('/api/dashboard/invoices'),
+  invoices:         () => api.get('/api/dashboard/invoices'),
 };
 
 // ── Fulfillment ─────────────────────────────────────────────
 export const fulfillmentApi = {
-  list:           () => api.get('/api/fulfillment'),
-  byQuotation:    (qid: number) => api.get(`/api/fulfillment/quotation/${qid}`),
-  warehouses:     () => api.get('/api/fulfillment/warehouses'),
-  stock:          (wid: number) => api.get(`/api/fulfillment/stock/${wid}`),
-  acceptSplit:    (id: number) => api.put(`/api/fulfillment/${id}/accept`),
+  list:        () => api.get('/api/fulfillment'),
+  byQuotation: (qid: number) => api.get(`/api/fulfillment/quotation/${qid}`),
+  warehouses:  () => api.get('/api/fulfillment/warehouses'),
+  stock:       (wid: number) => api.get(`/api/fulfillment/stock/${wid}`),
+  acceptSplit: (id: number) => api.put(`/api/fulfillment/${id}/accept`),
+};
+
+// ── Invoices ────────────────────────────────────────────────
+export const invoiceApi = {
+  list:         () => api.get('/api/dashboard/invoices'),
+  byCustomer:   (customerId: number) => api.get(`/api/invoices/customer/${customerId}`),
+  byQuotation:  (quotationId: number) => api.get(`/api/invoices/quotation/${quotationId}`),
+};
+
+// ── Subscriptions ────────────────────────────────────────────
+// Note: No dedicated backend controller yet — uses quotation & dashboard endpoints
+// New: subscriptionApi added to support Subscriptions List & Billing Detail pages
+export const subscriptionApi = {
+  // Backend stub — returns subscription data from quotation lines
+  listByCustomer: (customerId: number) => api.get(`/api/customers/${customerId}`),
+  // Subscription data is embedded in quotation invoice lines for now
+  // Future: GET /api/subscriptions once a dedicated controller is created
 };
 
 // ── Customer Portal ─────────────────────────────────────────

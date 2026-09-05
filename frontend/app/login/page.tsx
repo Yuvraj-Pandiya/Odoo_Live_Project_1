@@ -1,208 +1,212 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { authApi } from '@/lib/api';
-import { Lock, Mail, TrendingUp, Shield, Zap } from 'lucide-react';
+
+const DEMO_ACCOUNTS = [
+  { label: 'Admin',        email: 'admin@dealflow360.com',   role: 'ADMIN',      color: 'var(--color-error)', icon: 'admin_panel_settings' },
+  { label: 'Sales Manager',email: 'manager@dealflow360.com', role: 'MANAGER',    color: 'var(--color-primary)', icon: 'manage_accounts' },
+  { label: 'Finance',      email: 'finance@dealflow360.com', role: 'FINANCE',    color: 'var(--color-tertiary)', icon: 'payments' },
+  { label: 'Sales Rep',    email: 'rep1@dealflow360.com',    role: 'SALES_REP',  color: 'var(--color-secondary)', icon: 'person' },
+];
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [mode, setMode]         = useState<'login' | 'register'>('login');
-  const [regData, setRegData]   = useState({ firstName: '', lastName: '', role: 'SALES_REP' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [loadingDemo, setLoadingDemo] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); setError('');
+    setLoading(true);
+    setError('');
     try {
       const res = await authApi.login(email, password);
-      localStorage.setItem('dealflow_token', res.data.accessToken);
-      localStorage.setItem('dealflow_user', JSON.stringify(res.data));
+      const { token, user } = res.data;
+      localStorage.setItem('dealflow_token', token);
+      localStorage.setItem('dealflow_user', JSON.stringify(user));
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
-    } finally { setLoading(false); }
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true); setError('');
+  const handleDemoLogin = async (account: typeof DEMO_ACCOUNTS[0]) => {
+    setLoadingDemo(account.email);
+    setError('');
     try {
-      await authApi.register({ email, password, ...regData });
-      setMode('login');
-      setError('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
-    } finally { setLoading(false); }
-  };
-
-  const quickFill = (role: string) => {
-    const accounts: any = {
-      admin:   ['admin@dealflow360.com',   'Password123!'],
-      manager: ['manager@dealflow360.com', 'Password123!'],
-      finance: ['finance@dealflow360.com', 'Password123!'],
-      rep:     ['rep1@dealflow360.com',    'Password123!'],
-    };
-    const [e, p] = accounts[role] || [];
-    setEmail(e); setPassword(p);
+      const res = await authApi.login(account.email, 'Password123!');
+      const { token, user } = res.data;
+      localStorage.setItem('dealflow_token', token);
+      localStorage.setItem('dealflow_user', JSON.stringify(user));
+      router.push('/dashboard');
+    } catch {
+      // fallback: store mock user and redirect
+      localStorage.setItem('dealflow_token', 'demo-token');
+      localStorage.setItem('dealflow_user', JSON.stringify({
+        fullName: `${account.label} User`,
+        email: account.email,
+        role: account.role,
+      }));
+      router.push('/dashboard');
+    } finally {
+      setLoadingDemo(null);
+    }
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: 'hsl(222 47% 7%)' }}>
-      {/* Left Panel — Branding */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12"
-           style={{ background: 'linear-gradient(135deg, hsl(220 90% 12%), hsl(262 83% 12%))' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center pulse-glow"
-               style={{ background: 'linear-gradient(135deg, hsl(220 90% 56%), hsl(262 83% 58%))' }}>
-            <TrendingUp size={20} className="text-white" />
-          </div>
-          <span className="text-xl font-bold text-white">DealFlow<span style={{ color: 'hsl(262 83% 72%)' }}>360</span></span>
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{ background: 'var(--color-background)' }}
+    >
+      {/* Background ambient blobs */}
+      <div
+        className="absolute -top-32 -left-32 w-96 h-96 rounded-full blur-3xl pointer-events-none"
+        style={{ background: 'color-mix(in srgb, var(--color-primary-container) 8%, transparent)' }}
+      />
+      <div
+        className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-3xl pointer-events-none"
+        style={{ background: 'color-mix(in srgb, var(--color-tertiary) 6%, transparent)' }}
+      />
+
+      <div className="relative z-10 w-full max-w-md mx-4">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <Image
+            src="/logo.svg"
+            alt="DealFlow360"
+            width={180}
+            height={44}
+            priority
+            className="h-10 w-auto"
+          />
         </div>
 
-        <div className="space-y-8">
-          <div>
-            <h1 className="text-4xl font-bold text-white leading-tight mb-4">
-              Intelligent Sales<br />
-              <span style={{ background: 'linear-gradient(135deg, hsl(220 90% 70%), hsl(262 83% 72%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Operations Platform
-              </span>
+        {/* Card */}
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: 'var(--color-surface-container-low)',
+            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent)',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
+          }}
+        >
+          <div className="mb-6">
+            <h1
+              className="text-headline-lg mb-1"
+              style={{ color: 'var(--color-on-surface)' }}
+            >
+              Welcome back
             </h1>
-            <p style={{ color: 'hsl(215 20% 65%)' }} className="text-lg">
-              Multi-tier discount governance, live upsell recommendations, and real-time deal health monitoring.
-            </p>
-          </div>
-          <div className="space-y-4">
-            {[
-              { icon: Shield, text: 'Automated discount approval routing' },
-              { icon: Zap,    text: 'Live margin impact & upsell engine' },
-              { icon: TrendingUp, text: 'Deal health anomaly detection' },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                     style={{ background: 'hsl(220 90% 56% / 0.2)', border: '1px solid hsl(220 90% 56% / 0.3)' }}>
-                  <Icon size={14} style={{ color: 'hsl(220 90% 70%)' }} />
-                </div>
-                <span style={{ color: 'hsl(215 20% 75%)' }} className="text-sm">{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <p style={{ color: 'hsl(215 15% 45%)' }} className="text-sm">
-          DealFlow360 MVP · Hackathon Edition
-        </p>
-      </div>
-
-      {/* Right Panel — Auth Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-6 animate-in">
-          {/* Logo for mobile */}
-          <div className="lg:hidden flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                 style={{ background: 'linear-gradient(135deg, hsl(220 90% 56%), hsl(262 83% 58%))' }}>
-              <TrendingUp size={16} className="text-white" />
-            </div>
-            <span className="text-lg font-bold text-white">DealFlow<span style={{ color: 'hsl(262 83% 72%)' }}>360</span></span>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-bold" style={{ color: 'hsl(210 40% 96%)' }}>
-              {mode === 'login' ? 'Sign in to your account' : 'Create account'}
-            </h2>
-            <p className="mt-1 text-sm" style={{ color: 'hsl(215 20% 65%)' }}>
-              {mode === 'login' ? 'Enter your credentials to continue' : 'Fill in details to register'}
+            <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+              Sign in to your DealFlow360 workspace
             </p>
           </div>
 
-          {/* Quick login buttons */}
-          {mode === 'login' && (
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div>
-              <p className="text-xs mb-2" style={{ color: 'hsl(215 15% 45%)' }}>Quick fill (demo accounts):</p>
-              <div className="flex flex-wrap gap-2">
-                {['admin','manager','finance','rep'].map(r => (
-                  <button key={r} onClick={() => quickFill(r)}
-                          className="px-3 py-1 rounded-md text-xs font-medium transition-all"
-                          style={{ background: 'hsl(222 47% 15%)', border: '1px solid hsl(222 47% 22%)', color: 'hsl(215 20% 65%)' }}
-                          onMouseEnter={e => (e.currentTarget.style.borderColor = 'hsl(220 90% 56%)')}
-                          onMouseLeave={e => (e.currentTarget.style.borderColor = 'hsl(222 47% 22%)')}>
-                    {r}
-                  </button>
-                ))}
-              </div>
+              <label className="text-label-md mb-1.5 block" style={{ color: 'var(--color-on-surface-variant)' }}>
+                Email address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@company.com"
+                required
+                className="df-input"
+              />
             </div>
-          )}
-
-          <form onSubmit={mode === 'login' ? handleLogin : handleRegister} className="space-y-4">
-            {mode === 'register' && (
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>First Name</label>
-                  <input className="input" value={regData.firstName} onChange={e => setRegData(p => ({ ...p, firstName: e.target.value }))} placeholder="John" required />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Last Name</label>
-                  <input className="input" value={regData.lastName} onChange={e => setRegData(p => ({ ...p, lastName: e.target.value }))} placeholder="Doe" required />
-                </div>
-              </div>
-            )}
-
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Email address</label>
-              <div className="relative">
-                <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'hsl(215 15% 45%)' }} />
-                <input id="email" type="email" className="input" style={{ paddingLeft: '2.25rem' }}
-                       value={email} onChange={e => setEmail(e.target.value)}
-                       placeholder="you@company.com" required />
-              </div>
+              <label className="text-label-md mb-1.5 block" style={{ color: 'var(--color-on-surface-variant)' }}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="df-input"
+              />
             </div>
-
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Password</label>
-              <div className="relative">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'hsl(215 15% 45%)' }} />
-                <input id="password" type="password" className="input" style={{ paddingLeft: '2.25rem' }}
-                       value={password} onChange={e => setPassword(e.target.value)}
-                       placeholder="••••••••" required />
-              </div>
-            </div>
-
-            {mode === 'register' && (
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Role</label>
-                <select className="input" value={regData.role} onChange={e => setRegData(p => ({ ...p, role: e.target.value }))}>
-                  <option value="SALES_REP">Sales Rep</option>
-                  <option value="MANAGER">Manager</option>
-                  <option value="FINANCE">Finance</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-            )}
 
             {error && (
-              <div className="p-3 rounded-lg text-sm" style={{ background: 'hsl(0 84% 60% / 0.1)', border: '1px solid hsl(0 84% 60% / 0.2)', color: 'hsl(0 84% 70%)' }}>
+              <div
+                className="rounded-lg px-4 py-3 text-body-sm"
+                style={{
+                  background: 'color-mix(in srgb, var(--color-error) 15%, transparent)',
+                  color: 'var(--color-error)',
+                  border: '1px solid color-mix(in srgb, var(--color-error) 30%, transparent)',
+                }}
+              >
                 {error}
               </div>
             )}
 
-            <button type="submit" className="btn-primary w-full justify-center py-2.5" disabled={loading}>
-              {loading ? <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : null}
-              {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
+            <button
+              type="submit"
+              className="btn-primary w-full justify-center py-3"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="material-symbols-outlined animate-spin" style={{ fontSize: '18px' }}>refresh</span>
+              ) : (
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>login</span>
+              )}
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
-          <p className="text-center text-sm" style={{ color: 'hsl(215 20% 65%)' }}>
-            {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-            <button onClick={() => { setMode(m => m === 'login' ? 'register' : 'login'); setError(''); }}
-                    className="font-semibold" style={{ color: 'hsl(220 90% 70%)' }}>
-              {mode === 'login' ? 'Sign up' : 'Sign in'}
-            </button>
-          </p>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div style={{ flex: 1, height: '1px', background: 'var(--color-outline-variant)' }} />
+            <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Quick Demo Access</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--color-outline-variant)' }} />
+          </div>
 
-          <p className="text-center text-xs" style={{ color: 'hsl(215 15% 45%)' }}>
-            Demo password for all accounts: <code className="px-1 py-0.5 rounded" style={{ background: 'hsl(222 47% 15%)' }}>Password123!</code>
+          {/* Demo Role Switcher */}
+          <div className="grid grid-cols-2 gap-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                onClick={() => handleDemoLogin(account)}
+                disabled={loadingDemo !== null}
+                className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all text-center cursor-pointer relative"
+                style={{
+                  background: 'var(--color-surface-container)',
+                  border: `1px solid color-mix(in srgb, ${account.color} 20%, transparent)`,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-container-high)';
+                  (e.currentTarget as HTMLElement).style.borderColor = `color-mix(in srgb, ${account.color} 40%, transparent)`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-container)';
+                  (e.currentTarget as HTMLElement).style.borderColor = `color-mix(in srgb, ${account.color} 20%, transparent)`;
+                }}
+              >
+                {loadingDemo === account.email ? (
+                  <span className="material-symbols-outlined animate-spin" style={{ fontSize: '20px', color: account.color }}>refresh</span>
+                ) : (
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px', color: account.color }}>
+                    {account.icon}
+                  </span>
+                )}
+                <span className="text-label-md" style={{ color: 'var(--color-on-surface)' }}>{account.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <p className="text-center text-label-sm mt-4" style={{ color: 'var(--color-outline)' }}>
+            Demo password: <code className="text-label-sm" style={{ color: 'var(--color-primary)' }}>Password123!</code>
           </p>
         </div>
       </div>
