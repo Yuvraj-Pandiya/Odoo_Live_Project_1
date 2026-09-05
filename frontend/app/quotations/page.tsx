@@ -68,7 +68,7 @@ export default function QuotationsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('dealflow_token')) {
-      router.push('/login'); return;
+      router.push('/'); return;
     }
     quotationApi.list().then((r) => {
       if (r.data && r.data.length) setQuotations(r.data);

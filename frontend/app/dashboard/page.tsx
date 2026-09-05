@@ -69,7 +69,7 @@ export default function DashboardPage() {
       const token = getStoredToken();
       const u = getStoredUser();
       if (!token || !u?.email) {
-        router.push('/login');
+        router.push('/');
         return;
       }
       setUser(u || {});

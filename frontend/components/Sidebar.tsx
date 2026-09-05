@@ -47,7 +47,7 @@ export default function Sidebar() {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('dealflow-auth-change'));
     }
-    router.push('/login');
+    router.push('/');
   };
 
   const userRole = user?.role || 'SALES_REP';

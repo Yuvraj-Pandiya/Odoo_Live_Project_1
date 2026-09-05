@@ -127,7 +127,7 @@ export default function SignupPage() {
       <div className="w-full max-w-xl space-y-6">
         {/* Logo */}
         <div className="flex justify-center">
-          <Link href="/login">
+          <Link href="/">
             <Image
               src="/logo.svg"
               alt="DealFlow360"
@@ -326,7 +326,7 @@ export default function SignupPage() {
             <p className="body-sm">
               Already have an account?{' '}
               <Link
-                href="/login"
+                href="/"
                 className="font-bold text-[var(--accent)] hover:underline"
               >
                 Sign In

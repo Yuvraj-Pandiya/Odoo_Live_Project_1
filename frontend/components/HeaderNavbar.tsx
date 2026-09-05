@@ -144,7 +144,7 @@ export default function HeaderNavbar() {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event('dealflow-auth-change'));
     }
-    router.push('/login');
+    router.push('/');
   };
 
   const handleSwitchPersona = async (persona: typeof DEMO_PERSONAS[0]) => {

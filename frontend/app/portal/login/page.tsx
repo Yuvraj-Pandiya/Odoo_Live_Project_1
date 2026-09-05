@@ -357,7 +357,7 @@ export default function CustomerPortalLoginPage() {
 
           {/* Staff login link */}
           <div style={{ marginTop: 28, textAlign: 'center' }}>
-            <Link href="/login" style={{
+            <Link href="/" style={{
               fontSize: 13, color: t.textMuted, textDecoration: 'none',
               display: 'inline-flex', alignItems: 'center', gap: 5,
             }}>
