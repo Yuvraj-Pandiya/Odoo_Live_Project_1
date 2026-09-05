@@ -1,18 +1,37 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
-
 export const metadata: Metadata = {
-  title: 'DealFlow360 — Intelligent Sales Operations',
-  description: 'Self-governing sales platform with multi-tier discount governance, live upsell recommendations, and warehouse fulfillment splitting.',
+  title: 'DealFlow360 — Intelligent Sales Operations Platform',
+  description: 'Enterprise-grade B2B sales platform: quotation-to-cash lifecycle management with AI-driven deal health, multi-tier governance, and real-time fulfillment intelligence.',
+  keywords: ['sales operations', 'CPQ', 'deal desk', 'B2B platform', 'quotation management'],
+  openGraph: {
+    title: 'DealFlow360',
+    description: 'Intelligent Sales Operations Platform',
+    type: 'website',
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-[var(--color-background)] text-[var(--color-on-surface)] min-h-screen font-[var(--font-family-base)]">
         {children}
       </body>
     </html>
