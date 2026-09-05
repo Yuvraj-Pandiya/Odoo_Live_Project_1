@@ -21,6 +21,7 @@ public class Invoice {
     @Column(name = "invoice_number", nullable = false, unique = true)
     private String invoiceNumber;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quotation_id")
     private Quotation quotation;
@@ -29,28 +30,37 @@ public class Invoice {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "invoice_status")
     private InvoiceStatus status = InvoiceStatus.DRAFT;
 
+    @Builder.Default
     private String currency = "USD";
+
+    @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "tax_total")
     private BigDecimal taxTotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "total_amount")
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "amount_paid")
     private BigDecimal amountPaid = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "amount_due")
     private BigDecimal amountDue = BigDecimal.ZERO;
 
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    @Builder.Default
     @Column(name = "is_recurring")
     private Boolean isRecurring = false;
 

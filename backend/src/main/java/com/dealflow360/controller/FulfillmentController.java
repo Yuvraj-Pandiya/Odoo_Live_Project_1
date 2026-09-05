@@ -16,6 +16,8 @@ public class FulfillmentController {
     private final FulfillmentOrderRepository fulfillmentRepo;
     private final WarehouseRepository warehouseRepository;
     private final WarehouseStockRepository stockRepository;
+    private final QuotationRepository quotationRepository;
+    private final com.dealflow360.service.FulfillmentService fulfillmentService;
 
     @GetMapping
     public ResponseEntity<List<FulfillmentOrder>> listAll() {
@@ -25,6 +27,7 @@ public class FulfillmentController {
     @GetMapping("/quotation/{quotationId}")
     public ResponseEntity<FulfillmentOrder> byQuotation(@PathVariable Long quotationId) {
         return fulfillmentRepo.findByQuotationId(quotationId)
+            .or(() -> quotationRepository.findById(quotationId).map(fulfillmentService::createFulfillmentSplit))
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }

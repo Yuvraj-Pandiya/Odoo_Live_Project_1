@@ -19,26 +19,31 @@ public class FulfillmentOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "quotation_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"approvals", "hibernateLazyInitializer", "handler"})
     private Quotation quotation;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "fulfillment_status")
     private FulfillmentStatus status = FulfillmentStatus.PENDING;
 
+    @Builder.Default
     @Column(name = "is_manual_override")
     private Boolean isManualOverride = false;
 
+    @Builder.Default
     @Column(name = "total_shipments")
     private Integer totalShipments = 0;
 
+    @Builder.Default
     @Column(name = "total_shipping_cost")
     private BigDecimal totalShippingCost = BigDecimal.ZERO;
 
     private String notes;
 
-    @OneToMany(mappedBy = "fulfillmentOrder", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fulfillmentOrder", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<FulfillmentLine> lines;
 
     @CreationTimestamp

@@ -30,20 +30,26 @@ public class Quotation {
     @JoinColumn(name = "sales_rep_id", nullable = false)
     private User salesRep;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "quotation_status")
     private QuotationStatus status = QuotationStatus.DRAFT;
 
+    @Builder.Default
     private String currency = "USD";
 
+    @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "tax_total")
     private BigDecimal taxTotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "discount_total")
     private BigDecimal discountTotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "grand_total")
     private BigDecimal grandTotal = BigDecimal.ZERO;
 
