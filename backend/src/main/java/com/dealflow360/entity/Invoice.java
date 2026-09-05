@@ -34,13 +34,9 @@ public class Invoice {
     @Builder.Default
     private InvoiceStatus status = InvoiceStatus.DRAFT;
 
-<<<<<<< Updated upstream
     @Builder.Default
-    private String currency = "USD";
-    @Builder.Default
-=======
     private String currency = "INR";
->>>>>>> Stashed changes
+    @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
     @Column(name = "tax_total")
