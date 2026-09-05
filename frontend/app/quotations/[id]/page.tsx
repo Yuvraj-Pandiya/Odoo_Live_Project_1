@@ -115,7 +115,7 @@ export default function QuotationDetailPage() {
   // Load quotation data & customer/product lists
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('dealflow_token')) {
-      router.push('/login');
+      router.push('/');
       return;
     }
 

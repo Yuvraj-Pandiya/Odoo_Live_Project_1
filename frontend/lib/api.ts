@@ -44,13 +44,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 — redirect to login
+// Handle 401 — redirect to root login
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
       clearStoredAuth();
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return Promise.reject(err);
   }

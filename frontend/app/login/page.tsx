@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, ArrowRight, CheckCircle2, AlertCircle, Loader2, TrendingUp, Zap, Shield, Users } from 'lucide-react';
@@ -136,6 +136,11 @@ function PrimaryButton({ label, loading, onClick, type = 'submit' }: {
 /* ─── Main page ──────────────────────────────────────────────────────────── */
 export default function LoginPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/');
+  }, [router]);
+
   const [mode, setMode] = useState<'login' | 'register'>('login');
 
   const [email, setEmail] = useState('');
