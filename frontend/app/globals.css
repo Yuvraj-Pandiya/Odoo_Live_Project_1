@@ -23,6 +23,8 @@
     --success-subtle:   #E8F5EE;
     --error:            #DC2626;
     --error-subtle:     #FEE2E2;
+    --warning:          #D97706;
+    --warning-subtle:   #FEF3C7;
     --panel-bg:         #373730;
     --panel-text:       #FFFFFF;
     --panel-subtext:    #A2A0A1;
@@ -255,8 +257,8 @@ body, p, .body-text, .type-body-base, .text-body-base, .text-body {
   border: 1px solid #FCA5A5 !important;
 }
 .badge-warning, .badge-pending, .badge-negotiation, .risk-medium {
-  background: #FEF3C7 !important;
-  color: #D97706 !important;
+  background: var(--warning-subtle) !important;
+  color: var(--warning) !important;
   border: 1px solid #FDE68A !important;
 }
 
