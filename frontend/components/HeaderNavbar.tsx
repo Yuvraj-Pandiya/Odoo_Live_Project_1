@@ -2,10 +2,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { authApi, getStoredUser, setStoredAuth, clearStoredAuth } from '@/lib/api';
 import { getNavItemsForRole, canCreateQuotation, canAccessRoute } from '@/lib/permissions';
-import NavbarButton from './NavbarButton';
 
 /* ─── Light Workspace Tokens ─────────────────────────────────────────────── */
 const t = {
@@ -23,10 +22,10 @@ const t = {
 };
 
 const DEMO_PERSONAS = [
-  { label: 'Admin',         role: 'ADMIN',     email: 'admin@dealflow360.com',   name: 'Aarav Sharma',   icon: 'admin_panel_settings' },
-  { label: 'Sales Manager', role: 'MANAGER',   email: 'manager@dealflow360.com', name: 'Priya Patel',    icon: 'manage_accounts' },
-  { label: 'Finance Lead',  role: 'FINANCE',   email: 'finance@dealflow360.com', name: 'Rohan Mehta',    icon: 'payments' },
-  { label: 'Sales Rep',     role: 'SALES_REP', email: 'rep1@dealflow360.com',    name: 'Vikram Singh',   icon: 'person' },
+  { label: 'Admin',         role: 'ADMIN',     email: 'admin@dealflow360.com',   name: 'Aarav Sharma',     icon: 'admin_panel_settings' },
+  { label: 'Sales Manager', role: 'MANAGER',   email: 'manager@dealflow360.com', name: 'Vikram Malhotra',  icon: 'manage_accounts' },
+  { label: 'Finance Lead',  role: 'FINANCE',   email: 'finance@dealflow360.com', name: 'Sneha Gupta',      icon: 'payments' },
+  { label: 'Sales Rep',     role: 'SALES_REP', email: 'rep1@dealflow360.com',    name: 'Priya Patel',      icon: 'person' },
 ];
 
 export default function HeaderNavbar() {
@@ -37,8 +36,12 @@ export default function HeaderNavbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [switchingRole, setSwitchingRole] = useState<string | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
   const searchRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   const loadUserFromStorage = () => {
     if (typeof window !== 'undefined') {
@@ -86,6 +89,55 @@ export default function HeaderNavbar() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
+
+  // Check scroll positions for sliding nav controls
+  const checkNavScroll = useCallback(() => {
+    if (navRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = navRef.current;
+      setCanScrollLeft(scrollLeft > 6);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
+    }
+  }, []);
+
+  const userRole = user?.role || 'SALES_REP';
+  const visibleNavItems = getNavItemsForRole(userRole);
+  const showNewQuoteButton = canCreateQuotation(userRole);
+
+  useEffect(() => {
+    checkNavScroll();
+    const handleResize = () => checkNavScroll();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [visibleNavItems, checkNavScroll]);
+
+  // Auto-scroll active item into view on route change
+  useEffect(() => {
+    if (navRef.current) {
+      const activeEl = navRef.current.querySelector('[data-active="true"]') as HTMLElement;
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
+      setTimeout(checkNavScroll, 350);
+    }
+  }, [pathname, checkNavScroll]);
+
+  const slideNav = (direction: 'left' | 'right') => {
+    if (navRef.current) {
+      const scrollAmount = 240;
+      navRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+      setTimeout(checkNavScroll, 300);
+    }
+  };
+
+  const handleNavWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (navRef.current && (e.deltaY !== 0 || e.deltaX !== 0)) {
+      navRef.current.scrollLeft += (e.deltaY || e.deltaX);
+      checkNavScroll();
+    }
+  };
 
   const handleLogout = () => {
     clearStoredAuth();
@@ -143,10 +195,6 @@ export default function HeaderNavbar() {
     return pathname.startsWith(`/${path}`);
   };
 
-  const userRole = user?.role || 'SALES_REP';
-  const visibleNavItems = getNavItemsForRole(userRole);
-  const showNewQuoteButton = canCreateQuotation(userRole);
-
   const userInitials = user.fullName
     ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
     : (userRole ? userRole.slice(0, 2) : 'DF');
@@ -173,19 +221,19 @@ export default function HeaderNavbar() {
         }}
       >
         <div
-          style={{ height: '72px', padding: '0 24px' }}
-          className="w-full flex items-center justify-between gap-4"
+          style={{ height: '72px', padding: '0 20px' }}
+          className="w-full flex items-center justify-between gap-3 md:gap-4"
         >
-          {/* ── Left: Logo + Plan Badge + Desktop Navigation ───────────────── */}
-          <div className="flex items-center gap-6 min-w-0 flex-1">
+          {/* ── Left: Logo + Plan Badge + Smooth Sliding Navigation ───────────────── */}
+          <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
             {/* Logo + Enterprise Badge */}
-            <Link href="/dashboard" className="flex items-center gap-3 shrink-0" style={{ textDecoration: 'none' }}>
+            <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0" style={{ textDecoration: 'none' }}>
               <Image
                 src="/logo.svg"
                 alt="DealFlow360 Logo"
-                width={140}
-                height={34}
-                className="h-8 w-auto object-contain shrink-0"
+                width={132}
+                height={32}
+                className="h-7 w-auto object-contain shrink-0"
                 priority
               />
               <span
@@ -194,85 +242,158 @@ export default function HeaderNavbar() {
                   color: t.accent,
                   border: `1px solid ${t.border}`,
                   borderRadius: '9999px',
-                  padding: '2px 8px',
-                  fontSize: '12px',
+                  padding: '2px 7px',
+                  fontSize: '11px',
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
                 }}
-                className="hidden xl:inline-flex shrink-0"
+                className="hidden 2xl:inline-flex shrink-0"
               >
                 Enterprise
               </span>
             </Link>
 
-            {/* Desktop Navigation (Filtered by role at render time — strictly no lock icons) */}
-            <nav className="hidden xl:flex items-center overflow-hidden" style={{ gap: '16px' }}>
-              {visibleNavItems.map((item) => {
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    href={item.href}
-                    className="transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                    style={
-                      active
-                        ? {
-                            background: t.accentSubtle,
-                            color: t.accent,
-                            fontWeight: 600,
-                            fontSize: '14px',
-                            padding: '8px 12px',
-                            borderRadius: '8px 8px 0 0',
-                            borderBottom: `2px solid ${t.accent}`,
-                            textDecoration: 'none',
-                          }
-                        : {
-                            color: t.textSecondary,
-                            fontWeight: 500,
-                            fontSize: '14px',
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            borderBottom: '2px solid transparent',
-                            textDecoration: 'none',
-                            background: 'transparent',
-                          }
-                    }
-                    onMouseEnter={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.background = t.canvas;
-                        e.currentTarget.style.color = t.textPrimary;
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!active) {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = t.textSecondary;
-                      }
+            {/* ── Smooth Sliding Desktop Navigation Bar ─────────────────────── */}
+            <div className="hidden lg:flex items-center min-w-0 flex-1 relative overflow-hidden px-1">
+              {/* Left Slide Arrow */}
+              {canScrollLeft && (
+                <button
+                  type="button"
+                  onClick={() => slideNav('left')}
+                  className="absolute left-0 z-20 flex items-center justify-center transition-all cursor-pointer"
+                  style={{
+                    width: '28px',
+                    height: '34px',
+                    background: 'linear-gradient(to right, #FFFFFF 70%, rgba(255,255,255,0))',
+                    border: 'none',
+                    color: t.accent,
+                  }}
+                  title="Scroll left"
+                >
+                  <span
+                    className="material-symbols-outlined rounded-full flex items-center justify-center shadow-sm"
+                    style={{
+                      fontSize: '18px',
+                      background: t.surface,
+                      border: `1px solid ${t.border}`,
+                      width: '24px',
+                      height: '24px',
                     }}
                   >
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+                    chevron_left
+                  </span>
+                </button>
+              )}
+
+              {/* Scrollable Nav Track */}
+              <nav
+                ref={navRef}
+                onScroll={checkNavScroll}
+                onWheel={handleNavWheel}
+                className="flex items-center gap-1 overflow-x-auto scroll-smooth w-full py-1"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+              >
+                {visibleNavItems.map((item) => {
+                  const active = isActive(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      href={item.href}
+                      data-active={active ? 'true' : 'false'}
+                      className="transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                      style={
+                        active
+                          ? {
+                              background: t.accentSubtle,
+                              color: t.accent,
+                              fontWeight: 600,
+                              fontSize: '13.5px',
+                              padding: '7px 11px',
+                              borderRadius: '7px 7px 0 0',
+                              borderBottom: `2px solid ${t.accent}`,
+                              textDecoration: 'none',
+                            }
+                          : {
+                              color: t.textSecondary,
+                              fontWeight: 500,
+                              fontSize: '13.5px',
+                              padding: '7px 11px',
+                              borderRadius: '7px',
+                              borderBottom: '2px solid transparent',
+                              textDecoration: 'none',
+                              background: 'transparent',
+                            }
+                      }
+                      onMouseEnter={(e) => {
+                        if (!active) {
+                          e.currentTarget.style.background = t.canvas;
+                          e.currentTarget.style.color = t.textPrimary;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!active) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = t.textSecondary;
+                        }
+                      }}
+                    >
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Right Slide Arrow */}
+              {canScrollRight && (
+                <button
+                  type="button"
+                  onClick={() => slideNav('right')}
+                  className="absolute right-0 z-20 flex items-center justify-center transition-all cursor-pointer"
+                  style={{
+                    width: '28px',
+                    height: '34px',
+                    background: 'linear-gradient(to left, #FFFFFF 70%, rgba(255,255,255,0))',
+                    border: 'none',
+                    color: t.accent,
+                  }}
+                  title="Scroll right"
+                >
+                  <span
+                    className="material-symbols-outlined rounded-full flex items-center justify-center shadow-sm"
+                    style={{
+                      fontSize: '18px',
+                      background: t.surface,
+                      border: `1px solid ${t.border}`,
+                      width: '24px',
+                      height: '24px',
+                    }}
+                  >
+                    chevron_right
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* ── Right Cluster: Search + Role-Scoped New Quote + User Profile ── */}
-          <div className="flex items-center shrink-0" style={{ gap: '16px' }}>
+          <div className="flex items-center shrink-0 gap-2 sm:gap-3">
             {/* Search Input Button */}
             <button
               type="button"
               onClick={() => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 100); }}
               className="flex items-center gap-2 transition-all cursor-pointer shrink-0"
               style={{
-                width: '240px',
-                height: '40px',
+                width: 'clamp(150px, 16vw, 220px)',
+                height: '38px',
                 background: t.surface,
                 border: `1px solid ${t.border}`,
                 borderRadius: '8px',
                 color: t.textMuted,
-                padding: '0 12px',
-                fontSize: '14px',
+                padding: '0 10px',
+                fontSize: '13.5px',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 outline: 'none',
@@ -288,21 +409,21 @@ export default function HeaderNavbar() {
                 e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <span className="material-symbols-outlined shrink-0" style={{ fontSize: '18px', color: t.textMuted }}>search</span>
+              <span className="material-symbols-outlined shrink-0" style={{ fontSize: '17px', color: t.textMuted }}>search</span>
               <span
                 className="hidden sm:inline flex-1 text-left truncate"
                 style={{ color: t.textMuted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
               >
-                Search deals, accounts...
+                Search deals...
               </span>
               <kbd
-                className="hidden sm:inline-block rounded shrink-0"
+                className="hidden md:inline-block rounded shrink-0"
                 style={{
                   background: t.canvas,
                   color: t.textSecondary,
-                  padding: '2px 6px',
+                  padding: '1px 5px',
                   border: `1px solid ${t.border}`,
-                  fontSize: '11px',
+                  fontSize: '10px',
                   fontWeight: 600,
                 }}
               >
@@ -314,14 +435,14 @@ export default function HeaderNavbar() {
             {showNewQuoteButton && (
               <Link
                 href="/quotations"
-                className="hidden sm:inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
+                className="hidden sm:inline-flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap"
                 style={{
                   background: t.accent,
                   color: '#FFFFFF',
-                  fontSize: '14px',
+                  fontSize: '13.5px',
                   fontWeight: 600,
-                  padding: '0 16px',
-                  height: '40px',
+                  padding: '0 14px',
+                  height: '38px',
                   borderRadius: '8px',
                   textDecoration: 'none',
                   transition: 'background 0.15s',
@@ -329,7 +450,7 @@ export default function HeaderNavbar() {
                 onMouseEnter={(e) => { e.currentTarget.style.background = t.accentHover; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = t.accent; }}
               >
-                <span className="material-symbols-outlined shrink-0" style={{ fontSize: '18px', color: '#FFFFFF' }}>add</span>
+                <span className="material-symbols-outlined shrink-0" style={{ fontSize: '17px', color: '#FFFFFF' }}>add</span>
                 <span>New Quote</span>
               </Link>
             )}
@@ -345,21 +466,21 @@ export default function HeaderNavbar() {
               <button
                 type="button"
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2.5 transition-all cursor-pointer shrink-0"
+                className="flex items-center gap-2 transition-all cursor-pointer shrink-0"
                 style={{
                   background: profileDropdownOpen ? t.accentSubtle : t.surface,
                   border: `1px solid ${profileDropdownOpen ? t.accent : t.border}`,
                   borderRadius: '8px',
-                  padding: '4px 10px',
-                  height: '40px',
+                  padding: '3px 8px',
+                  height: '38px',
                 }}
               >
                 {/* Avatar */}
                 <div
                   className="shrink-0"
                   style={{
-                    width: '30px',
-                    height: '30px',
+                    width: '28px',
+                    height: '28px',
                     borderRadius: '50%',
                     background: t.canvas,
                     border: `1px solid ${t.border}`,
@@ -367,14 +488,14 @@ export default function HeaderNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12px',
+                    fontSize: '11px',
                     fontWeight: 700,
                   }}
                 >
                   {userInitials}
                 </div>
-                <div className="hidden lg:flex flex-col text-left shrink-0">
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: t.textPrimary, lineHeight: 1.2 }}>
+                <div className="hidden xl:flex flex-col text-left shrink-0">
+                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: t.textPrimary, lineHeight: 1.2 }}>
                     {user.fullName || 'Enterprise User'}
                   </span>
                   <span
@@ -383,10 +504,10 @@ export default function HeaderNavbar() {
                       color: t.accent,
                       border: `1px solid ${t.border}`,
                       borderRadius: '4px',
-                      padding: '1px 6px',
-                      fontSize: '11px',
+                      padding: '1px 5px',
+                      fontSize: '10px',
                       fontWeight: 600,
-                      marginTop: '2px',
+                      marginTop: '1px',
                       width: 'fit-content',
                     }}
                   >
@@ -529,7 +650,7 @@ export default function HeaderNavbar() {
             {/* Mobile hamburger */}
             <button
               type="button"
-              className="xl:hidden rounded-lg transition-all shrink-0"
+              className="lg:hidden rounded-lg transition-all shrink-0"
               style={{ padding: '6px', color: t.textSecondary, background: 'transparent', border: 'none' }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -543,7 +664,7 @@ export default function HeaderNavbar() {
         {/* ── Mobile Nav Menu (Role filtered) ─────────────────────────────────── */}
         {mobileMenuOpen && (
           <div
-            className="xl:hidden"
+            className="lg:hidden"
             style={{
               background: t.surface,
               borderTop: `1px solid ${t.border}`,
