@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { dashboardApi, getStoredUser, getStoredToken } from '@/lib/api';
+import { canAccessRoute, canCreateQuotation, canApproveAny } from '@/lib/permissions';
 import Link from 'next/link';
 
 /* ─── Workspace Design Tokens ────────────────────────────────────────────── */
@@ -63,20 +64,34 @@ export default function DashboardPage() {
   const [alerts, setAlerts] = useState<any[]>(MOCK_ALERTS);
   const [user, setUser] = useState<any>({});
 
-  useEffect(() => {
+  const loadUser = () => {
     if (typeof window !== 'undefined') {
       const token = getStoredToken();
       const u = getStoredUser();
-      if (!token || !u.email) {
+      if (!token || !u?.email) {
         router.push('/login');
         return;
       }
-      setUser(u);
+      setUser(u || {});
     }
-    dashboardApi.stats().then((r) => setStats(r.data)).catch(() => {});
-    dashboardApi.alerts().then((r) => setAlerts(r.data?.slice(0, 5) || MOCK_ALERTS)).catch(() => {});
+  };
+
+  useEffect(() => {
+    loadUser();
+    const handleAuth = () => loadUser();
+    window.addEventListener('dealflow-auth-change', handleAuth);
+    return () => window.removeEventListener('dealflow-auth-change', handleAuth);
   }, [router]);
 
+  useEffect(() => {
+    dashboardApi.stats().then((r) => setStats(r.data)).catch(() => {});
+    dashboardApi.alerts().then((r) => setAlerts(r.data?.slice(0, 5) || MOCK_ALERTS)).catch(() => {});
+  }, []);
+
+  const userRole = user?.role || 'SALES_REP';
+  const showNewQuote = canCreateQuotation(userRole);
+  const showApprovals = canApproveAny(userRole);
+  const visibleModules = ENTERPRISE_MODULES.filter((mod) => canAccessRoute(userRole, mod.href));
   const firstName = user.fullName?.split(' ')[0] || 'there';
 
   return (
@@ -204,63 +219,93 @@ export default function DashboardPage() {
 
             {/* Hero CTAs */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <Link
-                href="/quotations"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  height: '40px',
-                  padding: '0 24px',
-                  borderRadius: '8px',
-                  background: '#FFFFFF',
-                  color: t.accent,
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  transition: 'background 0.15s',
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
-                <span>New quotation</span>
-              </Link>
-              <Link
-                href="/approvals"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  height: '40px',
-                  padding: '0 24px',
-                  borderRadius: '8px',
-                  background: 'rgba(255, 255, 255, 0.12)',
-                  color: '#FFFFFF',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  transition: 'background 0.15s',
-                }}
-              >
-                <span>View approvals</span>
-                {stats.pendingApprovals > 0 && (
-                  <span
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      padding: '2px 8px',
-                      borderRadius: '9999px',
-                      background: t.accentSubtle,
-                      color: t.accent,
-                    }}
-                  >
-                    {stats.pendingApprovals}
-                  </span>
-                )}
-              </Link>
+              {showNewQuote && (
+                <Link
+                  href="/quotations"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 24px',
+                    borderRadius: '8px',
+                    background: '#FFFFFF',
+                    color: t.accent,
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
+                  <span>New quotation</span>
+                </Link>
+              )}
+
+              {userRole === 'FINANCE' && (
+                <Link
+                  href="/invoices"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 24px',
+                    borderRadius: '8px',
+                    background: '#FFFFFF',
+                    color: t.accent,
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>payments</span>
+                  <span>Manage Invoices</span>
+                </Link>
+              )}
+
+              {showApprovals && (
+                <Link
+                  href="/approvals"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 24px',
+                    borderRadius: '8px',
+                    background: 'rgba(255, 255, 255, 0.12)',
+                    color: '#FFFFFF',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <span>View approvals</span>
+                  {stats.pendingApprovals > 0 && (
+                    <span
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                        background: '#EF4444',
+                        color: '#FFFFFF',
+                      }}
+                    >
+                      {stats.pendingApprovals}
+                    </span>
+                  )}
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -510,47 +555,74 @@ export default function DashboardPage() {
               </h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <Link
-                  href="/quotations"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    height: '40px',
-                    borderRadius: '8px',
-                    background: t.accent,
-                    color: '#FFFFFF',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    transition: 'background 0.15s',
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
-                  <span>New quotation</span>
-                </Link>
+                {showNewQuote && (
+                  <Link
+                    href="/quotations"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      background: t.accent,
+                      color: '#FFFFFF',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      transition: 'background 0.15s',
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
+                    <span>New quotation</span>
+                  </Link>
+                )}
 
-                <Link
-                  href="/approvals"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    height: '40px',
-                    borderRadius: '8px',
-                    background: t.accentSubtle,
-                    color: t.accent,
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                    border: `1px solid ${t.border}`,
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>approval</span>
-                  <span>Review approvals</span>
-                </Link>
+                {showApprovals && (
+                  <Link
+                    href="/approvals"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      background: t.accentSubtle,
+                      color: t.accent,
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      border: `1px solid ${t.border}`,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>approval</span>
+                    <span>Review approvals</span>
+                  </Link>
+                )}
+
+                {canAccessRoute(userRole, '/fulfillment') && (
+                  <Link
+                    href="/fulfillment"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      background: t.canvas,
+                      color: t.textPrimary,
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      border: `1px solid ${t.border}`,
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>local_shipping</span>
+                    <span>Fulfillment orders</span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -584,12 +656,12 @@ export default function DashboardPage() {
                 border: `1px solid ${t.border}`,
               }}
             >
-              8 active
+              {visibleModules.length} active
             </span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-            {ENTERPRISE_MODULES.map((mod) => (
+            {visibleModules.map((mod) => (
               <Link
                 key={mod.label}
                 href={mod.href}

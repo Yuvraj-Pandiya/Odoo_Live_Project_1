@@ -1,37 +1,57 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, FileText, CheckSquare, Truck,
   Receipt, Activity, Settings, LogOut, TrendingUp,
-  Users, Package, ChevronRight, Lock
+  Users, Package, ChevronRight
 } from 'lucide-react';
 import { getStoredUser, clearStoredAuth } from '@/lib/api';
+import { canAccessRoute } from '@/lib/permissions';
 
 const NAV = [
-  { href: '/dashboard',     icon: LayoutDashboard, label: 'Dashboard',     roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { href: '/quotations',    icon: FileText,         label: 'Quotations',    roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { href: '/approvals',     icon: CheckSquare,      label: 'Approvals',     roles: ['ADMIN', 'MANAGER', 'FINANCE'] },
-  { href: '/fulfillment',   icon: Truck,            label: 'Fulfillment',   roles: ['ADMIN', 'MANAGER'] },
-  { href: '/subscriptions', icon: Activity,         label: 'Subscriptions', roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { href: '/invoices',      icon: Receipt,          label: 'Invoices',      roles: ['ADMIN', 'FINANCE'] },
-  { href: '/deal-health',   icon: TrendingUp,       label: 'Deal Health',   roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { href: '/customers',     icon: Users,            label: 'Customers',     roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { href: '/products',      icon: Package,          label: 'Products',      roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { href: '/reports',       icon: Settings,         label: 'Reports',       roles: ['ADMIN', 'MANAGER', 'FINANCE'] },
+  { href: '/dashboard',     icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/quotations',    icon: FileText,         label: 'Quotations' },
+  { href: '/approvals',     icon: CheckSquare,      label: 'Approvals' },
+  { href: '/fulfillment',   icon: Truck,            label: 'Fulfillment' },
+  { href: '/subscriptions', icon: Activity,         label: 'Subscriptions' },
+  { href: '/invoices',      icon: Receipt,          label: 'Invoices' },
+  { href: '/deal-health',   icon: TrendingUp,       label: 'Deal Health' },
+  { href: '/customers',     icon: Users,            label: 'Customers' },
+  { href: '/products',      icon: Package,          label: 'Products' },
+  { href: '/reports',       icon: Settings,         label: 'Reports' },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const user = getStoredUser();
+  const [user, setUser] = useState<any>({});
+
+  const loadUser = () => {
+    if (typeof window !== 'undefined') {
+      const u = getStoredUser();
+      setUser(u || {});
+    }
+  };
+
+  useEffect(() => {
+    loadUser();
+    const handleAuth = () => loadUser();
+    window.addEventListener('dealflow-auth-change', handleAuth);
+    return () => window.removeEventListener('dealflow-auth-change', handleAuth);
+  }, []);
 
   const handleLogout = () => {
     clearStoredAuth();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('dealflow-auth-change'));
+    }
     router.push('/login');
   };
 
-  const userRole = user.role || 'SALES_REP';
+  const userRole = user?.role || 'SALES_REP';
+  const visibleNav = NAV.filter(item => canAccessRoute(userRole, item.href));
 
   return (
     <aside className="sidebar">
@@ -51,12 +71,11 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {NAV.map(({ href, icon: Icon, label, roles }) => {
+        {visibleNav.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || pathname.startsWith(href + '/');
-          const hasAccess = roles.includes(userRole);
           return (
             <Link key={href} href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group ${!hasAccess ? 'opacity-40' : ''}`}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group"
               style={{
                 background: active ? 'hsl(220 90% 56% / 0.15)' : 'transparent',
                 color: active ? 'hsl(220 90% 70%)' : 'hsl(215 20% 65%)',
@@ -64,8 +83,7 @@ export default function Sidebar() {
               }}>
               <Icon size={15} />
               <span>{label}</span>
-              {!hasAccess && <Lock size={12} className="ml-auto opacity-50" />}
-              {active && hasAccess && <ChevronRight size={12} className="ml-auto opacity-60" />}
+              {active && <ChevronRight size={12} className="ml-auto opacity-60" />}
             </Link>
           );
         })}

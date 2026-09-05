@@ -1,5 +1,6 @@
 package com.dealflow360.controller;
 
+import com.dealflow360.entity.User;
 import com.dealflow360.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -17,31 +18,22 @@ public class AuthController {
     private final AuthService authService;
 
     record LoginRequest(
-        @NotBlank(message = "Email address is required")
-        @Email(message = "Please enter a valid email address (e.g. user@company.com)")
-        String email,
+            @NotBlank(message = "Email address is required") @Email(message = "Please enter a valid email address (e.g. user@company.com)") String email,
 
-        @NotBlank(message = "Password is required")
-        String password
-    ) {}
+            @NotBlank(message = "Password is required") String password) {
+    }
 
     record RegisterRequest(
-        @NotBlank(message = "Email address is required")
-        @Email(message = "Please enter a valid email address (e.g. user@company.com)")
-        String email,
+            @NotBlank(message = "Email address is required") @Email(message = "Please enter a valid email address (e.g. user@company.com)") String email,
 
-        @NotBlank(message = "Password is required")
-        @Size(min = 8, message = "Password must be at least 8 characters long")
-        String password,
+            @NotBlank(message = "Password is required") @Size(min = 8, message = "Password must be at least 8 characters long") String password,
 
-        @NotBlank(message = "First name is required")
-        String firstName,
+            @NotBlank(message = "First name is required") String firstName,
 
-        @NotBlank(message = "Last name is required")
-        String lastName,
+            @NotBlank(message = "Last name is required") String lastName,
 
-        String role
-    ) {}
+            String role) {
+    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthService.LoginResponse> login(@Valid @RequestBody LoginRequest req) {
@@ -54,10 +46,10 @@ public class AuthController {
         if (req.role() != null && !req.role().isBlank()) {
             try {
                 userRole = User.UserRole.valueOf(req.role().trim().toUpperCase());
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return ResponseEntity.ok(authService.register(
-            req.email(), req.password(), req.firstName(), req.lastName(), userRole
-        ));
+                req.email(), req.password(), req.firstName(), req.lastName(), userRole));
     }
 }

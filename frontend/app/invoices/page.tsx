@@ -41,32 +41,6 @@ export default function InvoicesPage() {
   const userRole = user.role || 'SALES_REP';
   const hasAccess = ['ADMIN', 'FINANCE'].includes(userRole);
 
-  if ((forbidden || !hasAccess) && !loading) {
-    return (
-      <AppLayout>
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="df-card p-8 text-center space-y-4 border border-[var(--border)]">
-            <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-              <ShieldAlert size={32} />
-            </div>
-            <h2 className="page-heading">Accounts Receivable & Invoicing</h2>
-            <p className="body-text max-w-lg mx-auto">
-              You are signed in as <strong className="text-[var(--text-primary)]">{user.fullName || user.email || 'User'}</strong> ({userRole}).
-              Access to customer invoice ledgers and payment settlements is restricted to <strong>Finance Leads</strong> and <strong>System Admins</strong>.
-            </p>
-            <div className="pt-4 flex items-center justify-center gap-4">
-              <Link href="/quotations" className="btn-primary">
-                View Quotations
-              </Link>
-              <Link href="/dashboard" className="btn-secondary">
-                Return to Dashboard
-              </Link>
-            </div>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>

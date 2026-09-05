@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { authApi, getStoredUser, setStoredAuth, clearStoredAuth } from '@/lib/api';
+import { getNavItemsForRole, canCreateQuotation, canAccessRoute } from '@/lib/permissions';
+import NavbarButton from './NavbarButton';
 
 /* ─── Light Workspace Tokens ─────────────────────────────────────────────── */
 const t = {
@@ -19,17 +21,6 @@ const t = {
   error:         '#DC2626',
   errorSubtle:   '#FEE2E2',
 };
-
-const NAV_ITEMS = [
-  { path: 'dashboard',     label: 'Dashboard',     href: '/dashboard',     roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { path: 'quotations',    label: 'Quotations',    href: '/quotations',    roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { path: 'approvals',     label: 'Approvals',     href: '/approvals',     roles: ['ADMIN', 'MANAGER', 'FINANCE'] },
-  { path: 'fulfillment',   label: 'Fulfillment',   href: '/fulfillment',   roles: ['ADMIN', 'MANAGER'] },
-  { path: 'subscriptions', label: 'Subscriptions', href: '/subscriptions', roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { path: 'invoices',      label: 'Invoices',      href: '/invoices',      roles: ['ADMIN', 'FINANCE'] },
-  { path: 'deal-health',   label: 'Deal Health',   href: '/deal-health',   roles: ['ADMIN', 'MANAGER', 'FINANCE', 'SALES_REP'] },
-  { path: 'reports',       label: 'Reports',       href: '/reports',       roles: ['ADMIN', 'MANAGER', 'FINANCE'] },
-];
 
 const DEMO_PERSONAS = [
   { label: 'Admin',         role: 'ADMIN',     email: 'admin@dealflow360.com',   name: 'Aarav Sharma',   icon: 'admin_panel_settings' },
@@ -52,12 +43,19 @@ export default function HeaderNavbar() {
   const loadUserFromStorage = () => {
     if (typeof window !== 'undefined') {
       const u = getStoredUser();
-      setUser(u);
+      setUser(u || {});
     }
   };
 
   useEffect(() => {
     loadUserFromStorage();
+
+    const handleAuthChange = () => {
+      loadUserFromStorage();
+    };
+
+    window.addEventListener('dealflow-auth-change', handleAuthChange);
+    return () => window.removeEventListener('dealflow-auth-change', handleAuthChange);
   }, [pathname]);
 
   // Click outside listener for dropdown
@@ -91,40 +89,50 @@ export default function HeaderNavbar() {
 
   const handleLogout = () => {
     clearStoredAuth();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('dealflow-auth-change'));
+    }
     router.push('/login');
   };
 
   const handleSwitchPersona = async (persona: typeof DEMO_PERSONAS[0]) => {
     setSwitchingRole(persona.role);
     try {
-      const res = await authApi.login(persona.email, 'Password123!');
-      const token = res.data.accessToken || res.data.token;
-      const newUser = {
-        userId: res.data.userId,
-        email: res.data.email,
-        role: res.data.role,
-        fullName: res.data.fullName,
+      let token = 'demo-token';
+      let newUser = {
+        userId: 1,
+        email: persona.email,
+        role: persona.role,
+        fullName: persona.name,
       };
+
+      try {
+        const res = await authApi.login(persona.email, 'Password123!');
+        token = res.data.accessToken || res.data.token || token;
+        newUser = {
+          userId: res.data.userId || 1,
+          email: res.data.email || persona.email,
+          role: res.data.role || persona.role,
+          fullName: res.data.fullName || persona.name,
+        };
+      } catch {
+        // Fallback demo mock auth
+      }
+
       setStoredAuth(token, newUser);
       setUser(newUser);
       setProfileDropdownOpen(false);
-      router.refresh();
-      window.location.reload();
-    } catch {
-      setStoredAuth('demo-token', {
-        userId: 1,
-        email: persona.email,
-        role: persona.role,
-        fullName: persona.name,
-      });
-      setUser({
-        userId: 1,
-        email: persona.email,
-        role: persona.role,
-        fullName: persona.name,
-      });
-      setProfileDropdownOpen(false);
-      router.refresh();
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('dealflow-auth-change'));
+      }
+
+      // If the current route is not accessible by the newly selected role, navigate to /dashboard
+      if (!canAccessRoute(newUser.role, pathname)) {
+        router.push('/dashboard');
+      } else {
+        router.refresh();
+      }
     } finally {
       setSwitchingRole(null);
     }
@@ -135,11 +143,23 @@ export default function HeaderNavbar() {
     return pathname.startsWith(`/${path}`);
   };
 
-  const userRole = user.role || 'SALES_REP';
+  const userRole = user?.role || 'SALES_REP';
+  const visibleNavItems = getNavItemsForRole(userRole);
+  const showNewQuoteButton = canCreateQuotation(userRole);
 
   const userInitials = user.fullName
     ? user.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
     : (userRole ? userRole.slice(0, 2) : 'DF');
+
+  const SEARCH_ITEMS = [
+    { label: 'Quotations', icon: 'receipt_long', href: '/quotations' },
+    { label: 'Approvals', icon: 'approval', href: '/approvals' },
+    { label: 'Invoices', icon: 'payments', href: '/invoices' },
+    { label: 'Fulfillment', icon: 'local_shipping', href: '/fulfillment' },
+    { label: 'Subscriptions', icon: 'autorenew', href: '/subscriptions' },
+    { label: 'Deal Health', icon: 'health_metrics', href: '/deal-health' },
+    { label: 'Reports', icon: 'bar_chart', href: '/reports' },
+  ].filter((item) => canAccessRoute(userRole, item.href));
 
   return (
     <>
@@ -185,16 +205,15 @@ export default function HeaderNavbar() {
               </span>
             </Link>
 
-            {/* Desktop Navigation (Equal 16px spacing between items, scoped underline active state) */}
+            {/* Desktop Navigation (Filtered by role at render time — strictly no lock icons) */}
             <nav className="hidden xl:flex items-center overflow-hidden" style={{ gap: '16px' }}>
-              {NAV_ITEMS.map((item) => {
+              {visibleNavItems.map((item) => {
                 const active = isActive(item.path);
-                const hasAccess = item.roles.includes(userRole);
                 return (
                   <Link
                     key={item.path}
                     href={item.href}
-                    className={`transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${!hasAccess ? 'opacity-50' : ''}`}
+                    className="transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
                     style={
                       active
                         ? {
@@ -232,20 +251,15 @@ export default function HeaderNavbar() {
                     }}
                   >
                     <span>{item.label}</span>
-                    {!hasAccess && (
-                      <span className="material-symbols-outlined text-xs" style={{ fontSize: '13px', opacity: 0.6 }} title={`Restricted to ${item.roles.join(', ')}`}>
-                        lock
-                      </span>
-                    )}
                   </Link>
                 );
               })}
             </nav>
           </div>
 
-          {/* ── Right Cluster: Search (Fixed Width) + New Quote + User Profile (Guaranteed Room) ── */}
+          {/* ── Right Cluster: Search + Role-Scoped New Quote + User Profile ── */}
           <div className="flex items-center shrink-0" style={{ gap: '16px' }}>
-            {/* Search Input Button (Fixed 240px width, no line wrapping) */}
+            {/* Search Input Button */}
             <button
               type="button"
               onClick={() => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 100); }}
@@ -296,27 +310,29 @@ export default function HeaderNavbar() {
               </kbd>
             </button>
 
-            {/* "New Quote" Primary Action Button */}
-            <Link
-              href="/quotations"
-              className="hidden sm:inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
-              style={{
-                background: t.accent,
-                color: '#FFFFFF',
-                fontSize: '14px',
-                fontWeight: 600,
-                padding: '0 16px',
-                height: '40px',
-                borderRadius: '8px',
-                textDecoration: 'none',
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = t.accentHover; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = t.accent; }}
-            >
-              <span className="material-symbols-outlined shrink-0" style={{ fontSize: '18px', color: '#FFFFFF' }}>add</span>
-              <span>New Quote</span>
-            </Link>
+            {/* "New Quote" Primary Action Button (Only visible for roles permitted to create quotes) */}
+            {showNewQuoteButton && (
+              <Link
+                href="/quotations"
+                className="hidden sm:inline-flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
+                style={{
+                  background: t.accent,
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  padding: '0 16px',
+                  height: '40px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = t.accentHover; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = t.accent; }}
+              >
+                <span className="material-symbols-outlined shrink-0" style={{ fontSize: '18px', color: '#FFFFFF' }}>add</span>
+                <span>New Quote</span>
+              </Link>
+            )}
 
             {/* Vertical Divider */}
             <div
@@ -324,7 +340,7 @@ export default function HeaderNavbar() {
               style={{ background: t.border }}
             />
 
-            {/* User Profile & Role Switcher Dropdown (Guaranteed room, never clipped) */}
+            {/* User Profile & Role Switcher Dropdown */}
             <div className="relative shrink-0" ref={dropdownRef}>
               <button
                 type="button"
@@ -338,7 +354,7 @@ export default function HeaderNavbar() {
                   height: '40px',
                 }}
               >
-                {/* Neutral --border-outlined circle avatar */}
+                {/* Avatar */}
                 <div
                   className="shrink-0"
                   style={{
@@ -361,7 +377,6 @@ export default function HeaderNavbar() {
                   <span style={{ fontSize: '13px', fontWeight: 600, color: t.textPrimary, lineHeight: 1.2 }}>
                     {user.fullName || 'Enterprise User'}
                   </span>
-                  {/* Small --accent-subtle chip with --accent text */}
                   <span
                     style={{
                       background: t.accentSubtle,
@@ -525,7 +540,7 @@ export default function HeaderNavbar() {
           </div>
         </div>
 
-        {/* ── Mobile Nav Menu ────────────────────────────────────────────────── */}
+        {/* ── Mobile Nav Menu (Role filtered) ─────────────────────────────────── */}
         {mobileMenuOpen && (
           <div
             className="xl:hidden"
@@ -536,15 +551,14 @@ export default function HeaderNavbar() {
             }}
           >
             <div className="flex flex-col" style={{ gap: '4px' }}>
-              {NAV_ITEMS.map((item) => {
+              {visibleNavItems.map((item) => {
                 const active = isActive(item.path);
-                const hasAccess = item.roles.includes(userRole);
                 return (
                   <Link
                     key={item.path}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-4 py-2.5 rounded-lg transition-all flex items-center justify-between ${!hasAccess ? 'opacity-50' : ''}`}
+                    className="px-4 py-2.5 rounded-lg transition-all flex items-center justify-between"
                     style={
                       active
                         ? {
@@ -562,9 +576,6 @@ export default function HeaderNavbar() {
                     }
                   >
                     <span>{item.label}</span>
-                    {!hasAccess && (
-                      <span className="material-symbols-outlined text-xs" style={{ fontSize: '14px' }}>lock</span>
-                    )}
                   </Link>
                 );
               })}
@@ -582,7 +593,7 @@ export default function HeaderNavbar() {
         )}
       </header>
 
-      {/* ── Search Modal Overlay (Light Theme) ────────────────────────────────── */}
+      {/* ── Search Modal Overlay (Role Filtered) ────────────────────────────────── */}
       {searchOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-start justify-center pt-24"
@@ -628,13 +639,7 @@ export default function HeaderNavbar() {
               </kbd>
             </div>
             <div className="p-3 flex flex-col" style={{ gap: '2px' }}>
-              {[
-                { label: 'Quotations', icon: 'receipt_long', href: '/quotations' },
-                { label: 'Approvals', icon: 'approval', href: '/approvals' },
-                { label: 'Invoices', icon: 'payments', href: '/invoices' },
-                { label: 'Fulfillment', icon: 'local_shipping', href: '/fulfillment' },
-                { label: 'Deal Health', icon: 'health_metrics', href: '/deal-health' },
-              ].map((item) => (
+              {SEARCH_ITEMS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

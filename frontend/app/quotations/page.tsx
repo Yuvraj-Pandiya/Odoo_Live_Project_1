@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
-import { quotationApi } from '@/lib/api';
+import { quotationApi, getStoredUser } from '@/lib/api';
+import { canCreateQuotation } from '@/lib/permissions';
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'badge-draft',
@@ -37,6 +38,24 @@ export default function QuotationsPage() {
   const [filter, setFilter] = useState('ALL');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>({});
+
+  const loadUser = () => {
+    if (typeof window !== 'undefined') {
+      const u = getStoredUser();
+      setUser(u || {});
+    }
+  };
+
+  useEffect(() => {
+    loadUser();
+    const handleAuth = () => loadUser();
+    window.addEventListener('dealflow-auth-change', handleAuth);
+    return () => window.removeEventListener('dealflow-auth-change', handleAuth);
+  }, []);
+
+  const userRole = user?.role || 'SALES_REP';
+  const showCreate = canCreateQuotation(userRole);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('dealflow_token')) {
@@ -93,10 +112,12 @@ export default function QuotationsPage() {
                   style={{ width: '240px', paddingLeft: '36px' }}
                 />
               </div>
-              <Link href="/quotations/new" className="btn-primary">
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-                <span>New quotation</span>
-              </Link>
+              {showCreate && (
+                <Link href="/quotations/new" className="btn-primary">
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
+                  <span>New quotation</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
