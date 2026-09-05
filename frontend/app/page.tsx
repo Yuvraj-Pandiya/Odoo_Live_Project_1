@@ -14,10 +14,10 @@ const VIDEO_URL =
 const SENSITIVITY = 0.8;
 
 const DEMO_ACCOUNTS = [
-  { label: 'Admin',         email: 'admin@dealflow360.com',   role: 'ADMIN',     desc: 'Full access' },
-  { label: 'Sales Manager', email: 'manager@dealflow360.com', role: 'MANAGER',   desc: 'Level-1 approvals' },
-  { label: 'Finance',       email: 'finance@dealflow360.com', role: 'FINANCE',   desc: 'Level-2 approvals' },
-  { label: 'Sales Rep',     email: 'rep1@dealflow360.com',    role: 'SALES_REP', desc: 'Quotes & deals' },
+  { label: 'Admin', email: 'admin@dealflow360.com', role: 'ADMIN', desc: 'Full access' },
+  { label: 'Sales Manager', email: 'manager@dealflow360.com', role: 'MANAGER', desc: 'Level-1 approvals' },
+  { label: 'Finance', email: 'finance@dealflow360.com', role: 'FINANCE', desc: 'Level-2 approvals' },
+  { label: 'Sales Rep', email: 'rep1@dealflow360.com', role: 'SALES_REP', desc: 'Quotes & deals' },
 ];
 
 /* ─── Glass Input ─────────────────────────────────────────────── */
@@ -51,13 +51,13 @@ function GlassField({
             border: error
               ? '1.5px solid rgba(248,113,113,0.8)'
               : focused
-              ? '1.5px solid rgba(255,255,255,0.7)'
-              : '1.5px solid rgba(255,255,255,0.2)',
+                ? '1.5px solid rgba(255,255,255,0.7)'
+                : '1.5px solid rgba(255,255,255,0.2)',
             background: error
               ? 'rgba(220,38,38,0.12)'
               : focused
-              ? 'rgba(255,255,255,0.18)'
-              : 'rgba(255,255,255,0.1)',
+                ? 'rgba(255,255,255,0.18)'
+                : 'rgba(255,255,255,0.1)',
             fontSize: 14,
             color: '#fff',
             outline: 'none',
@@ -399,9 +399,6 @@ export default function MainframePage() {
 
           {/* Demo accounts */}
           <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)' }}>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10, textAlign: 'center' }}>
-              Jump to a demo account
-            </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
               {DEMO_ACCOUNTS.map(acc => {
                 const busy = demoLoading === acc.email;
