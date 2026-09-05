@@ -60,10 +60,12 @@ $pg = "C:\Program Files\PostgreSQL\18\bin\psql.exe"
 # Create DB
 & $pg -U postgres -c "CREATE DATABASE dealflow360;"
 
-# Run schema + seed
+# Run schema + 300-row seed
 & $pg -U postgres -d dealflow360 -f "database\schema.sql"
-& $pg -U postgres -d dealflow360 -f "database\seed.sql"
-& $pg -U postgres -d dealflow360 -f "database\fix_passwords.sql"
+& $pg -U postgres -d dealflow360 -f "database\seed_300.sql"
+
+# Or seed programmatically using Python:
+python database/generate_seed_300.py
 ```
 
 ### 3. Backend
