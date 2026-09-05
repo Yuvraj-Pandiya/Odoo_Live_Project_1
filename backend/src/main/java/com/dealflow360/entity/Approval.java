@@ -15,6 +15,7 @@ public class Approval {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quotation_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnore
@@ -28,6 +29,7 @@ public class Approval {
     @Column(columnDefinition = "approval_level")
     private ApprovalLevel level;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "approval_status")
     @Builder.Default

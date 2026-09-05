@@ -16,6 +16,7 @@ public class NegotiationComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quotation_id", nullable = false)
     private Quotation quotation;
@@ -24,6 +25,7 @@ public class NegotiationComment {
     @JoinColumn(name = "line_id")
     private QuotationLine line;
 
+    @Builder.Default
     @Column(name = "author_type")
     private String authorType = "CUSTOMER";
 
@@ -36,6 +38,7 @@ public class NegotiationComment {
     @Column(name = "counter_discount")
     private BigDecimal counterDiscount;
 
+    @Builder.Default
     @Column(name = "is_resolved")
     private Boolean isResolved = false;
 

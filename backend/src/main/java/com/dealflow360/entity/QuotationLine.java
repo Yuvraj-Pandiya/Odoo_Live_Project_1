@@ -16,13 +16,15 @@ public class QuotationLine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quotation_id", nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private Quotation quotation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"category", "variants", "hibernateLazyInitializer", "handler"})
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,6 +33,7 @@ public class QuotationLine {
 
     private String description;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "line_type", columnDefinition = "line_type")
     @Builder.Default
@@ -45,14 +48,17 @@ public class QuotationLine {
     @Column(name = "cost_price")
     private BigDecimal costPrice;
 
+    @Builder.Default
     @Column(name = "discount_pct")
     @Builder.Default
     private BigDecimal discountPct = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "discount_allowed")
     @Builder.Default
     private BigDecimal discountAllowed = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "tax_pct")
     @Builder.Default
     private BigDecimal taxPct = BigDecimal.ZERO;
@@ -70,10 +76,12 @@ public class QuotationLine {
     @Column(name = "billing_cycle", columnDefinition = "billing_cycle")
     private Product.BillingCycle billingCycle;
 
+    @Builder.Default
     @Column(name = "is_upsell")
     @Builder.Default
     private Boolean isUpsell = false;
 
+    @Builder.Default
     @Column(name = "sort_order")
     @Builder.Default
     private Integer sortOrder = 0;

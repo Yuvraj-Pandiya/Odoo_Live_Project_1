@@ -22,14 +22,17 @@ public class Quotation {
     @Column(name = "quote_number", nullable = false, unique = true)
     private String quoteNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"assignedRep", "hibernateLazyInitializer", "handler"})
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sales_rep_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"passwordHash", "hibernateLazyInitializer", "handler"})
     private User salesRep;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "quotation_status")
     @Builder.Default
@@ -41,14 +44,17 @@ public class Quotation {
     @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "tax_total")
     @Builder.Default
     private BigDecimal taxTotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "discount_total")
     @Builder.Default
     private BigDecimal discountTotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(name = "grand_total")
     @Builder.Default
     private BigDecimal grandTotal = BigDecimal.ZERO;
@@ -80,10 +86,12 @@ public class Quotation {
     @Column(name = "confirmed_at")
     private OffsetDateTime confirmedAt;
 
+    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties("quotation")
     private List<QuotationLine> lines;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties("quotation")
     private List<Approval> approvals;
