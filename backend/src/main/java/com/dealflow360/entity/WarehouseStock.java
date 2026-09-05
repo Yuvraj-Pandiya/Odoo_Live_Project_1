@@ -15,17 +15,23 @@ public class WarehouseStock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "warehouse_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"stocks", "hibernateLazyInitializer", "handler"})
     private Warehouse warehouse;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"category", "variants", "hibernateLazyInitializer", "handler"})
     private Product product;
 
+    @Builder.Default
     private Integer quantity = 0;
+
+    @Builder.Default
     private Integer reserved = 0;
 
+    @Builder.Default
     @Column(name = "reorder_point")
     private Integer reorderPoint = 10;
 

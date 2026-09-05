@@ -150,8 +150,8 @@ INSERT INTO upsell_rules (trigger_product_id, suggest_product_id, co_purchase_co
 -- ============================================================
 
 -- Q-1042 (Acme Corp - GOLD - HIGH risk - needs MANAGER + FINANCE)
-INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, last_activity_at, submitted_at)
-VALUES ('Q-1042', 1, 4, 'PENDING_APPROVAL', 'USD', 2450.00, 441.00, 310.00, 2581.00, 8.50, 'HIGH', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days');
+INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, portal_token, last_activity_at, submitted_at)
+VALUES ('Q-1042', 1, 4, 'PENDING_APPROVAL', 'USD', 2450.00, 441.00, 310.00, 2581.00, 8.50, 'HIGH', 'd8e3b2a1c4f50967', NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days');
 
 INSERT INTO quotation_lines (quotation_id, product_id, line_type, quantity, unit_price, cost_price, discount_pct, discount_allowed, tax_pct, line_total, margin_amount, margin_pct)
 VALUES
@@ -160,8 +160,8 @@ VALUES
 (1, 6, 'RECURRING', 1,   20.00,   3.00,  10.00, 15.00, 18.00,   18.00,   15.00, 83.33);
 
 -- Q-1039 (Beta Industries - SILVER - MEDIUM risk)
-INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, last_activity_at, submitted_at)
-VALUES ('Q-1039', 2, 4, 'PENDING_APPROVAL', 'USD', 1800.00, 324.00, 150.00, 1974.00, 5.20, 'MEDIUM', NOW() - INTERVAL '5 days', NOW() - INTERVAL '5 days');
+INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, portal_token, last_activity_at, submitted_at)
+VALUES ('Q-1039', 2, 4, 'PENDING_APPROVAL', 'USD', 1800.00, 324.00, 150.00, 1974.00, 5.20, 'MEDIUM', 'b1c2d3e4f5a60718', NOW() - INTERVAL '5 days', NOW() - INTERVAL '5 days');
 
 INSERT INTO quotation_lines (quotation_id, product_id, line_type, quantity, unit_price, cost_price, discount_pct, discount_allowed, tax_pct, line_total, margin_amount, margin_pct)
 VALUES
@@ -169,16 +169,16 @@ VALUES
 (2, 3, 'ONE_TIME', 4,  180.00,  80.00, 7.00, 10.00, 15.00,  669.60, 269.60, 40.26);
 
 -- Q-1035 (Nova Retail - BRONZE - LOW / Auto-approved)
-INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, last_activity_at, submitted_at, approved_at)
-VALUES ('Q-1035', 5, 5, 'APPROVED', 'USD', 350.00, 63.00, 0.00, 413.00, 0.00, 'LOW', NOW() - INTERVAL '3 days', NOW() - INTERVAL '4 days', NOW() - INTERVAL '3 days');
+INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, portal_token, last_activity_at, submitted_at, approved_at)
+VALUES ('Q-1035', 5, 5, 'APPROVED', 'USD', 350.00, 63.00, 0.00, 413.00, 0.00, 'LOW', 'c2d3e4f5a6b70829', NOW() - INTERVAL '3 days', NOW() - INTERVAL '4 days', NOW() - INTERVAL '3 days');
 
 INSERT INTO quotation_lines (quotation_id, product_id, line_type, quantity, unit_price, cost_price, discount_pct, discount_allowed, tax_pct, line_total, margin_amount, margin_pct)
 VALUES
 (3, 5, 'ONE_TIME', 10, 35.00, 12.00, 0.00, 5.00, 15.00, 402.50, 230.00, 65.71);
 
 -- Q-1030 (Zenith Co - GOLD - Confirmed + Backorder)
-INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, last_activity_at, confirmed_at)
-VALUES ('Q-1030', 3, 5, 'CONFIRMED', 'USD', 15300.00, 2754.00, 1200.00, 16854.00, 2.10, 'LOW', NOW() - INTERVAL '10 days', NOW() - INTERVAL '8 days');
+INSERT INTO quotations (quote_number, customer_id, sales_rep_id, status, currency, subtotal, tax_total, discount_total, grand_total, blended_risk_score, risk_level, portal_token, last_activity_at, confirmed_at)
+VALUES ('Q-1030', 3, 5, 'CONFIRMED', 'USD', 15300.00, 2754.00, 1200.00, 16854.00, 2.10, 'LOW', 'e5f6a7b8c9d01930', NOW() - INTERVAL '10 days', NOW() - INTERVAL '8 days');
 
 INSERT INTO quotation_lines (quotation_id, product_id, line_type, quantity, unit_price, cost_price, discount_pct, discount_allowed, tax_pct, line_total, margin_amount, margin_pct)
 VALUES

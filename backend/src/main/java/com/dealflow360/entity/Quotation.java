@@ -22,12 +22,14 @@ public class Quotation {
     @Column(name = "quote_number", nullable = false, unique = true)
     private String quoteNumber;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"assignedRep", "hibernateLazyInitializer", "handler"})
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sales_rep_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"passwordHash", "hibernateLazyInitializer", "handler"})
     private User salesRep;
 
     @Builder.Default
@@ -80,9 +82,10 @@ public class Quotation {
     @Column(name = "confirmed_at")
     private OffsetDateTime confirmedAt;
 
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<QuotationLine> lines;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Approval> approvals;
 
