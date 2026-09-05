@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+*/.next/
+out/
+*/out/
+build/
+*/build/
+dist/
+*/dist/
+
+# Maven / Java build output
+target/
+*/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+.mvn/wrapper/maven-wrapper.jar
+
+# Environment variable files
+.env*.local
+.env
+*/.env
+*/.env*.local
+env_local_backup.txt
+
+# IDE / Editor files
+.idea/
+*/.idea/
+.vscode/
+*/.vscode/
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+logs/
+*/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Antigravity / Gemini scratch & system generated files
+.system_generated/
+scratch/
+.agents/

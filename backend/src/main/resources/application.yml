@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: dealflow360-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/dealflow360?stringtype=unspecified}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: dealflow
+        format_sql: true
+        use_sql_comments: true
+    open-in-view: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+jwt:
+  secret: ${JWT_SECRET:dealflow360-super-secret-key-must-be-at-least-32-chars-long!}
+  access-token-expiry-ms: ${JWT_ACCESS_EXPIRY:3600000}
+  refresh-token-expiry-ms: ${JWT_REFRESH_EXPIRY:86400000}
+
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+
+deal-health:
+  stall-days: ${DEAL_STALL_DAYS:7}
+  anomaly-multiplier: ${ANOMALY_MULTIPLIER:1.5}
+
+logging:
+  level:
+    com.dealflow360: DEBUG
+    org.springframework.security: WARN
