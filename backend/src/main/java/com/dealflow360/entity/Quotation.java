@@ -35,8 +35,12 @@ public class Quotation {
     @Builder.Default
     private QuotationStatus status = QuotationStatus.DRAFT;
 
+<<<<<<< Updated upstream
     @Builder.Default
     private String currency = "USD";
+=======
+    private String currency = "INR";
+>>>>>>> Stashed changes
 
     @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;

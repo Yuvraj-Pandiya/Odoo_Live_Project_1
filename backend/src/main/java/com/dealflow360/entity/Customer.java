@@ -43,7 +43,7 @@ public class Customer {
     @Column(name = "postal_code")
     private String postalCode;
 
-    private String currency = "USD";
+    private String currency = "INR";
 
     @Column(name = "portal_password")
     private String portalPassword;

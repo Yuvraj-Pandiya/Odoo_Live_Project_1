@@ -24,7 +24,7 @@ public class PriceList {
     @Column(name = "customer_tier", columnDefinition = "customer_tier")
     private Customer.CustomerTier customerTier;
 
-    private String currency = "USD";
+    private String currency = "INR";
 
     @Column(name = "price_rule")
     private String priceRule = "FIXED";
