@@ -14,9 +14,9 @@ const t = {
   textPrimary:   '#111827',
   textSecondary: '#4B5563',
   textMuted:     '#9CA3AF',
-  accent:        '#2E51D6',
-  accentHover:   '#2341B8',
-  accentSubtle:  '#EEF2FF',
+  accent:        '#2D6A4F',
+  accentHover:   '#1E4D39',
+  accentSubtle:  '#E8F5EE',
   error:         '#DC2626',
   errorSubtle:   '#FEE2E2',
 };
