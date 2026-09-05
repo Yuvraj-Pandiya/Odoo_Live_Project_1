@@ -42,8 +42,22 @@ CREATE TABLE users (
     avatar_url          VARCHAR(500),
     phone               VARCHAR(50),
     department          VARCHAR(100),
+    must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE user_audit_logs (
+    id                  BIGSERIAL PRIMARY KEY,
+    actor_user_id       BIGINT,
+    actor_email         VARCHAR(255) NOT NULL,
+    target_user_id      BIGINT,
+    target_email        VARCHAR(255) NOT NULL,
+    action              VARCHAR(100) NOT NULL,
+    old_value           TEXT,
+    new_value           TEXT,
+    notes               TEXT,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE refresh_tokens (

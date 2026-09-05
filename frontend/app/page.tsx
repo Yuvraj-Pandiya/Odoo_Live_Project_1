@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Eye, EyeOff, ArrowRight, CheckCircle2,
-  AlertCircle, Loader2, Shield,
+  AlertCircle, Loader2, Shield, X, Clock, AlertTriangle, Mail
 } from 'lucide-react';
 import { authApi } from '@/lib/api';
 
@@ -171,15 +171,62 @@ export default function MainframePage() {
     return Object.keys(e).length === 0;
   };
 
+  const [loginAlertModal, setLoginAlertModal] = useState<{
+    open: boolean;
+    type: 'pending' | 'deactivated' | 'error' | 'info';
+    title: string;
+    message: string;
+    details?: string;
+  } | null>(null);
+
+  const [forceChangeModal, setForceChangeModal] = useState<{ open: boolean; authData: any }>({
+    open: false,
+    authData: null,
+  });
+  const [newPermanentPassword, setNewPermanentPassword] = useState('');
+  const [confirmPermanentPassword, setConfirmPermanentPassword] = useState('');
+  const [forceChangeError, setForceChangeError] = useState<string | null>(null);
+  const [forceChangeLoading, setForceChangeLoading] = useState(false);
+
   const persistAuth = (data: any) => {
-    const { accessToken, role, email: ue, fullName, userId } = data;
+    const { accessToken, role, email: ue, fullName, userId, mustChangePassword } = data;
     localStorage.setItem('dealflow_token', accessToken);
     localStorage.setItem('dealflow_user', JSON.stringify({ id: userId, email: ue, fullName, role }));
+    
+    if (mustChangePassword) {
+      setForceChangeModal({ open: true, authData: data });
+      return;
+    }
+
     const normalizedRole = (role || '').toUpperCase();
     if (normalizedRole === 'CUSTOMER') {
       router.push('/portal');
     } else {
       router.push('/dashboard');
+    }
+  };
+
+  const handleForcePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForceChangeError(null);
+    if (!newPermanentPassword || newPermanentPassword.length < 8) {
+      setForceChangeError('New password must be at least 8 characters long.');
+      return;
+    }
+    if (newPermanentPassword !== confirmPermanentPassword) {
+      setForceChangeError('Passwords do not match.');
+      return;
+    }
+
+    setForceChangeLoading(true);
+    try {
+      await authApi.changePassword({ newPassword: newPermanentPassword });
+      setForceChangeModal({ open: false, authData: null });
+      router.push('/dashboard');
+    } catch (err: any) {
+      setForceChangeError(err.response?.data?.message || 'Failed to update password.');
+    } finally {
+      setForceChangeLoading(false);
     }
   };
 
@@ -194,6 +241,31 @@ export default function MainframePage() {
     } catch (err: any) {
       const data = err.response?.data;
       const status = err.response?.status;
+      const rawMsg = data?.message || 'Login failed. Please verify your credentials.';
+      const isPending = rawMsg.toLowerCase().includes('pending') || rawMsg.toLowerCase().includes('approval');
+      const isDeactivated = rawMsg.toLowerCase().includes('deactivated');
+
+      // Pop persistent alert dialog modal that stays until the user explicitly crosses/closes it
+      setLoginAlertModal({
+        open: true,
+        type: isPending ? 'pending' : isDeactivated ? 'deactivated' : 'error',
+        title: isPending
+          ? 'Account Pending Administrator Approval'
+          : isDeactivated
+          ? 'Account Deactivated'
+          : status === 401 || status === 403
+          ? 'Sign In Access Restricted'
+          : 'Backend Server Unreachable',
+        message: rawMsg,
+        details: isPending
+          ? 'Your registration was recorded successfully. For enterprise data security, all staff accounts must be verified and assigned appropriate roles by an Administrator in the User Governance panel before signing in.'
+          : isDeactivated
+          ? 'This employee profile is currently deactivated. Please contact your organization administrator to reactivate access.'
+          : !err.response
+          ? 'Cannot connect to DealFlow360 backend on port 8080. Please verify the backend service is running.'
+          : undefined,
+      });
+
       if (!err.response) setError('Cannot connect to the server. Make sure the backend is running.');
       else if (status === 401 || status === 403) setError(data?.message ?? 'Incorrect email or password.');
       else if (data?.fields) setFieldErrors({ email: data.fields.email ?? '', password: data.fields.password ?? '' });
@@ -208,7 +280,15 @@ export default function MainframePage() {
     setLoading(true);
     try {
       await authApi.register({ email: email.trim(), password, firstName: firstName.trim(), lastName: lastName.trim() });
-      setSuccess('Account created. An admin will assign your access level.');
+      const successMsg = 'Registration submitted! Your account is currently pending administrator review and activation before you can sign in.';
+      setSuccess(successMsg);
+      setLoginAlertModal({
+        open: true,
+        type: 'pending',
+        title: 'Registration Submitted — Awaiting Approval',
+        message: successMsg,
+        details: 'An administrator will review your application in the User Governance panel (/admin/users). Once approved, you can sign in immediately with your email and password.',
+      });
       setMode('login');
       setPassword(''); setConfirmPassword('');
     } catch (err: any) {
@@ -465,6 +545,233 @@ export default function MainframePage() {
           </div>
         </div>
       </div>
+
+      {/* ── Forced Password Change Modal ─────────────────────────────── */}
+      {forceChangeModal.open && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 100,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+        }}>
+          <div style={{
+            maxWidth: 420, width: '100%',
+            background: 'rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: 20, padding: '32px 28px',
+            color: '#fff', fontFamily: 'Inter, sans-serif',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
+          }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 6px', color: '#fff' }}>
+              Set Permanent Password
+            </h2>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', margin: '0 0 16px', lineHeight: 1.4 }}>
+              Your account was provisioned with a temporary password. Please establish your personal password to proceed to your dashboard.
+            </p>
+
+            {forceChangeError && (
+              <div style={{ display: 'flex', gap: 8, padding: '10px 12px', borderRadius: 8, marginBottom: 14, background: 'rgba(220,38,38,0.3)', border: '1px solid rgba(248,113,113,0.6)', color: '#FCA5A5', fontSize: 13 }}>
+                <AlertCircle size={15} style={{ flexShrink: 0, marginTop: 1 }} />
+                <span>{forceChangeError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleForcePasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <GlassField
+                label="New Permanent Password"
+                type="password"
+                value={newPermanentPassword}
+                onChange={setNewPermanentPassword}
+                placeholder="Min. 8 characters"
+              />
+              <GlassField
+                label="Confirm Permanent Password"
+                type="password"
+                value={confirmPermanentPassword}
+                onChange={setConfirmPermanentPassword}
+                placeholder="Re-enter new password"
+              />
+
+              <button
+                type="submit"
+                disabled={forceChangeLoading}
+                style={{
+                  width: '100%', height: 42, borderRadius: 10,
+                  background: forceChangeLoading ? 'rgba(255,255,255,0.4)' : '#fff',
+                  color: '#0F172A', fontSize: 14, fontWeight: 700,
+                  border: 'none', cursor: forceChangeLoading ? 'not-allowed' : 'pointer',
+                  marginTop: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                }}
+              >
+                {forceChangeLoading ? <Loader2 size={16} className="animate-spin" /> : 'Set Password & Enter Dashboard'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Persistent Access & Approval Alert Dialog ─────────────────── */}
+      {loginAlertModal?.open && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 120,
+            background: 'rgba(15, 23, 42, 0.78)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 480,
+              width: '100%',
+              background: '#0F172A',
+              border: loginAlertModal.type === 'pending'
+                ? '1px solid #F59E0B'
+                : loginAlertModal.type === 'deactivated'
+                ? '1px solid #EF4444'
+                : '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: 20,
+              padding: '28px 26px',
+              color: '#FFFFFF',
+              fontFamily: 'Inter, sans-serif',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0,0,0,0.3)',
+              position: 'relative',
+            }}
+          >
+            {/* Top Right Close Button */}
+            <button
+              type="button"
+              onClick={() => setLoginAlertModal(null)}
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: 'rgba(255,255,255,0.8)',
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+              title="Close notification"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header with Icon */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: loginAlertModal.type === 'pending'
+                    ? 'rgba(245, 158, 11, 0.18)'
+                    : 'rgba(239, 68, 68, 0.18)',
+                  border: loginAlertModal.type === 'pending'
+                    ? '1px solid rgba(245, 158, 11, 0.4)'
+                    : '1px solid rgba(239, 68, 68, 0.4)',
+                  color: loginAlertModal.type === 'pending' ? '#FBBF24' : '#F87171',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                {loginAlertModal.type === 'pending' ? <Clock size={22} /> : <AlertTriangle size={22} />}
+              </div>
+              <div style={{ paddingRight: 24 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: '#FFFFFF', lineHeight: 1.3 }}>
+                  {loginAlertModal.title}
+                </h2>
+                <p style={{ fontSize: 12.5, color: '#94A3B8', margin: 0 }}>
+                  DealFlow360 Enterprise Access Security
+                </p>
+              </div>
+            </div>
+
+            {/* Message Body */}
+            <div
+              style={{
+                background: 'rgba(30, 41, 59, 0.7)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 12,
+                padding: '14px 16px',
+                marginBottom: 16,
+                fontSize: 13.5,
+                lineHeight: 1.6,
+                color: '#E2E8F0',
+              }}
+            >
+              <p style={{ margin: 0, fontWeight: 500 }}>
+                {loginAlertModal.message}
+              </p>
+              {loginAlertModal.details && (
+                <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#94A3B8', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 10 }}>
+                  {loginAlertModal.details}
+                </p>
+              )}
+            </div>
+
+            {/* Admin Support Info */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(96, 165, 250, 0.25)',
+                borderRadius: 10,
+                padding: '10px 14px',
+                marginBottom: 20,
+                fontSize: 12.5,
+                color: '#93C5FD',
+              }}
+            >
+              <Mail size={16} style={{ flexShrink: 0 }} />
+              <span>
+                System Administrator: <strong style={{ color: '#FFFFFF' }}>admin@dealflow360.com</strong>
+              </span>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => setLoginAlertModal(null)}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: 10,
+                  background: loginAlertModal.type === 'pending' ? '#F59E0B' : '#4F46E5',
+                  color: loginAlertModal.type === 'pending' ? '#0F172A' : '#FFFFFF',
+                  fontSize: 13.5,
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              >
+                Understood & Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

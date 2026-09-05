@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { authApi, setStoredAuth } from '@/lib/api';
-import { User, Shield, Briefcase, Settings, Store, Eye, EyeOff, CheckCircle2, UserPlus, Loader2 } from 'lucide-react';
+import { User, Shield, Briefcase, Settings, Store, Eye, EyeOff, CheckCircle2, UserPlus, Loader2, X, Clock, AlertTriangle, Mail } from 'lucide-react';
 
 const ROLES = [
   { id: 'SALES_REP', label: 'Sales Representative', desc: 'Create quotations, track customer deals, negotiate in real-time', Icon: User },
@@ -30,6 +30,14 @@ export default function SignupPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [success, setSuccess]     = useState(false);
 
+  const [loginAlertModal, setLoginAlertModal] = useState<{
+    open: boolean;
+    type: 'pending' | 'deactivated' | 'error' | 'info';
+    title: string;
+    message: string;
+    details?: string;
+  } | null>(null);
+
   const validate = () => {
     const errors: Record<string, string> = {};
     if (!firstName.trim()) errors.firstName = 'First name is required.';
@@ -38,7 +46,7 @@ export default function SignupPage() {
     if (!email.trim()) {
       errors.email = 'Work email address is required.';
     } else if (!EMAIL_REGEX.test(email.trim())) {
-      errors.email = 'Please enter a valid email address (e.g. name@company.com).';
+      errors.email = 'Please provide a valid work email address.';
     }
 
     if (!password) {
@@ -71,52 +79,38 @@ export default function SignupPage() {
         role,
       });
 
-      // 2. Log in
-      let token = 'demo-token';
-      let userObj = {
-        userId: 1,
-        email: email.trim().toLowerCase(),
-        role: role,
-        fullName: `${firstName.trim()} ${lastName.trim()}`,
-      };
-
-      try {
-        const loginRes = await authApi.login(email.trim().toLowerCase(), password);
-        if (loginRes?.data) {
-          token = loginRes.data.accessToken || loginRes.data.token || token;
-          userObj = {
-            userId: loginRes.data.userId || 1,
-            email: loginRes.data.email || email.trim().toLowerCase(),
-            role: loginRes.data.role || role,
-            fullName: loginRes.data.fullName || `${firstName.trim()} ${lastName.trim()}`,
-          };
-        }
-      } catch {
-        // Fallback for offline demo mode
-      }
-
-      setStoredAuth(token, userObj);
       setSuccess(true);
 
-      setTimeout(() => {
-        if (role === 'CUSTOMER') {
-          router.push('/portal/token-tcs-1001');
-        } else {
-          router.push('/dashboard');
-        }
-      }, 900);
+      // Pop persistent alert dialog modal that stays until the user explicitly crosses/closes it
+      setLoginAlertModal({
+        open: true,
+        type: 'pending',
+        title: 'Registration Submitted — Awaiting Administrator Approval',
+        message: 'Your registration was submitted successfully. For security and role verification, your account is currently pending activation by an Administrator.',
+        details: 'An administrator will review and activate your profile in the User Governance panel (/admin/users). Once approved, you can sign in with your email and password.',
+      });
     } catch (err: any) {
       const data = err.response?.data;
+      const status = err.response?.status;
+      const msg = data?.message || 'Registration failed. Please check your details and try again.';
+
       if (data?.fields) {
         setFieldErrors(data.fields);
         setError('Please resolve the field validation errors highlighted below.');
-      } else if (data?.message) {
-        setError(data.message);
-      } else if (err.message === 'Network Error' || !err.response) {
-        setError('Cannot connect to backend server at http://localhost:8080. Please ensure the backend is running.');
+      } else if (status === 409) {
+        setFieldErrors(p => ({ ...p, email: 'This email is already registered. Please sign in instead.' }));
+        setError('Email already registered.');
       } else {
-        setError(data?.error || 'Registration failed. Please check your details and try again.');
+        setError(msg);
       }
+
+      setLoginAlertModal({
+        open: true,
+        type: 'error',
+        title: 'Registration Unsuccessful',
+        message: msg,
+        details: !err.response ? 'Unable to connect to backend server at http://localhost:8080. Please ensure the backend is running.' : undefined,
+      });
     } finally {
       setLoading(false);
     }
@@ -335,6 +329,179 @@ export default function SignupPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Persistent Access & Approval Alert Dialog ─────────────────── */}
+      {loginAlertModal?.open && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 120,
+            background: 'rgba(15, 23, 42, 0.78)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 480,
+              width: '100%',
+              background: '#0F172A',
+              border: loginAlertModal.type === 'pending'
+                ? '1px solid #F59E0B'
+                : loginAlertModal.type === 'deactivated'
+                ? '1px solid #EF4444'
+                : '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: 20,
+              padding: '28px 26px',
+              color: '#FFFFFF',
+              fontFamily: 'Inter, sans-serif',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0,0,0,0.3)',
+              position: 'relative',
+            }}
+          >
+            {/* Top Right Close Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setLoginAlertModal(null);
+                if (loginAlertModal.type === 'pending') {
+                  router.push('/');
+                }
+              }}
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: 'rgba(255,255,255,0.8)',
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+              title="Close notification"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Header with Icon */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: loginAlertModal.type === 'pending'
+                    ? 'rgba(245, 158, 11, 0.18)'
+                    : 'rgba(239, 68, 68, 0.18)',
+                  border: loginAlertModal.type === 'pending'
+                    ? '1px solid rgba(245, 158, 11, 0.4)'
+                    : '1px solid rgba(239, 68, 68, 0.4)',
+                  color: loginAlertModal.type === 'pending' ? '#FBBF24' : '#F87171',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                {loginAlertModal.type === 'pending' ? <Clock size={22} /> : <AlertTriangle size={22} />}
+              </div>
+              <div style={{ paddingRight: 24 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: '#FFFFFF', lineHeight: 1.3 }}>
+                  {loginAlertModal.title}
+                </h2>
+                <p style={{ fontSize: 12.5, color: '#94A3B8', margin: 0 }}>
+                  DealFlow360 Enterprise Access Security
+                </p>
+              </div>
+            </div>
+
+            {/* Message Body */}
+            <div
+              style={{
+                background: 'rgba(30, 41, 59, 0.7)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 12,
+                padding: '14px 16px',
+                marginBottom: 16,
+                fontSize: 13.5,
+                lineHeight: 1.6,
+                color: '#E2E8F0',
+              }}
+            >
+              <p style={{ margin: 0, fontWeight: 500 }}>
+                {loginAlertModal.message}
+              </p>
+              {loginAlertModal.details && (
+                <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#94A3B8', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 10 }}>
+                  {loginAlertModal.details}
+                </p>
+              )}
+            </div>
+
+            {/* Admin Support Info */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '1px solid rgba(96, 165, 250, 0.25)',
+                borderRadius: 10,
+                padding: '10px 14px',
+                marginBottom: 20,
+                fontSize: 12.5,
+                color: '#93C5FD',
+              }}
+            >
+              <Mail size={16} style={{ flexShrink: 0 }} />
+              <span>
+                System Administrator: <strong style={{ color: '#FFFFFF' }}>admin@dealflow360.com</strong>
+              </span>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginAlertModal(null);
+                  if (loginAlertModal.type === 'pending') {
+                    router.push('/');
+                  }
+                }}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: 10,
+                  background: loginAlertModal.type === 'pending' ? '#F59E0B' : '#4F46E5',
+                  color: loginAlertModal.type === 'pending' ? '#0F172A' : '#FFFFFF',
+                  fontSize: 13.5,
+                  fontWeight: 700,
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              >
+                {loginAlertModal.type === 'pending' ? 'Go to Sign In' : 'Understood & Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

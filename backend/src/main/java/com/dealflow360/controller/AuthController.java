@@ -57,4 +57,15 @@ public class AuthController {
         }
         return ResponseEntity.ok(authService.getSession(userDetails.getUsername()));
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody AuthService.ChangePasswordRequest req) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        authService.changePassword(userDetails.getUsername(), req);
+        return ResponseEntity.ok().body(java.util.Map.of("success", true, "message", "Password changed successfully."));
+    }
 }

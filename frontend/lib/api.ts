@@ -96,11 +96,42 @@ export default api;
 
 // ── Auth ────────────────────────────────────────────────────
 export const authApi = {
-  login:    (email: string, password: string) =>
+  login:          (email: string, password: string) =>
     api.post('/api/auth/login', { email, password }),
-  register: (data: any) => api.post('/api/auth/register', data),
-  session:  () => api.get('/api/auth/session'),
-  me:       () => api.get('/api/auth/me'),
+  register:       (data: any) => api.post('/api/auth/register', data),
+  session:        () => api.get('/api/auth/session'),
+  me:             () => api.get('/api/auth/me'),
+  changePassword: (data: { currentPassword?: string; newPassword: string }) =>
+    api.post('/api/auth/change-password', data),
+};
+
+// ── Setup Wizard (First-Admin Bootstrap) ───────────────────
+export const setupApi = {
+  checkAdminStatus: () => api.get('/api/setup/admin'),
+  bootstrapAdmin:   (data: any) => api.post('/api/setup/admin', data),
+};
+
+// ── Admin User Governance ───────────────────────────────────
+export const adminUsersApi = {
+  list:          () => api.get('/api/admin/users'),
+  get:           (id: number) => api.get(`/api/admin/users/${id}`),
+  create:        (data: any) => api.post('/api/admin/users', data),
+  update:        (id: number, data: any) => api.put(`/api/admin/users/${id}`, data),
+  deactivate:    (id: number) => api.delete(`/api/admin/users/${id}`),
+  reactivate:    (id: number) => api.post(`/api/admin/users/${id}/reactivate`),
+  getAuditLogs:  () => api.get('/api/admin/users/audit-logs'),
+};
+
+// ── Discount Tier Configuration (Bounded Dataset - Client-Side Paginated) ──
+export const discountTierApi = {
+  list:   () => api.get('/api/admin/discount-tiers'),
+  update: (id: number, data: { maxDiscount?: number; description?: string }) =>
+    api.put(`/api/admin/discount-tiers/${id}`, data),
+};
+
+// ── Subscription Plan Catalog (Bounded Dataset - Client-Side Paginated) ────
+export const subscriptionPlanApi = {
+  list: () => api.get('/api/subscriptions/plans'),
 };
 
 // ── Quotations ──────────────────────────────────────────────

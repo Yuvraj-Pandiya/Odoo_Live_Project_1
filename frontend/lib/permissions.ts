@@ -44,6 +44,7 @@ export const ALL_NAV_ITEMS: NavItemConfig[] = [
   { path: 'invoices', label: 'Invoices', href: '/invoices', icon: 'payments' },
   { path: 'deal-health', label: 'Deal Health', href: '/deal-health', icon: 'health_metrics' },
   { path: 'reports', label: 'Reports', href: '/reports', icon: 'bar_chart' },
+  { path: 'admin-users', label: 'User Governance', href: '/admin/users', icon: 'manage_accounts' },
 ];
 
 /**
@@ -62,6 +63,8 @@ export const ROLE_ROUTE_ACCESS: Record<UserRole, string[]> = {
     '/reports',
     '/customers',
     '/products',
+    '/admin/users',
+    '/admin/discount-tiers',
   ],
   MANAGER: [
     '/dashboard',
@@ -70,6 +73,7 @@ export const ROLE_ROUTE_ACCESS: Record<UserRole, string[]> = {
     '/fulfillment',
     '/deal-health',
     '/reports',
+    '/admin/discount-tiers',
   ],
   FINANCE: [
     '/dashboard',

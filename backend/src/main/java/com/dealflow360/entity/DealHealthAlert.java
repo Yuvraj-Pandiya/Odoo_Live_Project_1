@@ -28,6 +28,7 @@ public class DealHealthAlert {
     private String description;
 
     @Column(name = "is_resolved")
+    @Builder.Default
     private Boolean isResolved = false;
 
     @Column(name = "action_taken")

@@ -22,8 +22,32 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        initSchemaUpdates();
         syncSequences();
         syncPasswords();
+    }
+
+    private void initSchemaUpdates() {
+        try {
+            jdbcTemplate.execute("ALTER TABLE dealflow.users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT FALSE;");
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS dealflow.user_audit_logs (" +
+                "    id BIGSERIAL PRIMARY KEY," +
+                "    actor_user_id BIGINT," +
+                "    actor_email VARCHAR(255) NOT NULL," +
+                "    target_user_id BIGINT," +
+                "    target_email VARCHAR(255) NOT NULL," +
+                "    action VARCHAR(100) NOT NULL," +
+                "    old_value TEXT," +
+                "    new_value TEXT," +
+                "    notes TEXT," +
+                "    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()" +
+                ");"
+            );
+            log.info("Schema updates for user governance and audit logs applied successfully.");
+        } catch (Exception e) {
+            log.warn("Schema initialization notice: {}", e.getMessage());
+        }
     }
 
     private void syncPasswords() {
@@ -39,6 +63,7 @@ public class DataInitializer implements CommandLineRunner {
                 .role(User.UserRole.CUSTOMER)
                 .department("Procurement")
                 .isActive(true)
+                .mustChangePassword(false)
                 .build();
             userRepository.save(custUser);
             log.info("Created demo customer user: customer@dealflow360.com");
@@ -54,6 +79,7 @@ public class DataInitializer implements CommandLineRunner {
                 .role(User.UserRole.CUSTOMER)
                 .department("Procurement")
                 .isActive(true)
+                .mustChangePassword(false)
                 .build();
             userRepository.save(custUser1);
             log.info("Created customer user: procurement1@corp-1.com");
@@ -73,7 +99,7 @@ public class DataInitializer implements CommandLineRunner {
     private void syncSequences() {
         String[] tables = {
             "users", "customers", "quotations", "quotation_lines", "approvals",
-            "approval_audit_logs", "products", "product_variants", "product_categories",
+            "approval_audit_logs", "user_audit_logs", "products", "product_variants", "product_categories",
             "price_lists", "discount_tiers", "approval_chains", "warehouses",
             "warehouse_stock", "fulfillment_orders", "fulfillment_lines",
             "subscriptions", "subscription_lines", "invoices", "invoice_lines",

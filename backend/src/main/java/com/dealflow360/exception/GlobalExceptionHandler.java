@@ -43,6 +43,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponse(400, "Bad Request", ex.getMessage(), OffsetDateTime.now()));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegal(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -51,8 +57,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
+        String msg = (ex.getMessage() != null && !ex.getMessage().isBlank()) ? ex.getMessage() : "Access denied: Insufficient role permissions";
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(new ErrorResponse(403, "Forbidden", "Access denied: Insufficient role permissions", OffsetDateTime.now()));
+            .body(new ErrorResponse(403, "Forbidden", msg, OffsetDateTime.now()));
     }
 
     @ExceptionHandler({
@@ -67,7 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
     public ResponseEntity<ErrorResponse> handleDisabled(org.springframework.security.authentication.DisabledException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(new ErrorResponse(401, "Unauthorized", "Your account has been deactivated. Contact your admin.", OffsetDateTime.now()));
+            .body(new ErrorResponse(401, "Unauthorized", "Your account is pending administrator approval or has been deactivated. Please contact your administrator at admin@dealflow360.com.", OffsetDateTime.now()));
     }
 
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)

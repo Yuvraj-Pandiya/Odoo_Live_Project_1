@@ -29,6 +29,7 @@ import {
   Activity,
   Award,
 } from 'lucide-react';
+import { ApprovalStepperInspector } from '@/components/ApprovalStepperInspector';
 
 interface AuditLogEntry {
   id: string | number;
@@ -1056,6 +1057,19 @@ export default function ApprovalDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Bounded Approval Stepper Protocol Inspector (Client-Side Search, Sort, Paginate) */}
+        <ApprovalStepperInspector
+          currentActiveStep={
+            currentStep === 'MANAGER'
+              ? 'Sales Manager'
+              : currentStep === 'FINANCE'
+              ? 'Finance'
+              : currentStep === 'CONFIRMED'
+              ? 'Confirmed'
+              : 'Submitted'
+          }
+        />
 
         {/* =========================================================================
             5. AUDIT TRAIL TABLE

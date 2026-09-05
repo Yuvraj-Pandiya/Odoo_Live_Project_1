@@ -149,6 +149,25 @@ DealFlow360/
 
 ---
 
+## Security & User Governance
+
+### 1. One-Time First-Admin Setup Wizard (`/setup`, `/api/setup/admin`)
+On fresh deployments with zero administrators in `dealflow.users`:
+1. Navigate to `/setup`.
+2. Fill in the root Administrator details (Name, Work Email, Department, Password).
+3. On submission, the backend atomically creates the primary `ADMIN` user, issues server-signed JWT session credentials, and logs the administrator into `/dashboard`.
+4. **Permanent Lockout**: Once an administrator exists, `GET/POST /api/setup/admin` strictly returns `403 Forbidden` and `/setup` automatically redirects to `/login`.
+
+### 2. Admin User Governance (`/admin/users`, `/api/admin/users`)
+- **Internal Staff Provisioning**: Accessible strictly to users with `ADMIN` role. Provision Sales Representatives, Sales Managers, and Finance staff.
+- **Temporary Passwords & Forced Password Change**: Provisioned users are assigned secure temporary credentials with `must_change_password = true`. Upon first login, users are required to establish their personal permanent password before accessing `/dashboard`.
+- **Role Reassignment Guards**:
+  - Administrators cannot alter their own role (prevents self-lockout or privilege escalation bypass).
+  - The last active Administrator cannot be demoted or deactivated.
+- **Audit Logging**: All administrative actions (`USER_CREATED`, `USER_UPDATED`, `ROLE_CHANGED`, `USER_DEACTIVATED`, `USER_REACTIVATED`, `PASSWORD_CHANGED`) are recorded in `dealflow.user_audit_logs`.
+
+---
+
 ## What We'd Build Next
 - Email notifications via SMTP (approval decisions, customer portal link)
 - Swagger / OpenAPI documentation

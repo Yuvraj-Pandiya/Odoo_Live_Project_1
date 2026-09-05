@@ -4,11 +4,48 @@ import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
 import { fulfillmentApi, getStoredUser } from '@/lib/api';
 import { canExecuteFulfillment } from '@/lib/permissions';
-import { Truck, Package, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { useClientTable, ClientSortHeader, ClientPaginationBar, ClientSearchBar } from '@/hooks/useClientTable';
+import { Truck, Package, AlertTriangle, CheckCircle, Info, Building2, MapPin, Scale } from 'lucide-react';
+
+/**
+ * ============================================================================
+ * ARCHITECTURE NOTICE: CLIENT-SIDE DATA MANAGEMENT (BOUNDED WAREHOUSE LIST)
+ * ============================================================================
+ * The regional physical warehouse catalog represents a small, bounded dataset
+ * (typically 3–15 physical facilities). Because warehouse locations do NOT grow
+ * dynamically per transaction, the full list is fetched once on mount via
+ * fulfillmentApi.warehouses().
+ *
+ * Searching (300ms debounced), column sorting (Name, Location, Weight), and
+ * pagination execute entirely client-side (filter first -> sort second -> paginate last).
+ *
+ * UNBOUNDED BUSINESS DATASETS (Orders awaiting fulfillment, quotation line splits)
+ * remain backend-driven.
+ * ============================================================================
+ */
+
+export interface WarehouseItem {
+  id: number;
+  name: string;
+  code?: string;
+  city: string;
+  state?: string;
+  country?: string;
+  shippingCostWeight: number;
+  isActive?: boolean;
+}
+
+const DEFAULT_WAREHOUSES: WarehouseItem[] = [
+  { id: 1, name: 'West Hub Warehouse', code: 'WH-WEST-01', city: 'San Jose', state: 'CA', country: 'USA', shippingCostWeight: 1.0, isActive: true },
+  { id: 2, name: 'East Coast Depot', code: 'WH-EAST-02', city: 'Newark', state: 'NJ', country: 'USA', shippingCostWeight: 1.4, isActive: true },
+  { id: 3, name: 'Central Logistics Hub', code: 'WH-CENT-03', city: 'Dallas', state: 'TX', country: 'USA', shippingCostWeight: 1.1, isActive: true },
+  { id: 4, name: 'Northern Gateway Depot', code: 'WH-NORTH-04', city: 'Chicago', state: 'IL', country: 'USA', shippingCostWeight: 1.25, isActive: true },
+  { id: 5, name: 'Pacific Northwest Facility', code: 'WH-PNW-05', city: 'Seattle', state: 'WA', country: 'USA', shippingCostWeight: 1.3, isActive: true },
+];
 
 export default function FulfillmentPage() {
   const [orders, setOrders]         = useState<any[]>([]);
-  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<WarehouseItem[]>(DEFAULT_WAREHOUSES);
   const [selected, setSelected]     = useState<any>(null);
   const [loading, setLoading]       = useState(true);
   const [msg, setMsg]               = useState('');
@@ -36,7 +73,9 @@ export default function FulfillmentPage() {
         fulfillmentApi.warehouses()
       ]);
       setOrders(o.data || []);
-      setWarehouses(w.data || []);
+      if (w.data && Array.isArray(w.data) && w.data.length > 0) {
+        setWarehouses(w.data);
+      }
     } catch (err: any) {
       // Mock fallback data for smooth demo
       setOrders([
@@ -62,11 +101,7 @@ export default function FulfillmentPage() {
           ]
         }
       ]);
-      setWarehouses([
-        { id: 1, name: 'West Hub Warehouse', city: 'San Jose', state: 'CA', shippingCostWeight: 1.0 },
-        { id: 2, name: 'East Coast Depot', city: 'Newark', state: 'NJ', shippingCostWeight: 1.4 },
-        { id: 3, name: 'Central Logistics Hub', city: 'Dallas', state: 'TX', shippingCostWeight: 1.1 }
-      ]);
+      setWarehouses(DEFAULT_WAREHOUSES);
     } finally {
       setLoading(false);
     }
@@ -92,6 +127,36 @@ export default function FulfillmentPage() {
       setTimeout(() => setMsg(''), 3000);
     }
   };
+
+  // ── Client-Side Data Management Hook for Bounded Warehouse List ───────────
+  const {
+    paginatedData: paginatedWarehouses,
+    totalRawCount: totalRawWarehouses,
+    totalFilteredCount: totalFilteredWarehouses,
+    totalPages: totalWarehousePages,
+    searchQuery: warehouseSearchQuery,
+    setSearchQuery: setWarehouseSearchQuery,
+    isSearching: isWarehouseSearching,
+    sortConfig: warehouseSortConfig,
+    toggleSort: toggleWarehouseSort,
+    pageIndex: warehousePageIndex,
+    setPageIndex: setWarehousePageIndex,
+    pageSize: warehousePageSize,
+    setPageSize: setWarehousePageSize,
+    pageSizeOptions: warehousePageSizeOptions,
+  } = useClientTable<WarehouseItem>({
+    data: warehouses,
+    searchFields: (item) => [item.name, item.code, item.city, item.state, item.country, item.shippingCostWeight],
+    initialSort: { key: 'shippingCostWeight', direction: 'asc' },
+    sortExtractors: {
+      name: (item) => item.name,
+      city: (item) => item.city,
+      shippingCostWeight: (item) => Number(item.shippingCostWeight),
+    },
+    initialPageSize: 3,
+    pageSizeOptions: [3, 6, 12],
+    debounceMs: 300,
+  });
 
   const STATUS_COLOR: any = {
     PENDING:               { label: 'Pending' },
@@ -150,7 +215,7 @@ export default function FulfillmentPage() {
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
-          {/* Orders List */}
+          {/* Orders List (Unbounded Transactional Dataset) */}
           <div className="df-card" style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC' }}>
               <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Orders awaiting fulfillment ({orders.length})</h2>
@@ -196,7 +261,7 @@ export default function FulfillmentPage() {
             </div>
           </div>
 
-          {/* Detail */}
+          {/* Detail & Regional Warehouse Node List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {!selected ? (
               <div className="df-card" style={{ textAlign: 'center', padding: '48px' }}>
@@ -266,20 +331,84 @@ export default function FulfillmentPage() {
               </div>
             )}
 
-            {/* Warehouse Stock Summary */}
-            <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Regional warehouse nodes & weight</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                {warehouses.map((w: any) => (
-                  <div key={w.id} style={{ padding: '16px', borderRadius: '8px', background: 'var(--canvas)', border: '1px solid var(--border)' }}>
-                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{w.name}</p>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>{w.city}, {w.state || 'IN'}</p>
-                    <p className="body-sm" style={{ marginTop: '4px' }}>
-                      Weight: {Number(w.shippingCostWeight || 1).toFixed(1)}x
+            {/* ── Bounded Physical Warehouse Dataset (Client-Side Search, Sort, Paginate) ── */}
+            <div className="df-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border, #DCDCD9)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', background: '#FFFFFF' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Building2 size={18} className="text-indigo-600" />
+                  <div>
+                    <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                      Regional Warehouse Nodes & Shipping Weights
+                    </h3>
+                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+                      Bounded location catalog with client-side 300ms search and column sorting
                     </p>
                   </div>
-                ))}
+                </div>
+
+                <ClientSearchBar
+                  value={warehouseSearchQuery}
+                  onChange={setWarehouseSearchQuery}
+                  placeholder="Search warehouse, city, code..."
+                  isSearching={isWarehouseSearching}
+                  totalCount={totalRawWarehouses}
+                  filteredCount={totalFilteredWarehouses}
+                />
               </div>
+
+              {/* Warehouse Table */}
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                  <thead>
+                    <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border, #DCDCD9)' }}>
+                      <ClientSortHeader label="Facility Name" sortKey="name" currentSortKey={warehouseSortConfig.key as string} currentDirection={warehouseSortConfig.direction} onSort={toggleWarehouseSort} />
+                      <ClientSortHeader label="Physical Location" sortKey="city" currentSortKey={warehouseSortConfig.key as string} currentDirection={warehouseSortConfig.direction} onSort={toggleWarehouseSort} />
+                      <ClientSortHeader label="Cost Multiplier" sortKey="shippingCostWeight" currentSortKey={warehouseSortConfig.key as string} currentDirection={warehouseSortConfig.direction} onSort={toggleWarehouseSort} align="right" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedWarehouses.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                          No warehouses match your filter query.
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedWarehouses.map((w: WarehouseItem) => (
+                        <tr key={w.id} style={{ borderBottom: '1px solid var(--border, #DCDCD9)' }}>
+                          <td style={{ padding: '12px 18px' }}>
+                            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{w.name}</div>
+                            {w.code && <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{w.code}</div>}
+                          </td>
+                          <td style={{ padding: '12px 18px', color: 'var(--text-secondary)' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <MapPin size={13} className="text-gray-400" />
+                              {w.city}{w.state ? `, ${w.state}` : ''}{w.country ? ` (${w.country})` : ''}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px 18px', textAlign: 'right' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: '#F1F5F9', padding: '3px 8px', borderRadius: '4px', fontWeight: 700, color: '#334155', fontSize: '12px' }}>
+                              <Scale size={12} /> {Number(w.shippingCostWeight || 1).toFixed(2)}x
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Client-Side Pagination for Warehouses */}
+              <ClientPaginationBar
+                pageIndex={warehousePageIndex}
+                pageSize={warehousePageSize}
+                totalItems={totalFilteredWarehouses}
+                totalPages={totalWarehousePages}
+                onPageChange={setWarehousePageIndex}
+                onPageSizeChange={setWarehousePageSize}
+                pageSizeOptions={warehousePageSizeOptions}
+                entityName="warehouses"
+              />
             </div>
           </div>
         </div>
