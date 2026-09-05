@@ -1,5 +1,35 @@
 import axios from 'axios';
 
+export function getStoredUser(): any {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem('dealflow_user');
+    if (!raw || raw === 'undefined' || raw === 'null') return {};
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+export function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const t = localStorage.getItem('dealflow_token');
+  if (!t || t === 'undefined' || t === 'null') return null;
+  return t;
+}
+
+export function setStoredAuth(token: string, user: any): void {
+  if (typeof window === 'undefined') return;
+  if (token) localStorage.setItem('dealflow_token', token);
+  if (user) localStorage.setItem('dealflow_user', JSON.stringify(user));
+}
+
+export function clearStoredAuth(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('dealflow_token');
+  localStorage.removeItem('dealflow_user');
+}
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
   headers: { 'Content-Type': 'application/json' },
@@ -8,7 +38,7 @@ const api = axios.create({
 // Attach JWT from localStorage on every request
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('dealflow_token');
+    const token = getStoredToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
@@ -19,8 +49,7 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
-      localStorage.removeItem('dealflow_token');
-      localStorage.removeItem('dealflow_user');
+      clearStoredAuth();
       window.location.href = '/login';
     }
     return Promise.reject(err);
@@ -94,13 +123,8 @@ export const invoiceApi = {
 };
 
 // ── Subscriptions ────────────────────────────────────────────
-// Note: No dedicated backend controller yet — uses quotation & dashboard endpoints
-// New: subscriptionApi added to support Subscriptions List & Billing Detail pages
 export const subscriptionApi = {
-  // Backend stub — returns subscription data from quotation lines
   listByCustomer: (customerId: number) => api.get(`/api/customers/${customerId}`),
-  // Subscription data is embedded in quotation invoice lines for now
-  // Future: GET /api/subscriptions once a dedicated controller is created
 };
 
 // ── Customer Portal ─────────────────────────────────────────

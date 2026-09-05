@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
-import { dashboardApi } from '@/lib/api';
+import { dashboardApi, getStoredUser, getStoredToken } from '@/lib/api';
 import Link from 'next/link';
 
 const MOCK_STATS = {
@@ -51,8 +51,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const u = JSON.parse(localStorage.getItem('dealflow_user') || '{}');
-      if (!u.email) { router.push('/login'); return; }
+      const token = getStoredToken();
+      const u = getStoredUser();
+      if (!token || !u.email) {
+        router.push('/login');
+        return;
+      }
       setUser(u);
     }
     dashboardApi.stats().then((r) => setStats(r.data)).catch(() => {});
