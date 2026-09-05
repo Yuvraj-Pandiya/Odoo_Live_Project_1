@@ -5,20 +5,20 @@ import Link from 'next/link';
 import { Eye, EyeOff, ArrowRight, CheckCircle2, AlertCircle, Loader2, TrendingUp, Zap, Shield, Users } from 'lucide-react';
 import { authApi } from '@/lib/api';
 
-/* ─── Design tokens ─────────────────────────────────────────────────────── */
+/* ─── Design tokens (Charcoal Brown / Silver palette) ────────────────────── */
 const t = {
-  accent:        '#2E51D6',
-  accentHover:   '#2341B8',
-  accentSubtle:  '#EEF2FF',
-  panelBg:       '#1E3A8A',
-  textPrimary:   '#111827',
-  textSecondary: '#4B5563',
-  textMuted:     '#9CA3AF',
-  border:        '#D8DCE8',
-  canvas:        '#F0F2F7',
+  accent:        '#4B4B42',
+  accentHover:   '#373730',
+  accentSubtle:  '#ECECE9',
+  panelBg:       '#373730',
+  textPrimary:   '#1F1F1C',
+  textSecondary: '#4B4B42',
+  textMuted:     '#91918F',
+  border:        '#DCDCD9',
+  canvas:        '#F5F5F3',
   surface:       '#FFFFFF',
-  success:       '#16A34A',
-  successSubtle: '#DCFCE7',
+  success:       '#2E6B4F',
+  successSubtle: '#E8F5EE',
   error:         '#DC2626',
   errorSubtle:   '#FEE2E2',
 };

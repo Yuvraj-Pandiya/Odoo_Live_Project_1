@@ -34,32 +34,32 @@ export default function CustomerPortalNegotiationPage() {
     <div
       className="min-h-screen font-sans antialiased"
       style={{
-        backgroundColor: '#EFF4F7',
-        color: '#111827',
-        ['--accent' as any]: '#0D7A6B',
-        ['--accent-hover' as any]: '#096357',
-        ['--accent-subtle' as any]: '#E6F3F1',
+        backgroundColor: '#F5F5F3',
+        color: '#1F1F1C',
+        ['--accent' as any]: '#4B4B42',
+        ['--accent-hover' as any]: '#373730',
+        ['--accent-subtle' as any]: '#ECECE9',
       }}
     >
       {/* Toast */}
       {toastMsg && (
-        <div className="fixed top-6 right-8 z-50 bg-[#0D7A6B] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce">
+        <div className="fixed top-6 right-8 z-50 bg-[#4B4B42] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce">
           <CheckCircle size={18} />
           <span className="text-sm font-semibold">{toastMsg}</span>
         </div>
       )}
 
       {/* Header Navbar */}
-      <header className="bg-white border-b border-[#D8DCE8] px-8 h-16 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      <header className="bg-white border-b border-[#DCDCD9] px-8 h-16 flex items-center justify-between sticky top-0 z-30 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Image src="/logo.svg" alt="DealFlow360 Logo" width={28} height={28} className="w-7 h-7" />
-            <span className="font-bold text-lg tracking-tight text-[#111827]">
-              DealFlow<span className="text-[#0D7A6B]">360</span> <span className="text-xs font-semibold uppercase text-[#4B5563] ml-1">Customer Portal</span>
+            <span className="font-bold text-lg tracking-tight text-[#1F1F1C]">
+              DealFlow<span className="text-[#4B4B42]">360</span> <span className="text-xs font-semibold uppercase text-[#4B4B42] ml-1">Customer Portal</span>
             </span>
           </div>
-          <span className="text-xs text-[#9CA3AF]">|</span>
-          <span className="body-sm font-mono">Token: <code className="text-[#0D7A6B]">{token}</code></span>
+          <span className="text-xs text-[#91918F]">|</span>
+          <span className="body-sm font-mono">Token: <code className="text-[#4B4B42]">{token}</code></span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -76,16 +76,16 @@ export default function CustomerPortalNegotiationPage() {
         <div className="df-card p-8 space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="section-label text-[#0D7A6B]">Acme Corporation Inc.</div>
+              <div className="section-label text-[#4B4B42]">Acme Corporation Inc.</div>
               <h1 className="page-heading mt-1">Quotation Review: #DF-88301-B</h1>
               <p className="body-text mt-1 max-w-2xl">
                 Review your commercial proposal below. You can accept directly or submit counter-terms to your dedicated Account Executive.
               </p>
             </div>
-            <div className="bg-[#EFF4F7] p-5 rounded-xl border border-[#D8DCE8] shrink-0 text-right">
+            <div className="bg-[#ECECE9] p-5 rounded-xl border border-[#DCDCD9] shrink-0 text-right">
               <div className="section-label text-xs">Current proposal total</div>
-              <div className="text-3xl font-bold text-[#111827] mt-0.5">₹2,730.00</div>
-              <div className="body-sm text-[#16A34A] font-semibold mt-0.5">Includes 2yr Platinum SLA</div>
+              <div className="text-3xl font-bold text-[#1F1F1C] mt-0.5">₹2,730.00</div>
+              <div className="body-sm text-[#2E6B4F] font-semibold mt-0.5">Includes 2yr Platinum SLA</div>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function CustomerPortalNegotiationPage() {
         {confirmed && (
           <div className="p-6 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 space-y-2">
             <h3 className="section-label text-base text-emerald-800 flex items-center gap-2">
-              <CheckCircle size={20} className="text-[#16A34A]" />
+              <CheckCircle size={20} className="text-[#2E6B4F]" />
               Quotation Confirmed & Order Created!
             </h3>
             <p className="body-text text-sm text-emerald-700">
@@ -120,9 +120,9 @@ export default function CustomerPortalNegotiationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8 space-y-6">
             <div className="df-card p-6 space-y-4 !p-0 overflow-hidden">
-              <div className="p-4 border-b border-[#D8DCE8]">
-                <h3 className="section-label text-base text-[#111827] flex items-center gap-2">
-                  <ShoppingBag className="text-[#0D7A6B]" size={18} />
+              <div className="p-4 border-b border-[#DCDCD9]">
+                <h3 className="section-label text-base text-[#1F1F1C] flex items-center gap-2">
+                  <ShoppingBag className="text-[#4B4B42]" size={18} />
                   Quotation Line Items & Feedback
                 </h3>
               </div>
@@ -139,22 +139,22 @@ export default function CustomerPortalNegotiationPage() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="font-semibold text-[#111827]">Laptop Pro 16&quot; (M3 Max, 32GB)</td>
-                      <td className="text-right font-mono text-[#4B5563]">2</td>
-                      <td className="text-right font-mono font-bold text-[#111827]">₹2,112.00</td>
+                      <td className="font-semibold text-[#1F1F1C]">Laptop Pro 16&quot; (M3 Max, 32GB)</td>
+                      <td className="text-right font-mono text-[#4B4B42]">2</td>
+                      <td className="text-right font-mono font-bold text-[#1F1F1C]">₹2,112.00</td>
                       <td className="body-sm">Accepted as priced</td>
                     </tr>
                     <tr>
-                      <td className="font-semibold text-[#111827]">Cloud IoT Platform Enterprise License</td>
-                      <td className="text-right font-mono text-[#4B5563]">1</td>
-                      <td className="text-right font-mono font-bold text-[#111827]">₹46.00 / mo</td>
+                      <td className="font-semibold text-[#1F1F1C]">Cloud IoT Platform Enterprise License</td>
+                      <td className="text-right font-mono text-[#4B4B42]">1</td>
+                      <td className="text-right font-mono font-bold text-[#1F1F1C]">₹46.00 / mo</td>
                       <td className="body-sm text-amber-700 font-medium">&ldquo;Requesting 15% bundle discount&rdquo;</td>
                     </tr>
                     <tr>
-                      <td className="font-semibold text-[#111827]">Custom Onboarding & Migration SLA</td>
-                      <td className="text-right font-mono text-[#4B5563]">1</td>
-                      <td className="text-right font-mono font-bold text-[#111827]">₹572.00</td>
-                      <td className="body-sm text-purple-700 font-medium">&ldquo;Can engineer dispatch move to Q4?&rdquo;</td>
+                      <td className="font-semibold text-[#1F1F1C]">Custom Onboarding & Migration SLA</td>
+                      <td className="text-right font-mono text-[#4B4B42]">1</td>
+                      <td className="text-right font-mono font-bold text-[#1F1F1C]">₹572.00</td>
+                      <td className="body-sm text-[#4B4B42] font-medium">&ldquo;Can engineer dispatch move to Q4?&rdquo;</td>
                     </tr>
                   </tbody>
                 </table>
@@ -165,19 +165,19 @@ export default function CustomerPortalNegotiationPage() {
           {/* Action Box */}
           <div className="lg:col-span-4 space-y-6">
             <div className="df-card p-6 space-y-4">
-              <h3 className="section-label text-base text-[#111827]">Commercial actions</h3>
+              <h3 className="section-label text-base text-[#1F1F1C]">Commercial actions</h3>
 
               {!confirmed && (
                 <>
                   <button
                     onClick={handleConfirmOrder}
-                    className="w-full h-10 px-4 rounded-lg bg-[#0D7A6B] hover:bg-[#096357] text-white font-semibold text-sm flex items-center justify-center gap-2 transition"
+                    className="w-full h-10 px-4 rounded-lg bg-[#4B4B42] hover:bg-[#373730] text-white font-semibold text-sm flex items-center justify-center gap-2 transition"
                   >
                     <CheckCircle size={18} />
                     <span>Accept Proposal & Confirm Order</span>
                   </button>
 
-                  <div className="border-t border-[#D8DCE8] pt-4 space-y-3">
+                  <div className="border-t border-[#DCDCD9] pt-4 space-y-3">
                     <div className="section-label">Submit counter-offer</div>
 
                     <div>
@@ -186,7 +186,7 @@ export default function CustomerPortalNegotiationPage() {
                         type="number"
                         value={counterDiscount}
                         onChange={(e) => setCounterDiscount(Number(e.target.value))}
-                        className="w-full text-sm p-2 rounded-lg border border-[#D8DCE8] bg-white text-[#111827]"
+                        className="w-full text-sm p-2 rounded-lg border border-[#DCDCD9] bg-white text-[#1F1F1C]"
                       />
                     </div>
 
@@ -195,7 +195,7 @@ export default function CustomerPortalNegotiationPage() {
                       <select
                         value={counterTerm}
                         onChange={(e) => setCounterTerm(e.target.value)}
-                        className="w-full text-sm p-2 rounded-lg border border-[#D8DCE8] bg-white text-[#111827]"
+                        className="w-full text-sm p-2 rounded-lg border border-[#DCDCD9] bg-white text-[#1F1F1C]"
                       >
                         <option>Net 30</option>
                         <option>Net 60</option>
@@ -210,13 +210,13 @@ export default function CustomerPortalNegotiationPage() {
                         value={customerNotes}
                         onChange={(e) => setCustomerNotes(e.target.value)}
                         placeholder="Add comments on timeline or scope..."
-                        className="w-full text-sm p-3 rounded-lg border border-[#D8DCE8] bg-white text-[#111827] placeholder-[#9CA3AF]"
+                        className="w-full text-sm p-3 rounded-lg border border-[#DCDCD9] bg-white text-[#1F1F1C] placeholder-[#91918F]"
                       ></textarea>
                     </div>
 
                     <button
                       onClick={handleSubmitCounter}
-                      className="w-full h-10 px-4 rounded-lg bg-[#E6F3F1] hover:bg-[#D0EBE7] text-[#0D7A6B] border border-[#D8DCE8] font-semibold text-sm flex items-center justify-center gap-2 transition"
+                      className="w-full h-10 px-4 rounded-lg bg-[#ECECE9] hover:bg-[#DCDCD9] text-[#4B4B42] border border-[#DCDCD9] font-semibold text-sm flex items-center justify-center gap-2 transition"
                     >
                       <Send size={16} />
                       <span>Submit Counter-Offer</span>

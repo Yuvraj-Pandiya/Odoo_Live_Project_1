@@ -9,14 +9,14 @@ import { getNavItemsForRole, canCreateQuotation, canAccessRoute } from '@/lib/pe
 /* ─── Light Workspace Tokens ─────────────────────────────────────────────── */
 const t = {
   surface:       '#FFFFFF',
-  canvas:        '#F0F2F7',
-  border:        '#D8DCE8',
-  textPrimary:   '#111827',
-  textSecondary: '#4B5563',
-  textMuted:     '#9CA3AF',
-  accent:        '#2D6A4F',
-  accentHover:   '#1E4D39',
-  accentSubtle:  '#E8F5EE',
+  canvas:        '#F5F5F3',
+  border:        '#DCDCD9',
+  textPrimary:   '#1F1F1C',
+  textSecondary: '#4B4B42',
+  textMuted:     '#91918F',
+  accent:        '#4B4B42',
+  accentHover:   '#373730',
+  accentSubtle:  '#ECECE9',
   error:         '#DC2626',
   errorSubtle:   '#FEE2E2',
 };

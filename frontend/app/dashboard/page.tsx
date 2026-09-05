@@ -9,21 +9,21 @@ import Link from 'next/link';
 /* ─── Workspace Design Tokens ────────────────────────────────────────────── */
 const t = {
   surface: '#FFFFFF',
-  canvas: '#F0F2F7',
-  border: '#D8DCE8',
-  textPrimary: '#111827',
-  textSecondary: '#4B5563',
-  textMuted: '#9CA3AF',
-  accent: '#2D6A4F',
-  accentHover: '#1E4D39',
-  accentSubtle: '#E8F5EE',
-  success: '#16A34A',
-  successSubtle: '#DCFCE7',
+  canvas: '#F5F5F3',
+  border: '#DCDCD9',
+  textPrimary: '#1F1F1C',
+  textSecondary: '#4B4B42',
+  textMuted: '#91918F',
+  accent: '#4B4B42',
+  accentHover: '#373730',
+  accentSubtle: '#ECECE9',
+  success: '#2E6B4F',
+  successSubtle: '#E8F5EE',
   error: '#DC2626',
   errorSubtle: '#FEE2E2',
-  panelBg: '#1A3D2B',
+  panelBg: '#373730',
   panelText: '#FFFFFF',
-  panelSubtext: '#86C5A3',
+  panelSubtext: '#A2A0A1',
 };
 
 const MOCK_STATS = {
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  background: '#86C5A3',
+                  background: '#A2A0A1',
 
                 }}
               />

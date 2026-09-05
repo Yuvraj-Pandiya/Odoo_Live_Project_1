@@ -41,12 +41,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [pathname, router]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans" style={{ background: 'var(--canvas, #F0F2F7)' }}>
+    <div className="min-h-screen flex flex-col font-sans" style={{ background: 'var(--canvas, #F5F5F3)' }}>
       <HeaderNavbar />
       <main
         className="flex-1 w-full"
         style={{
-          background: 'var(--canvas, #F0F2F7)',
+          background: 'var(--canvas, #F5F5F3)',
           padding: '32px',
         }}
       >
