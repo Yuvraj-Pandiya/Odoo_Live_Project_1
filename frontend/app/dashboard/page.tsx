@@ -8,22 +8,22 @@ import Link from 'next/link';
 
 /* ─── Workspace Design Tokens ────────────────────────────────────────────── */
 const t = {
-  surface:        '#FFFFFF',
-  canvas:         '#F0F2F7',
-  border:         '#D8DCE8',
-  textPrimary:    '#111827',
-  textSecondary:  '#4B5563',
-  textMuted:      '#9CA3AF',
-  accent:         '#2E51D6',
-  accentHover:    '#2341B8',
-  accentSubtle:   '#EEF2FF',
-  success:        '#16A34A',
-  successSubtle:  '#DCFCE7',
-  error:          '#DC2626',
-  errorSubtle:    '#FEE2E2',
-  panelBg:        '#1E3A8A',
-  panelText:      '#FFFFFF',
-  panelSubtext:   '#93C5FD',
+  surface: '#FFFFFF',
+  canvas: '#F0F2F7',
+  border: '#D8DCE8',
+  textPrimary: '#111827',
+  textSecondary: '#4B5563',
+  textMuted: '#9CA3AF',
+  accent: '#2D6A4F',
+  accentHover: '#1E4D39',
+  accentSubtle: '#E8F5EE',
+  success: '#16A34A',
+  successSubtle: '#DCFCE7',
+  error: '#DC2626',
+  errorSubtle: '#FEE2E2',
+  panelBg: '#1A3D2B',
+  panelText: '#FFFFFF',
+  panelSubtext: '#86C5A3',
 };
 
 const MOCK_STATS = {
@@ -52,10 +52,10 @@ const ENTERPRISE_MODULES = [
 ];
 
 const ALERT_META: Record<string, { icon: string; bg: string; color: string; border: string }> = {
-  STALLED_DEAL:       { icon: 'hourglass_empty', bg: t.errorSubtle, color: t.error, border: '#FCA5A5' },
-  DISCOUNT_ANOMALY:   { icon: 'trending_down',   bg: t.errorSubtle, color: t.error, border: '#FCA5A5' },
-  DELIVERY_SLIPPAGE:  { icon: 'local_shipping',  bg: t.accentSubtle, color: t.accent, border: '#BFDBFE' },
-  BACKORDER_RESOLVED: { icon: 'check_circle',    bg: t.successSubtle, color: t.success, border: '#86EFAC' },
+  STALLED_DEAL: { icon: 'hourglass_empty', bg: t.errorSubtle, color: t.error, border: '#FCA5A5' },
+  DISCOUNT_ANOMALY: { icon: 'trending_down', bg: t.errorSubtle, color: t.error, border: '#FCA5A5' },
+  DELIVERY_SLIPPAGE: { icon: 'local_shipping', bg: t.accentSubtle, color: t.accent, border: '#BFDBFE' },
+  BACKORDER_RESOLVED: { icon: 'check_circle', bg: t.successSubtle, color: t.success, border: '#86EFAC' },
 };
 
 export default function DashboardPage() {
@@ -69,7 +69,7 @@ export default function DashboardPage() {
       const token = getStoredToken();
       const u = getStoredUser();
       if (!token || !u?.email) {
-        router.push('/login');
+        router.push('/');
         return;
       }
       setUser(u || {});
@@ -142,7 +142,8 @@ export default function DashboardPage() {
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  background: '#60A5FA',
+                  background: '#86C5A3',
+
                 }}
               />
               <span>Q3 FY26 live cycle</span>
@@ -159,7 +160,9 @@ export default function DashboardPage() {
                 letterSpacing: '-0.4px',
               }}
             >
-              Welcome back, {firstName}
+              <span style={{ color: '#FFFFFF' }}>
+                Welcome back, {firstName}
+              </span>
             </h1>
             <p
               style={{
@@ -334,7 +337,7 @@ export default function DashboardPage() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = t.accent;
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(46, 81, 214, 0.08)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(45, 106, 79, 0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = t.border;

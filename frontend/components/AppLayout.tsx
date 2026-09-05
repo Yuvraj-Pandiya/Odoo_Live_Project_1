@@ -15,9 +15,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       if (typeof window === 'undefined') return;
 
       const token = getStoredToken();
-      // If no token on protected route, redirect to login
-      if (!token && !pathname.startsWith('/portal') && pathname !== '/login' && pathname !== '/register' && pathname !== '/signup') {
-        router.replace('/login');
+      // If no token on protected route, redirect to root landing/login
+      if (!token && !pathname.startsWith('/portal') && pathname !== '/login' && pathname !== '/register' && pathname !== '/signup' && pathname !== '/') {
+        router.replace('/');
         return;
       }
 
