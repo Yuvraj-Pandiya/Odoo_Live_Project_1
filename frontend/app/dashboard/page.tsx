@@ -73,6 +73,7 @@ export default function DashboardPage() {
         return;
       }
       setUser(u || {});
+    }
   };
 
   useEffect(() => {
