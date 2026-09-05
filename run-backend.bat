@@ -2,7 +2,9 @@
 title DealFlow360 - Spring Boot Backend (Port 8080)
 cd /d "%~dp0backend"
 
-set "JAVA_HOME=C:\Program Files\Java\jdk-21"
+if not defined JAVA_HOME (
+    if exist "C:\Program Files\Microsoft\jdk-21.0.11.10-hotspot" set "JAVA_HOME=C:\Program Files\Microsoft\jdk-21.0.11.10-hotspot"
+)
 set "DB_URL=jdbc:postgresql://localhost:5432/dealflow360?stringtype=unspecified"
 set "DB_USERNAME=postgres"
 set "DB_PASSWORD=root"
