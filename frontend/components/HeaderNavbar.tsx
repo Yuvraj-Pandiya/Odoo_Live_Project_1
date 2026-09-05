@@ -193,7 +193,7 @@ export default function HeaderNavbar() {
         >
           {/* ── Left: Logo + Plan Badge + Smooth Sliding Navigation ───────────────── */}
           <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
-            {/* Logo + Enterprise Badge */}
+            {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0" style={{ textDecoration: 'none' }}>
               <Image
                 src="/logo.svg"
@@ -203,21 +203,6 @@ export default function HeaderNavbar() {
                 className="h-7 w-auto object-contain shrink-0"
                 priority
               />
-              <span
-                style={{
-                  background: t.accentSubtle,
-                  color: t.accent,
-                  border: `1px solid ${t.border}`,
-                  borderRadius: '9999px',
-                  padding: '2px 7px',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  whiteSpace: 'nowrap',
-                }}
-                className="hidden 2xl:inline-flex shrink-0"
-              >
-                Enterprise
-              </span>
             </Link>
 
             {/* ── Smooth Sliding Desktop Navigation Bar ─────────────────────── */}
