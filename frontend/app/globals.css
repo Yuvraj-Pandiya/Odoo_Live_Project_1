@@ -1,294 +1,76 @@
 /* ==========================================================================
-   DealFlow360 — Global Theme System
-   Insta360 Luna Ultra Inspired: Near-Black, Off-White, Monochrome Premium
-   
-   To change the entire app theme, update the CSS custom properties in :root.
-   All colors, spacing, and typography reference these variables.
+   DealFlow360 — Global Theme System (Light Workspace Palette)
    ========================================================================== */
 
 @import "tailwindcss";
 
-/* --------------------------------------------------------------------------
-   THEME TOKEN LAYER — Override these to switch themes instantly
-   -------------------------------------------------------------------------- */
 @layer base {
   :root {
-    /* === CORE COLORS — Insta360 Dark Premium Palette === */
+    /* === EXACT DESIGN TOKENS === */
+    --surface:          #FFFFFF;
+    --canvas:           #F0F2F7;
+    --border:           #D8DCE8;
+    --text-primary:     #111827;
+    --text-secondary:   #4B5563;
+    --text-muted:       #9CA3AF;
+    --accent:           #2E51D6;
+    --accent-hover:     #2341B8;
+    --accent-subtle:    #EEF2FF;
+    --success:          #16A34A;
+    --success-subtle:   #DCFCE7;
+    --error:            #DC2626;
+    --error-subtle:     #FEE2E2;
+    --panel-bg:         #1E3A8A;
+    --panel-text:       #FFFFFF;
+    --panel-subtext:    #93C5FD;
 
-    /* White accent — primary CTA, active states, highlights */
-    --color-primary:                 #ffffff;
-    --color-on-primary:              #000000;
-    --color-primary-container:       #1e1e1e;
-    --color-on-primary-container:    #ffffff;
-    --color-primary-fixed:           #2a2a2a;
-    --color-primary-fixed-dim:       #1a1a1a;
-    --color-on-primary-fixed:        #ffffff;
-    --color-on-primary-fixed-variant:#aaaaaa;
-    --color-inverse-primary:         #0a0a0a;
+    /* Spacing scale */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 24px;
+    --sp-6: 32px;
+    --sp-7: 48px;
 
-    /* Secondary — muted warm gray */
-    --color-secondary:               #a0a0a0;
-    --color-on-secondary:            #0a0a0a;
-    --color-secondary-container:     #1e1e1e;
-    --color-on-secondary-container:  #e0e0e0;
-    --color-secondary-fixed:         #1a1a1a;
-    --color-secondary-fixed-dim:     #141414;
-    --color-on-secondary-fixed:      #d0d0d0;
-    --color-on-secondary-fixed-variant: #888888;
+    /* Base mappings */
+    --color-background: var(--canvas);
+    --color-on-background: var(--text-primary);
+    --color-surface: var(--surface);
+    --color-on-surface: var(--text-primary);
+    --color-outline: var(--border);
+    --color-outline-variant: var(--border);
+    --color-primary: var(--accent);
+    --color-on-primary: #FFFFFF;
 
-    /* Tertiary — green for success states */
-    --color-tertiary:                #22c55e;
-    --color-on-tertiary:             #000000;
-    --color-tertiary-container:      #052e16;
-    --color-on-tertiary-container:   #22c55e;
-
-    /* Error — warm red */
-    --color-error:                   #ff4d4f;
-    --color-on-error:                #000000;
-    --color-error-container:         #2d0a0a;
-    --color-on-error-container:      #ff4d4f;
-
-    /* === BACKGROUND & SURFACE SYSTEM — Insta360 dark layering === */
-    /* Near-black base */
-    --color-background:              #0a0a0a;
-    --color-on-background:           #f0f0f0;
-
-    /* Card / elevated surface */
-    --color-surface:                 #111111;
-    --color-on-surface:              #f0f0f0;
-
-    /* Surface variants */
-    --color-surface-variant:         #1a1a1a;
-    --color-on-surface-variant:      #888888;
-    --color-surface-dim:             #080808;
-    --color-surface-bright:          #202020;
-
-    /* Elevation layers (lowest = most background, highest = most elevated) */
-    --color-surface-container-lowest: #080808;
-    --color-surface-container-low:    #111111;
-    --color-surface-container:        #161616;
-    --color-surface-container-high:   #1e1e1e;
-    --color-surface-container-highest: #272727;
-
-    --color-surface-tint:            #ffffff;
-    --color-inverse-surface:         #f0f0f0;
-    --color-inverse-on-surface:      #0a0a0a;
-
-    /* Dividers / borders — very subtle on dark */
-    --color-outline:                 #555555;
-    --color-outline-variant:         rgba(255, 255, 255, 0.08);
-
-    /* === SPACING TOKENS === */
-    --space-2xs:  0.25rem;   /* 4px  */
-    --space-xs:   0.5rem;    /* 8px  */
-    --space-sm:   0.75rem;   /* 12px */
-    --space-md:   1rem;      /* 16px */
-    --space-lg:   1.5rem;    /* 24px */
-    --space-xl:   2rem;      /* 32px */
-    --space-2xl:  3rem;      /* 48px */
-    --space-3xl:  5rem;      /* 80px — Insta360 generous sectional spacing */
-    --margin-mobile:   1rem;
-    --margin-tablet:   1.5rem;
-    --margin-desktop:  2.5rem;
-    --gutter:          1.5rem;
-
-    /* === BORDER RADIUS TOKENS === */
-    --radius-sm:   0.375rem;
-    --radius-md:   0.625rem;
-    --radius-lg:   0.75rem;
-    --radius-full: 9999px;
-
-    /* === TYPOGRAPHY SCALE (User Specified — Unchanged) === */
     --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
-
-    /* Display: 36px (2.25rem), Line Height: 40px (1.1), Weight: 700 (Bold) */
-    --fs-display:        36px;
-    --lh-display:        40px;
-    --fw-display:        700;
-
-    /* Heading 1: 30px (1.875rem), Line Height: 36px (1.2), Weight: 700 (Bold) */
-    --fs-h1:             30px;
-    --lh-h1:             36px;
-    --fw-h1:             700;
-
-    /* Heading 2: 24px (1.5rem), Line Height: 32px (1.3), Weight: 600 (SemiBold) */
-    --fs-h2:             24px;
-    --lh-h2:             32px;
-    --fw-h2:             600;
-
-    /* Heading 3: 20px (1.25rem), Line Height: 28px (1.4), Weight: 600 (SemiBold) */
-    --fs-h3:             20px;
-    --lh-h3:             28px;
-    --fw-h3:             600;
-
-    /* Subheading: 16px (1rem), Line Height: 24px (1.5), Weight: 500 (Medium) */
-    --fs-subheading:     16px;
-    --lh-subheading:     24px;
-    --fw-subheading:     500;
-
-    /* Body (Large): 16px (1rem), Line Height: 24px (1.5), Weight: 400 (Regular) */
-    --fs-body-lg:        16px;
-    --lh-body-lg:        24px;
-    --fw-body-lg:        400;
-
-    /* Body (Base): 14px (0.875rem), Line Height: 20px (1.4), Weight: 400 (Regular) */
-    --fs-body:           14px;
-    --lh-body:           20px;
-    --fw-body:           400;
-    --fs-body-base:      14px;
-    --lh-body-base:      20px;
-    --fw-body-base:      400;
-
-    /* Caption: 12px, Weight: 400, Color: Muted */
-    --fs-caption:        12px;
-    --lh-caption:        16px;
-    --fw-caption:        400;
-
-    /* Data values / KPI Major metrics */
-    --fs-data-value:     36px;
-    --lh-data-value:     40px;
-    --fw-data-value:     700;
-
-    /* Compatibility aliases */
-    --fs-body-sm:        12px;
-    --lh-body-sm:        16px;
-    --fw-body-sm:        400;
-    --fs-body-md:        14px;
-    --lh-body-md:        20px;
-    --fw-body-md:        400;
-
-    --fs-label-sm:       12px;
-    --lh-label-sm:       16px;
-    --fw-label-sm:       600;
-    --fs-label-md:       16px;
-    --lh-label-md:       24px;
-    --fw-label-md:       500;
-
-    --fs-headline-sm:    20px;
-    --lh-headline-sm:    28px;
-    --fw-headline-sm:    600;
-    --fs-headline-md:    24px;
-    --lh-headline-md:    32px;
-    --fw-headline-md:    600;
-    --fs-headline-lg:    30px;
-    --lh-headline-lg:    36px;
-    --fw-headline-lg:    700;
-    --fs-display-xl:     36px;
-    --lh-display-xl:     40px;
-    --fw-display-xl:     700;
-    --fs-meta-numeric:   36px;
-    --lh-meta-numeric:   40px;
-    --fw-meta-numeric:   700;
   }
 }
 
-/* --------------------------------------------------------------------------
-   TAILWIND v4 THEME EXTENSION — Map tokens to utility classes
-   -------------------------------------------------------------------------- */
 @theme {
-  /* CRITICAL: Restore Tailwind default spacing scale */
   --spacing: 0.25rem;
 
-  /* Colors */
-  --color-background:              var(--color-background);
-  --color-on-background:           var(--color-on-background);
-  --color-surface:                 var(--color-surface);
-  --color-on-surface:              var(--color-on-surface);
-  --color-surface-variant:         var(--color-surface-variant);
-  --color-on-surface-variant:      var(--color-on-surface-variant);
-  --color-surface-dim:             var(--color-surface-dim);
-  --color-surface-bright:          var(--color-surface-bright);
-  --color-surface-container-lowest: var(--color-surface-container-lowest);
-  --color-surface-container-low:   var(--color-surface-container-low);
-  --color-surface-container:       var(--color-surface-container);
-  --color-surface-container-high:  var(--color-surface-container-high);
-  --color-surface-container-highest: var(--color-surface-container-highest);
-  --color-surface-tint:            var(--color-surface-tint);
-  --color-inverse-surface:         var(--color-inverse-surface);
-  --color-inverse-on-surface:      var(--color-inverse-on-surface);
+  --color-background: var(--canvas);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-error: var(--error);
+  --color-error-subtle: var(--error-subtle);
+  --color-panel-bg: var(--panel-bg);
 
-  --color-primary:                 var(--color-primary);
-  --color-on-primary:              var(--color-on-primary);
-  --color-primary-container:       var(--color-primary-container);
-  --color-on-primary-container:    var(--color-on-primary-container);
-  --color-primary-fixed:           var(--color-primary-fixed);
-  --color-primary-fixed-dim:       var(--color-primary-fixed-dim);
-  --color-inverse-primary:         var(--color-inverse-primary);
-
-  --color-secondary:               var(--color-secondary);
-  --color-on-secondary:            var(--color-on-secondary);
-  --color-secondary-container:     var(--color-secondary-container);
-  --color-on-secondary-container:  var(--color-on-secondary-container);
-
-  --color-tertiary:                var(--color-tertiary);
-  --color-on-tertiary:             var(--color-on-tertiary);
-  --color-tertiary-container:      var(--color-tertiary-container);
-  --color-on-tertiary-container:   var(--color-on-tertiary-container);
-
-  --color-error:                   var(--color-error);
-  --color-on-error:                var(--color-on-error);
-  --color-error-container:         var(--color-error-container);
-  --color-on-error-container:      var(--color-on-error-container);
-
-  --color-outline:                 var(--color-outline);
-  --color-outline-variant:         var(--color-outline-variant);
-
-  /* Spacing */
-  --spacing-space-2xs:  var(--space-2xs);
-  --spacing-space-xs:   var(--space-xs);
-  --spacing-space-sm:   var(--space-sm);
-  --spacing-space-md:   var(--space-md);
-  --spacing-space-lg:   var(--space-lg);
-  --spacing-space-xl:   var(--space-xl);
-  --spacing-space-2xl:  var(--space-2xl);
-  --spacing-space-3xl:  var(--space-3xl);
-  --spacing-margin-desktop: var(--margin-desktop);
-  --spacing-margin-tablet:  var(--margin-tablet);
-  --spacing-margin-mobile:  var(--margin-mobile);
-  --spacing-gutter:         var(--gutter);
-
-  /* Border Radius */
-  --radius-DEFAULT: var(--radius-sm);
-  --radius-lg:      var(--radius-md);
-  --radius-xl:      var(--radius-lg);
-  --radius-full:    var(--radius-full);
-
-  /* Font Families */
-  --font-family-body-md:    var(--font-family-base);
-  --font-family-body-sm:    var(--font-family-base);
-  --font-family-body-lg:    var(--font-family-base);
-  --font-family-label-sm:   var(--font-family-base);
-  --font-family-label-md:   var(--font-family-base);
-  --font-family-headline-sm: var(--font-family-base);
-  --font-family-headline-md: var(--font-family-base);
-  --font-family-headline-lg: var(--font-family-base);
-  --font-family-headline-lg-mobile: var(--font-family-base);
-  --font-family-display-xl:  var(--font-family-base);
-  --font-family-meta-numeric: var(--font-family-base);
-
-  /* Font Sizes */
-  --font-size-display:      var(--fs-display);
-  --font-size-h1:           var(--fs-h1);
-  --font-size-h2:           var(--fs-h2);
-  --font-size-h3:           var(--fs-h3);
-  --font-size-subheading:   var(--fs-subheading);
-  --font-size-body-lg:      var(--fs-body-lg);
-  --font-size-body-base:    var(--fs-body-base);
-  --font-size-body:         var(--fs-body-base);
-  --font-size-body-sm:      var(--fs-body-sm);
-  --font-size-body-md:      var(--fs-body-md);
-  --font-size-label-sm:     var(--fs-label-sm);
-  --font-size-label-md:     var(--fs-label-md);
-  --font-size-headline-sm:  var(--fs-headline-sm);
-  --font-size-headline-md:  var(--fs-headline-md);
-  --font-size-headline-lg:  var(--fs-headline-lg);
-  --font-size-display-xl:   var(--fs-display-xl);
-  --font-size-meta-numeric: var(--fs-meta-numeric);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
 }
 
-/* --------------------------------------------------------------------------
-   BASE RESET
-   -------------------------------------------------------------------------- */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -297,422 +79,228 @@
 
 html, body {
   height: 100%;
-  background-color: var(--color-background);
-  color: var(--color-on-surface);
-  font-family: var(--font-family-base);
-  font-size: var(--fs-body-base);
-  line-height: var(--lh-body-base);
+  background-color: var(--canvas);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
 }
 
-/* --------------------------------------------------------------------------
-   SCROLLBAR
-   -------------------------------------------------------------------------- */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--color-surface-container-lowest); }
-::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #555555; }
-
-/* --------------------------------------------------------------------------
-   TYPOGRAPHY UTILITIES (User Typography Specification — Unchanged)
-   -------------------------------------------------------------------------- */
-/* Display: 36px (2.25rem), Line Height: 40px (1.1), Weight: 700 (Bold) */
-.type-display, .text-display, .text-data-value, .text-meta-numeric, .text-display-xl {
-  font-size: 36px !important;
-  line-height: 40px !important;
+/* ── Typography Utilities ────────────────────────────────────────────────── */
+h1, .page-heading, .type-heading-1, .text-heading-1, .text-h1 {
+  font-size: 28px !important;
+  line-height: 1.2 !important;
   font-weight: 700 !important;
-  color: var(--color-on-surface);
-  letter-spacing: -0.025em;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.4px;
 }
 
-/* Heading 1: 30px, Line Height: 36px, Weight: 700 */
-h1, .type-heading-1, .text-heading-1, .text-h1, .text-headline-lg {
-  font-size: 30px !important;
-  line-height: 36px !important;
-  font-weight: 700 !important;
-  color: var(--color-on-surface);
-  letter-spacing: -0.02em;
-}
-
-/* Heading 2: 24px, Line Height: 32px, Weight: 600 */
-h2, .type-heading-2, .text-heading-2, .text-h2, .text-headline-md {
-  font-size: 24px !important;
-  line-height: 32px !important;
-  font-weight: 600 !important;
-  color: var(--color-on-surface);
-  letter-spacing: -0.015em;
-}
-
-/* Heading 3: 20px, Line Height: 28px, Weight: 600 */
-h3, .type-heading-3, .text-heading-3, .text-h3, .text-headline-sm {
-  font-size: 20px !important;
-  line-height: 28px !important;
-  font-weight: 600 !important;
-  color: var(--color-on-surface);
-  letter-spacing: -0.01em;
-}
-
-/* Subheading: 16px, Line Height: 24px, Weight: 500 */
-.type-subheading, .text-subheading, .df-label, label {
-  font-size: 16px !important;
-  line-height: 24px !important;
-  font-weight: 500 !important;
-  color: var(--color-on-surface);
-}
-
-/* Body (Large): 16px, Line Height: 24px, Weight: 400 */
-.type-body-lg, .text-body-lg {
-  font-size: 16px !important;
-  line-height: 24px !important;
-  font-weight: 400 !important;
-  color: var(--color-on-surface-variant);
-}
-
-/* Body (Base): 14px, Line Height: 20px, Weight: 400 */
-body, .type-body-base, .text-body-base, .text-body, .text-body-md {
+h2, h3, .section-label, .type-heading-2, .text-heading-2, .type-subheading {
   font-size: 14px !important;
-  line-height: 20px !important;
+  line-height: 1.4 !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  text-transform: none !important; /* Sentence case, never all caps */
+}
+
+body, p, .body-text, .type-body-base, .text-body-base, .text-body {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
   font-weight: 400 !important;
-  color: var(--color-on-surface-variant);
+  color: var(--text-secondary);
 }
 
-/* Caption: 12px, Weight: 400 */
-.type-caption, .text-caption, .text-body-sm, .text-label-sm {
-  font-size: 12px !important;
-  line-height: 16px !important;
+.body-sm, .text-body-sm, .type-caption, .text-caption {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
   font-weight: 400 !important;
-  color: var(--color-outline);
+  color: var(--text-muted);
 }
 
-.text-label-md {
-  font-size: 16px !important;
-  line-height: 24px !important;
-  font-weight: 500 !important;
-  color: var(--color-on-surface);
+/* ── Surface / Cards ─────────────────────────────────────────────────────── */
+.df-card, .df-card-elevated {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 24px;
 }
 
-/* --------------------------------------------------------------------------
-   SURFACE / CARD UTILITIES — Insta360 Dark Elevation
-   -------------------------------------------------------------------------- */
-.df-card {
-  background: var(--color-surface-container-low);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.6), 0 1px 4px rgba(0, 0, 0, 0.4);
-  padding: 1.5rem;
-}
-
-.df-card-elevated {
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.5);
-  padding: 1.5rem;
-}
-
-/* --------------------------------------------------------------------------
-   BADGE UTILITIES — Dark Theme Translucent
-   -------------------------------------------------------------------------- */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1;
-}
-.badge-primary   { background: rgba(255,255,255,0.08); color: #e8e8e8; border: 1px solid rgba(255,255,255,0.16); }
-.badge-success   { background: rgba(34,197,94,0.12);  color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
-.badge-warning   { background: rgba(234,179,8,0.12);  color: #eab308; border: 1px solid rgba(234,179,8,0.25); }
-.badge-error     { background: rgba(255,77,79,0.12);  color: #ff4d4f; border: 1px solid rgba(255,77,79,0.25); }
-.badge-outline   { background: transparent; color: #888888; border: 1px solid rgba(255,255,255,0.15); }
-.badge-muted     { background: rgba(255,255,255,0.06); color: #888888; border: 1px solid rgba(255,255,255,0.10); }
-
-/* Status specific */
-.badge-draft        { background: rgba(255,255,255,0.06); color: #888888; border: 1px solid rgba(255,255,255,0.10); }
-.badge-pending      { background: rgba(234,179,8,0.12);   color: #eab308; border: 1px solid rgba(234,179,8,0.25); }
-.badge-approved     { background: rgba(34,197,94,0.12);   color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
-.badge-rejected     { background: rgba(255,77,79,0.12);   color: #ff4d4f; border: 1px solid rgba(255,77,79,0.25); }
-.badge-confirmed    { background: rgba(99,102,241,0.12);  color: #818cf8; border: 1px solid rgba(99,102,241,0.25); }
-.badge-negotiation  { background: rgba(168,85,247,0.12);  color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
-
-.risk-high   { background: rgba(255,77,79,0.12);  color: #ff4d4f; border: 1px solid rgba(255,77,79,0.25); }
-.risk-medium { background: rgba(234,179,8,0.12);  color: #eab308; border: 1px solid rgba(234,179,8,0.25); }
-.risk-low    { background: rgba(34,197,94,0.12);  color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
-
-/* --------------------------------------------------------------------------
-   BUTTON UTILITIES — White Primary, Dark Ghost
-   -------------------------------------------------------------------------- */
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
-  padding: 0.5rem 1.125rem;
-  background: #ffffff;
-  color: #000000 !important;
-  border: 1px solid #ffffff;
-  border-radius: var(--radius-md);
+  gap: 8px;
+  padding: 0 16px;
+  height: 40px;
+  background: var(--accent) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
-  letter-spacing: -0.01em;
-  box-shadow: none;
+  transition: background 0.15s ease;
+  text-decoration: none;
 }
-/* Force ALL children inside a primary button to use black — overrides global !important typography */
 .btn-primary * {
-  color: #000000 !important;
+  color: #FFFFFF !important;
 }
 .btn-primary:hover {
-  background: #e8e8e8;
-  border-color: #e8e8e8;
-  box-shadow: none;
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover);
 }
 
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
-  padding: 0.5rem 1.125rem;
-  background: transparent;
-  color: #f0f0f0;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-md);
+  gap: 8px;
+  padding: 0 16px;
+  height: 40px;
+  background: var(--accent-subtle) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
-  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.btn-secondary * {
+  color: var(--accent) !important;
 }
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: #E0E7FF !important;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 40px;
+  background: var(--error-subtle) !important;
+  color: var(--error) !important;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.btn-danger * {
+  color: var(--error) !important;
+}
+.btn-danger:hover {
+  background: #FEE2E2 !important;
+  border-color: var(--error);
 }
 
 .btn-ghost {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
-  padding: 0.5rem 1rem;
-  background: transparent;
-  color: #888888;
+  gap: 6px;
+  padding: 0 12px;
+  height: 36px;
+  background: transparent !important;
+  color: var(--text-secondary) !important;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
+  text-decoration: none;
 }
 .btn-ghost:hover {
-  color: #e0e0e0;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--canvas) !important;
+  color: var(--text-primary) !important;
 }
 
-
-/* --------------------------------------------------------------------------
-   SELECT / DROPDOWN UTILITIES
-   -------------------------------------------------------------------------- */
-.df-select {
-  width: 100%;
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-md);
-  color: var(--color-on-surface);
-  padding: 0.5rem 0.75rem;
-  font-size: 14px;
-  font-family: var(--font-family-base);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer;
-}
-.df-select:focus {
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
-}
-
-/* --------------------------------------------------------------------------
-   INPUT UTILITIES
-   -------------------------------------------------------------------------- */
-.df-input {
-  width: 100%;
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-md);
-  color: var(--color-on-surface);
-  padding: 0.5rem 0.75rem;
-  font-size: 14px;
-  font-family: var(--font-family-base);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.df-input:focus {
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
-}
-.df-input::placeholder { color: #555555; }
-
-/* --------------------------------------------------------------------------
-   TABLE UTILITIES — Dark Theme
-   -------------------------------------------------------------------------- */
-.df-table { width: 100%; border-collapse: collapse; }
-.df-table thead th {
-  padding: 0.75rem 1rem;
-  text-align: left;
+/* ── Badges / Chips ──────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
   font-size: 12px;
-  line-height: 16px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #555555;
-  background: var(--color-surface-container-lowest);
-  border-bottom: 1px solid var(--color-outline-variant);
+  line-height: 1.4;
   white-space: nowrap;
 }
-.df-table tbody td {
-  padding: 0.875rem 1rem;
+.badge-primary, .badge-draft, .badge-outline, .badge-muted {
+  background: var(--accent-subtle) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--border) !important;
+}
+.badge-success, .badge-approved, .badge-confirmed, .risk-low {
+  background: var(--success-subtle) !important;
+  color: var(--success) !important;
+  border: 1px solid #86EFAC !important;
+}
+.badge-error, .badge-rejected, .risk-high {
+  background: var(--error-subtle) !important;
+  color: var(--error) !important;
+  border: 1px solid #FCA5A5 !important;
+}
+.badge-warning, .badge-pending, .badge-negotiation, .risk-medium {
+  background: #FEF3C7 !important;
+  color: #D97706 !important;
+  border: 1px solid #FDE68A !important;
+}
+
+/* ── Form Inputs ─────────────────────────────────────────────────────────── */
+.df-input, input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
+  background: var(--surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
   font-size: 14px;
-  color: #d0d0d0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  vertical-align: middle;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.df-table tbody tr {
-  cursor: pointer;
-  transition: background 0.12s ease;
+.df-input:focus, input:focus, select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-subtle) !important;
 }
-.df-table tbody tr:hover td {
-  background: var(--color-surface-container-high);
-  color: var(--color-on-surface);
-}
-.df-table tbody tr:last-child td { border-bottom: none; }
-
-/* --------------------------------------------------------------------------
-   ANIMATIONS
-   -------------------------------------------------------------------------- */
-@keyframes df-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes df-fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes df-pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.3); }
-  50%       { box-shadow: 0 0 0 8px rgba(245, 197, 24, 0); }
-}
-
-.animate-df-in { animation: df-fade-in 0.3s ease forwards; }
-.animate-df-in-up { animation: df-fade-in-up 0.4s ease forwards; }
-.animate-df-glow { animation: df-pulse-glow 2.5s infinite; }
-
-/* Staggered children */
-.df-stagger > *:nth-child(1) { animation-delay: 0ms; }
-.df-stagger > *:nth-child(2) { animation-delay: 60ms; }
-.df-stagger > *:nth-child(3) { animation-delay: 120ms; }
-.df-stagger > *:nth-child(4) { animation-delay: 180ms; }
-.df-stagger > *:nth-child(5) { animation-delay: 240ms; }
-
-/* --------------------------------------------------------------------------
-   LAYOUT UTILITIES
-   -------------------------------------------------------------------------- */
-.df-page-container {
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-}
-
-@media (min-width: 1024px) {
-  .df-page-container {
-    padding: 3.5rem 3.5rem;
-  }
-}
-
-/* Glow effects */
-.df-glow-primary  { box-shadow: 0 0 32px rgba(255, 255, 255, 0.08); }
-.df-glow-tertiary { box-shadow: 0 0 24px rgba(34, 197, 94, 0.2); }
-.df-glow-error    { box-shadow: 0 0 24px rgba(255, 77, 79, 0.2); }
-
-/* --------------------------------------------------------------------------
-   GLOBAL DARK-MODE OVERRIDES
-   Covers all hardcoded light Tailwind classes used across all 15 pages.
-   Ensures the Insta360 dark aesthetic is applied without touching each page.
-   -------------------------------------------------------------------------- */
-
-/* White / off-white backgrounds → dark surfaces */
-.bg-white                { background-color: #111111 !important; }
-
-.bg-gray-50, .bg-slate-50 { background-color: #161616 !important; }
-.bg-gray-100, .bg-slate-100 { background-color: #1a1a1a !important; }
-.bg-gray-200, .bg-slate-200 { background-color: #202020 !important; }
-.bg-gray-800 { background-color: #1a1a1a !important; }
-.bg-gray-900 { background-color: #111111 !important; }
-
-/* Text overrides — slate palette → dark theme palette */
-.text-slate-900, .text-gray-900 { color: #f0f0f0 !important; }
-.text-slate-800, .text-gray-800 { color: #e0e0e0 !important; }
-.text-slate-700, .text-gray-700 { color: #c8c8c8 !important; }
-.text-slate-600, .text-gray-600 { color: #888888 !important; }
-.text-slate-500, .text-gray-500 { color: #666666 !important; }
-.text-slate-400, .text-gray-400 { color: #555555 !important; }
-.text-slate-300, .text-gray-300 { color: #444444 !important; }
-.text-white  { color: #f0f0f0 !important; }
-.text-black  { color: #0a0a0a !important; }
-
-/* Border overrides — slate palette → dark outlines */
-.border-slate-200, .border-gray-200 { border-color: rgba(255,255,255,0.08) !important; }
-.border-slate-300, .border-gray-300 { border-color: rgba(255,255,255,0.10) !important; }
-.border-slate-400, .border-gray-400 { border-color: rgba(255,255,255,0.15) !important; }
-.border-white                       { border-color: rgba(255,255,255,0.12) !important; }
-
-/* Divider lines */
-.divide-slate-200 > * + *, .divide-gray-200 > * + * {
-  border-color: rgba(255,255,255,0.06) !important;
-}
-
-/* Placeholder text */
 input::placeholder, textarea::placeholder {
-  color: #444444 !important;
+  color: var(--text-muted) !important;
 }
 
-/* Focus ring on inputs → white */
-input:focus, textarea:focus, select:focus {
-  outline-color: rgba(255,255,255,0.4) !important;
-  border-color: rgba(255,255,255,0.35) !important;
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.08) !important;
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
 }
-
-/* Shadow overrides — lighten shadows for dark surfaces */
-.shadow-xs, .shadow-sm { box-shadow: 0 1px 8px rgba(0,0,0,0.5) !important; }
-.shadow-md { box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important; }
-.shadow-lg { box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important; }
-
-/* glass-card helper used in some pages */
-.glass-card {
-  background: #1a1a1a !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  border-radius: 0.75rem;
-  backdrop-filter: blur(12px);
+th {
+  background: #F8FAFC !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--border) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  text-align: left;
+  padding: 12px 16px;
+  text-transform: none !important;
 }
-
-/* Specific Tailwind prose colors for inline styles passed as className */
-.text-emerald-600, .text-emerald-700 { color: #22c55e !important; }
-.text-emerald-400 { color: #4ade80 !important; }
-.bg-emerald-600 { background-color: #16a34a !important; }
-.bg-slate-200.rounded-full { background-color: rgba(255,255,255,0.10) !important; }
-.text-red-700 { color: #ff4d4f !important; }
-.bg-red-100 { background-color: rgba(255,77,79,0.12) !important; }
-.border-red-200 { border-color: rgba(255,77,79,0.25) !important; }
-
-/* btn-ghost white accent */
-.btn-ghost:hover {
-  color: #f0f0f0 !important;
-  background: rgba(255, 255, 255, 0.06) !important;
+td {
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
+  font-size: 14px !important;
+  padding: 14px 16px;
 }
-
+tr:hover td {
+  background: #FAFAFC;
+}

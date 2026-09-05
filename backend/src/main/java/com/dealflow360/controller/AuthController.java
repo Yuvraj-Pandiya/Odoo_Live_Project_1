@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.dealflow360.entity.User;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,13 +16,31 @@ public class AuthController {
 
     private final AuthService authService;
 
-    record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {}
+    record LoginRequest(
+        @NotBlank(message = "Email address is required")
+        @Email(message = "Please enter a valid email address (e.g. user@company.com)")
+        String email,
+
+        @NotBlank(message = "Password is required")
+        String password
+    ) {}
+
     record RegisterRequest(
-        @NotBlank @Email String email,
-        @NotBlank @Size(min = 6) String password,
-        @NotBlank String firstName,
-        @NotBlank String lastName,
-        User.UserRole role
+        @NotBlank(message = "Email address is required")
+        @Email(message = "Please enter a valid email address (e.g. user@company.com)")
+        String email,
+
+        @NotBlank(message = "Password is required")
+        @Size(min = 8, message = "Password must be at least 8 characters long")
+        String password,
+
+        @NotBlank(message = "First name is required")
+        String firstName,
+
+        @NotBlank(message = "Last name is required")
+        String lastName,
+
+        String role
     ) {}
 
     @PostMapping("/login")
@@ -33,8 +50,14 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthService.RegisterResponse> register(@Valid @RequestBody RegisterRequest req) {
+        User.UserRole userRole = null;
+        if (req.role() != null && !req.role().isBlank()) {
+            try {
+                userRole = User.UserRole.valueOf(req.role().trim().toUpperCase());
+            } catch (Exception ignored) {}
+        }
         return ResponseEntity.ok(authService.register(
-            req.email(), req.password(), req.firstName(), req.lastName(), req.role()
+            req.email(), req.password(), req.firstName(), req.lastName(), userRole
         ));
     }
 }

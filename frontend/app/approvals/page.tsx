@@ -74,22 +74,22 @@ export default function ApprovalsPage() {
   if (!canApprove && !loading) {
     return (
       <AppLayout>
-        <div className="p-8 max-w-4xl mx-auto space-y-6">
-          <div className="glass-card p-8 text-center space-y-4 border border-amber-500/30">
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto">
+        <div style={{ maxWidth: '768px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="df-card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--error-subtle)', color: 'var(--error)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShieldAlert size={32} />
             </div>
-            <h2 className="text-xl font-bold text-white">Approvals Governance Queue</h2>
-            <p className="text-sm text-slate-300 max-w-lg mx-auto">
-              You are currently signed in as <strong className="text-amber-400">{user.fullName || user.email || 'Sales Rep'}</strong> ({userRole}).
+            <h2 className="page-heading">Approvals governance queue</h2>
+            <p className="body-text">
+              You are currently signed in as <strong>{user.fullName || user.email || 'Sales Rep'}</strong> ({userRole}).
               The approval workflow is restricted to <strong>Managers</strong>, <strong>Finance Leads</strong>, and <strong>System Admins</strong>.
             </p>
-            <div className="pt-4 flex items-center justify-center gap-4">
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <Link href="/quotations" className="btn-primary">
-                View My Quotations
+                View my quotations
               </Link>
               <Link href="/dashboard" className="btn-secondary">
-                Return to Dashboard
+                Return to dashboard
               </Link>
             </div>
           </div>
@@ -100,16 +100,16 @@ export default function ApprovalsPage() {
 
   return (
     <AppLayout>
-      <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-heading-1 text-slate-900">Governance Approvals</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 className="page-heading">Governance approvals</h1>
               <span className="badge badge-primary">
-                ROLE: {userRole}
+                Role: {userRole}
               </span>
             </div>
-            <p className="text-body-lg text-slate-600 mt-1">
+            <p className="body-text" style={{ marginTop: '4px' }}>
               Multi-tiered discount approval chain (Manager & Finance sign-offs)
             </p>
           </div>
@@ -117,34 +117,39 @@ export default function ApprovalsPage() {
 
         {msg && (
           <div
-            className="p-4 rounded-xl text-body-base font-medium text-center transition-all animate-in fade-in"
             style={{
-              background: msg.includes('Error') || msg.includes('Restricted') ? '#fee2e2' : '#dcfce7',
-              border: `1px solid ${msg.includes('Error') || msg.includes('Restricted') ? '#fca5a5' : '#bbf7d0'}`,
-              color: msg.includes('Error') || msg.includes('Restricted') ? '#b91c1c' : '#15803d',
+              padding: '12px 16px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              textAlign: 'center',
+              background: msg.includes('Error') || msg.includes('Restricted') ? 'var(--error-subtle)' : 'var(--success-subtle)',
+              border: `1px solid ${msg.includes('Error') || msg.includes('Restricted') ? '#FCA5A5' : '#86EFAC'}`,
+              color: msg.includes('Error') || msg.includes('Restricted') ? 'var(--error)' : 'var(--success)',
             }}
           >
             {msg}
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           {/* List */}
-          <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-slate-700" />
-                <h2 className="text-heading-3 text-slate-900">Pending Approvals ({quotations.length})</h2>
+          <div className="df-card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={16} style={{ color: 'var(--text-secondary)' }} />
+                <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Pending approvals ({quotations.length})</h2>
               </div>
-              <button onClick={load} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition cursor-pointer">
+              <button onClick={load} style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                 Refresh
               </button>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               {loading ? (
-                <div className="p-8 text-center text-body-base text-slate-500">Loading approval items…</div>
+                <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading approval items…</div>
               ) : quotations.map((q: any) => {
                 const pendingLevels = (q.approvals || []).filter((a: any) => a.status === 'PENDING').map((a: any) => a.level);
+                const isSel = selected?.id === q.id;
                 return (
                   <div
                     key={q.id}
@@ -156,23 +161,30 @@ export default function ApprovalsPage() {
                       else if (pendingLevels.includes('MANAGER')) setSelectedLevel('MANAGER');
                       else if (pendingLevels.includes('FINANCE')) setSelectedLevel('FINANCE');
                     }}
-                    className={`p-4 cursor-pointer transition-all ${selected?.id === q.id ? 'bg-indigo-50/70 border-l-4 border-indigo-600' : 'hover:bg-slate-50'}`}
+                    style={{
+                      padding: '16px 20px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid var(--border)',
+                      background: isSel ? 'var(--accent-subtle)' : 'var(--surface)',
+                      borderLeft: isSel ? '4px solid var(--accent)' : '4px solid transparent',
+                      transition: 'background 0.15s',
+                    }}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-subheading font-mono font-bold text-slate-900">{q.quoteNumber}</span>
-                      <span className={`badge ${q.riskLevel === 'HIGH' ? 'risk-high' : q.riskLevel === 'MEDIUM' ? 'risk-medium' : 'risk-low'}`}>RISK: {q.riskLevel}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent)' }}>{q.quoteNumber}</span>
+                      <span className={`badge ${q.riskLevel === 'HIGH' ? 'risk-high' : q.riskLevel === 'MEDIUM' ? 'risk-medium' : 'risk-low'}`}>Risk: {q.riskLevel.toLowerCase()}</span>
                     </div>
-                    <p className="text-body-base font-semibold text-slate-800">{q.customer?.name || '—'}</p>
-                    <p className="text-caption text-slate-500 mt-1">
-                      ${Number(q.grandTotal || 0).toLocaleString()} · Blended Score: {Number(q.blendedRiskScore || 0).toFixed(2)}
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{q.customer?.name || '—'}</p>
+                    <p className="body-sm" style={{ marginTop: '4px' }}>
+                      ${Number(q.grandTotal || 0).toLocaleString()} · Risk score: {Number(q.blendedRiskScore || 0).toFixed(2)}
                     </p>
-                    <div className="flex gap-2 mt-2">
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
                       {(q.approvals || []).map((a: any) => (
                         <span
                           key={a.id || a.level}
                           className={`badge ${a.status === 'PENDING' ? 'badge-pending' : a.status === 'APPROVED' ? 'badge-approved' : 'badge-rejected'}`}
                         >
-                          {a.level}: {a.status}
+                          {a.level}: {a.status.toLowerCase()}
                         </span>
                       ))}
                     </div>
@@ -180,10 +192,10 @@ export default function ApprovalsPage() {
                 );
               })}
               {quotations.length === 0 && !loading && (
-                <div className="p-8 text-center">
-                  <CheckCircle size={28} className="mx-auto mb-2 text-emerald-600" />
-                  <p className="text-heading-3 text-slate-900">All pending approvals are cleared</p>
-                  <p className="text-body-base text-slate-500 mt-1">No quotes requiring review at this time</p>
+                <div style={{ padding: '48px', textAlign: 'center' }}>
+                  <CheckCircle size={28} style={{ color: 'var(--success)', margin: '0 auto 8px auto' }} />
+                  <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>All pending approvals are cleared</p>
+                  <p className="body-sm" style={{ marginTop: '4px' }}>No quotes requiring review at this time</p>
                 </div>
               )}
             </div>
@@ -192,32 +204,32 @@ export default function ApprovalsPage() {
           {/* Detail Panel */}
           <div>
             {!selected ? (
-              <div className="rounded-xl p-12 text-center bg-white border border-slate-200 shadow-xs">
-                <AlertTriangle size={28} className="mx-auto mb-3 text-slate-400" />
-                <p className="text-heading-3 text-slate-800">Select a quotation from the list</p>
-                <p className="text-body-base text-slate-500 mt-1">Inspect flagged discount items and execute approval decision</p>
+              <div className="df-card" style={{ textAlign: 'center', padding: '48px' }}>
+                <AlertTriangle size={28} style={{ color: 'var(--text-muted)', margin: '0 auto 12px auto' }} />
+                <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Select a quotation from the list</p>
+                <p className="body-sm" style={{ marginTop: '4px' }}>Inspect flagged discount items and execute approval decision</p>
               </div>
             ) : (
-              <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs space-y-5">
-                <div className="flex items-start justify-between">
+              <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div>
-                    <h3 className="text-heading-3 text-slate-900">{selected.quoteNumber}</h3>
-                    <p className="text-body-base text-slate-600">{selected.customer?.name} · {selected.customer?.tier} tier</p>
+                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{selected.quoteNumber}</h3>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>{selected.customer?.name} · {selected.customer?.tier} tier</p>
                   </div>
-                  <Link href={`/quotations/${selected.id}`} className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-                    Full Quotation <span className="material-symbols-outlined text-xs">open_in_new</span>
+                  <Link href={`/quotations/${selected.id}`} style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span>Full quotation</span> <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>open_in_new</span>
                   </Link>
                 </div>
 
                 {/* Why flagged */}
-                <div className="p-4 rounded-xl space-y-3 bg-red-50 border border-red-200">
-                  <h4 className="text-subheading font-bold uppercase tracking-wider text-red-700">Why This Quote Was Flagged</h4>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-body-base">
+                <div style={{ padding: '16px', borderRadius: '8px', background: 'var(--error-subtle)', border: '1px solid #FCA5A5', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <h4 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--error)', textTransform: 'none', margin: 0 }}>Why this quote was flagged</h4>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', background: 'transparent' }}>
                       <thead>
-                        <tr className="border-b border-red-200">
-                          {['Line Item', 'Discount Given', 'Limit Allowed', 'Delta'].map(h => (
-                            <th key={h} className="text-left py-2 pr-4 text-slate-600 font-semibold text-xs uppercase">{h}</th>
+                        <tr>
+                          {['Line item', 'Discount given', 'Limit allowed', 'Delta'].map(h => (
+                            <th key={h} style={{ background: 'transparent', borderBottom: '1px solid #FCA5A5', color: 'var(--error)', padding: '6px 8px' }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -225,16 +237,16 @@ export default function ApprovalsPage() {
                         {(selected.lines || selected.quotationLines || []).map((line: any) => {
                           const over = Math.max(0, Number(line.discountPct || 0) - Number(line.discountAllowed || 0));
                           return (
-                            <tr key={line.id} className="border-t border-red-100">
-                              <td className="py-2 pr-4 text-slate-900 font-medium">{line.product?.name || line.description}</td>
-                              <td className="py-2 pr-4" style={{ color: over > 0 ? '#dc2626' : '#059669' }}>
+                            <tr key={line.id}>
+                              <td style={{ padding: '8px', borderBottom: '1px solid #FEE2E2', fontWeight: 500 }}>{line.product?.name || line.description}</td>
+                              <td style={{ padding: '8px', borderBottom: '1px solid #FEE2E2', color: over > 0 ? 'var(--error)' : 'var(--success)' }}>
                                 {Number(line.discountPct || 0).toFixed(1)}%
                               </td>
-                              <td className="py-2 pr-4 text-slate-600">
+                              <td style={{ padding: '8px', borderBottom: '1px solid #FEE2E2', color: 'var(--text-secondary)' }}>
                                 {Number(line.discountAllowed || 0).toFixed(1)}%
                               </td>
-                              <td className="py-2 font-semibold" style={{ color: over > 0 ? '#dc2626' : '#059669' }}>
-                                {over > 0 ? `+${over.toFixed(1)} pt OVER` : '0 pt — OK'}
+                              <td style={{ padding: '8px', borderBottom: '1px solid #FEE2E2', fontWeight: 600, color: over > 0 ? 'var(--error)' : 'var(--success)' }}>
+                                {over > 0 ? `+${over.toFixed(1)} pt over` : '0 pt — OK'}
                               </td>
                             </tr>
                           );
@@ -242,39 +254,49 @@ export default function ApprovalsPage() {
                       </tbody>
                     </table>
                   </div>
-                  <p className="text-caption text-slate-600">
-                    Blended Risk Score: <strong className="text-amber-700 font-bold">{Number(selected.blendedRiskScore || 0).toFixed(2)}</strong>
+                  <p className="body-sm" style={{ margin: 0, color: 'var(--text-primary)' }}>
+                    Blended risk score: <strong>{Number(selected.blendedRiskScore || 0).toFixed(2)}</strong>
                   </p>
                 </div>
 
                 {/* Level selection for Admin */}
                 {userRole === 'ADMIN' && (
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                    <label className="block text-subheading font-semibold text-slate-800">Approval Level Execution (Admin Override)</label>
-                    <div className="flex gap-2">
+                  <div style={{ padding: '16px', borderRadius: '8px', background: 'var(--canvas)', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Approval level execution (Admin override)</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <button
                         type="button"
                         onClick={() => setSelectedLevel('MANAGER')}
-                        className={`flex-1 py-2 text-body-base font-semibold rounded-lg transition cursor-pointer ${selectedLevel === 'MANAGER' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'}`}
+                        style={{
+                          flex: 1, padding: '8px', fontSize: '13px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer',
+                          background: selectedLevel === 'MANAGER' ? 'var(--accent)' : 'var(--surface)',
+                          color: selectedLevel === 'MANAGER' ? '#FFFFFF' : 'var(--text-secondary)',
+                          border: `1px solid ${selectedLevel === 'MANAGER' ? 'var(--accent)' : 'var(--border)'}`,
+                        }}
                       >
-                        Manager Level
+                        Manager level
                       </button>
                       <button
                         type="button"
                         onClick={() => setSelectedLevel('FINANCE')}
-                        className={`flex-1 py-2 text-body-base font-semibold rounded-lg transition cursor-pointer ${selectedLevel === 'FINANCE' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'}`}
+                        style={{
+                          flex: 1, padding: '8px', fontSize: '13px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer',
+                          background: selectedLevel === 'FINANCE' ? 'var(--accent)' : 'var(--surface)',
+                          color: selectedLevel === 'FINANCE' ? '#FFFFFF' : 'var(--text-secondary)',
+                          border: `1px solid ${selectedLevel === 'FINANCE' ? 'var(--accent)' : 'var(--border)'}`,
+                        }}
                       >
-                        Finance Level
+                        Finance level
                       </button>
                     </div>
                   </div>
                 )}
 
                 {/* Notes */}
-                <div>
-                  <label className="block text-subheading font-medium mb-1.5 text-slate-700">Decision Justification & Notes</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '14px', fontWeight: 500, color: 'var(--text-primary)' }}>Decision justification & notes</label>
                   <textarea
-                    className="df-input text-body-base w-full"
+                    className="df-input"
                     rows={3}
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
@@ -283,25 +305,28 @@ export default function ApprovalsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
                   <button
                     type="button"
                     onClick={() => decide('APPROVED')}
-                    className="btn-primary flex-1 justify-center py-2.5 text-body-base"
+                    className="btn-primary"
+                    style={{ flex: 1 }}
                   >
                     <CheckCircle size={15} /> Approve ({userRole === 'ADMIN' ? selectedLevel : userRole === 'FINANCE' ? 'Finance' : 'Manager'})
                   </button>
                   <button
                     type="button"
                     onClick={() => decide('RETURNED')}
-                    className="btn-secondary flex-1 justify-center py-2.5 text-body-base"
+                    className="btn-secondary"
+                    style={{ flex: 1 }}
                   >
-                    <RotateCcw size={15} /> Return for Re-edit
+                    <RotateCcw size={15} /> Return for re-edit
                   </button>
                   <button
                     type="button"
                     onClick={() => decide('REJECTED')}
-                    className="btn-danger flex-1 justify-center py-2.5 text-body-base"
+                    className="btn-danger"
+                    style={{ flex: 1 }}
                   >
                     <XCircle size={15} /> Reject
                   </button>

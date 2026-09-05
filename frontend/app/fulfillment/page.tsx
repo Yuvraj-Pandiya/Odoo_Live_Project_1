@@ -61,32 +61,32 @@ export default function FulfillmentPage() {
   };
 
   const STATUS_COLOR: any = {
-    PENDING:               { text: 'hsl(215 20% 65%)',  label: 'Pending' },
-    SPLIT_PENDING:         { text: 'hsl(38 92% 65%)',   label: 'Split Pending' },
-    PARTIALLY_FULFILLED:   { text: 'hsl(262 83% 72%)', label: 'Partial' },
-    FULFILLED:             { text: 'hsl(142 70% 60%)', label: 'Fulfilled' },
-    BACKORDER:             { text: 'hsl(0 84% 70%)',   label: 'Backorder' },
+    PENDING:               { label: 'Pending' },
+    SPLIT_PENDING:         { label: 'Split pending' },
+    PARTIALLY_FULFILLED:   { label: 'Partial' },
+    FULFILLED:             { label: 'Fulfilled' },
+    BACKORDER:             { label: 'Backorder' },
   };
 
   if ((forbidden || !hasAccess) && !loading) {
     return (
       <AppLayout>
-        <div className="p-8 max-w-4xl mx-auto space-y-6">
-          <div className="glass-card p-8 text-center space-y-4 border border-blue-500/30">
-            <div className="w-16 h-16 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto">
+        <div style={{ maxWidth: '768px', margin: '0 auto' }}>
+          <div className="df-card" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--accent-subtle)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShieldAlert size={32} />
             </div>
-            <h2 className="text-xl font-bold text-white">Warehouse & Fulfillment Operations</h2>
-            <p className="text-sm text-slate-300 max-w-lg mx-auto">
-              You are signed in as <strong className="text-blue-400">{user.fullName || user.email || 'User'}</strong> ({userRole}).
+            <h2 className="page-heading">Warehouse & fulfillment operations</h2>
+            <p className="body-text">
+              You are signed in as <strong>{user.fullName || user.email || 'User'}</strong> ({userRole}).
               Warehouse inventory allocation and fulfillment order execution is restricted to <strong>Sales Managers</strong> and <strong>System Admins</strong>.
             </p>
-            <div className="pt-4 flex items-center justify-center gap-4">
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <Link href="/quotations" className="btn-primary">
-                View Quotations
+                View quotations
               </Link>
               <Link href="/dashboard" className="btn-secondary">
-                Return to Dashboard
+                Return to dashboard
               </Link>
             </div>
           </div>
@@ -97,105 +97,117 @@ export default function FulfillmentPage() {
 
   return (
     <AppLayout>
-      <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
-        <div className="flex items-center justify-between">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-heading-1 text-slate-900">Fulfillment & Stock Allocation</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 className="page-heading">Fulfillment & stock allocation</h1>
               <span className="badge badge-primary">
-                ROLE: {userRole}
+                Role: {userRole}
               </span>
             </div>
-            <p className="text-body-lg text-slate-600 mt-1">Warehouse split recommendations, multi-node routing, and stock availability</p>
+            <p className="body-text" style={{ marginTop: '4px' }}>Warehouse split recommendations, multi-node routing, and stock availability</p>
           </div>
         </div>
 
-        {msg && <div className="p-4 rounded-xl text-body-base font-medium bg-emerald-50 border border-emerald-200 text-emerald-800">{msg}</div>}
+        {msg && (
+          <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--success-subtle)', border: '1px solid #86EFAC', color: 'var(--success)', fontWeight: 500, fontSize: '14px' }}>
+            {msg}
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
           {/* Orders List */}
-          <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <h2 className="text-heading-3 text-slate-900">Orders Awaiting Fulfillment ({orders.length})</h2>
-              <button onClick={loadData} className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition cursor-pointer">
+          <div className="df-card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC' }}>
+              <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Orders awaiting fulfillment ({orders.length})</h2>
+              <button onClick={loadData} style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>
                 Refresh
               </button>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               {loading ? (
-                <div className="p-6 text-center text-body-base text-slate-500">Loading fulfillment records…</div>
+                <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading fulfillment records…</div>
               ) : orders.map((o: any) => {
                 const sc = STATUS_COLOR[o.status] || STATUS_COLOR.PENDING;
+                const isSel = selected?.id === o.id;
                 return (
                   <div
                     key={o.id}
                     onClick={() => setSelected(o)}
-                    className={`p-4 cursor-pointer transition-all ${selected?.id === o.id ? 'bg-indigo-50/70 border-l-4 border-indigo-600' : 'hover:bg-slate-50'}`}
+                    style={{
+                      padding: '16px 20px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid var(--border)',
+                      background: isSel ? 'var(--accent-subtle)' : 'var(--surface)',
+                      borderLeft: isSel ? '4px solid var(--accent)' : '4px solid transparent',
+                      transition: 'background 0.15s',
+                    }}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-subheading font-mono font-bold text-slate-900">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent)' }}>
                         {o.quotation?.quoteNumber || `FO-${o.id}`}
                       </span>
                       <span className="badge badge-outline">{sc.label}</span>
                     </div>
-                    <p className="text-body-base font-semibold text-slate-800">{o.quotation?.customer?.name || '—'}</p>
-                    <p className="text-caption text-slate-500 mt-1">
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{o.quotation?.customer?.name || '—'}</p>
+                    <p className="body-sm" style={{ marginTop: '4px' }}>
                       {o.totalShipments || 1} shipment(s) · ₹{Number(o.totalShippingCost || 0).toLocaleString()} cost
                     </p>
                   </div>
                 );
               })}
               {orders.length === 0 && !loading && (
-                <div className="p-8 text-center text-body-base text-slate-500">No pending fulfillment orders</div>
+                <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>No pending fulfillment orders</div>
               )}
             </div>
           </div>
 
           {/* Detail */}
-          <div className="lg:col-span-2 space-y-6">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {!selected ? (
-              <div className="rounded-xl p-12 text-center bg-white border border-slate-200 shadow-xs">
-                <Truck size={28} className="mx-auto mb-3 text-slate-400" />
-                <p className="text-heading-3 text-slate-800">Select a fulfillment order to inspect warehouse split</p>
-                <p className="text-body-base text-slate-500 mt-1">Review stock allocation across regional warehouses</p>
+              <div className="df-card" style={{ textAlign: 'center', padding: '48px' }}>
+                <Truck size={28} style={{ color: 'var(--text-muted)', margin: '0 auto 12px auto' }} />
+                <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Select a fulfillment order to inspect warehouse split</p>
+                <p className="body-sm" style={{ marginTop: '4px' }}>Review stock allocation across regional warehouses</p>
               </div>
             ) : (
-              <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs space-y-5">
-                <div className="flex items-center justify-between">
+              <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <h3 className="text-heading-3 text-slate-900">{selected.quotation?.quoteNumber || `FO-${selected.id}`}</h3>
-                    <p className="text-body-base text-slate-600">{selected.quotation?.customer?.name}</p>
+                    <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{selected.quotation?.quoteNumber || `FO-${selected.id}`}</h3>
+                    <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '2px' }}>{selected.quotation?.customer?.name}</p>
                   </div>
-                  <div className="text-right text-caption text-slate-500">
-                    <p>{selected.totalShipments || 1} warehouse(s) · ₹{Number(selected.totalShippingCost || 0).toLocaleString()} est. cost</p>
+                  <div style={{ textAlign: 'right' }}>
+                    <p className="body-sm">{selected.totalShipments || 1} warehouse(s) · ₹{Number(selected.totalShippingCost || 0).toLocaleString()} est. cost</p>
                     {selected.status === 'PARTIALLY_FULFILLED' && (
-                      <p className="mt-1 text-xs px-2 py-1 rounded font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                        ⚠ Consolidate Remaining Backorder prompt active
-                      </p>
+                      <span className="badge badge-warning" style={{ marginTop: '4px' }}>
+                        ⚠ Consolidate remaining backorder prompt active
+                      </span>
                     )}
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="df-table">
+                <div style={{ overflowX: 'auto' }}>
+                  <table>
                     <thead>
                       <tr>
                         <th>Product</th>
                         <th>Warehouse</th>
-                        <th>Qty Allocated</th>
-                        <th>Qty Fulfilled</th>
-                        <th>Est. Cost</th>
+                        <th>Qty allocated</th>
+                        <th>Qty fulfilled</th>
+                        <th>Est. cost</th>
                         <th>Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(selected.lines || selected.fulfillmentLines || []).map((line: any) => (
                         <tr key={line.id}>
-                          <td className="font-medium text-slate-900">{line.product?.name || `Product #${line.productId}`}</td>
-                          <td className="text-slate-600">{line.warehouse?.name || 'Regional Depot'}</td>
-                          <td><span>{line.quantityAllocated}</span></td>
-                          <td><span>{line.quantityFulfilled}</span></td>
-                          <td><span>₹{Number(line.shippingCost || 0).toFixed(2)}</span></td>
+                          <td style={{ fontWeight: 500 }}>{line.product?.name || `Product #${line.productId}`}</td>
+                          <td style={{ color: 'var(--text-secondary)' }}>{line.warehouse?.name || 'Regional Depot'}</td>
+                          <td>{line.quantityAllocated}</td>
+                          <td>{line.quantityFulfilled}</td>
+                          <td>₹{Number(line.shippingCost || 0).toFixed(2)}</td>
                           <td>
                             {line.isBackorder
                               ? <span className="badge badge-error">Backorder</span>
@@ -207,23 +219,23 @@ export default function FulfillmentPage() {
                   </table>
                 </div>
 
-                <div className="flex gap-3 pt-2">
-                  <button onClick={() => acceptSplit(selected.id)} className="btn-primary text-body-base">
-                    <CheckCircle size={15} /> Accept Suggested Split
+                <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
+                  <button onClick={() => acceptSplit(selected.id)} className="btn-primary">
+                    <CheckCircle size={15} /> Accept suggested split
                   </button>
                 </div>
               </div>
             )}
 
             {/* Warehouse Stock Summary */}
-            <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs">
-              <h3 className="text-heading-3 text-slate-900 mb-4">Regional Warehouse Nodes & Weight</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Regional warehouse nodes & weight</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                 {warehouses.map((w: any) => (
-                  <div key={w.id} className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-                    <p className="text-subheading font-bold text-slate-900">{w.name}</p>
-                    <p className="text-body-base text-slate-600 mt-0.5">{w.city}, {w.state || 'IN'}</p>
-                    <p className="text-caption text-slate-500 mt-1">
+                  <div key={w.id} style={{ padding: '16px', borderRadius: '8px', background: 'var(--canvas)', border: '1px solid var(--border)' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>{w.name}</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>{w.city}, {w.state || 'IN'}</p>
+                    <p className="body-sm" style={{ marginTop: '4px' }}>
                       Weight: {Number(w.shippingCostWeight || 1).toFixed(1)}x
                     </p>
                   </div>

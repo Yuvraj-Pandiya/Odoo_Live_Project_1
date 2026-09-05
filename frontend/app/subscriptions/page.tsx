@@ -42,74 +42,82 @@ export default function SubscriptionsPage() {
 
   return (
     <AppLayout>
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-heading-1 font-bold text-slate-900 dark:text-white">Subscriptions & Recurring Contracts</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 className="page-heading">Subscriptions & recurring contracts</h1>
               <span className="badge badge-success">
-                Hybrid Billing Engine
+                Hybrid billing engine
               </span>
             </div>
-            <p className="type-body-base text-slate-500 dark:text-slate-400 mt-1">
+            <p className="body-text" style={{ marginTop: '4px' }}>
               Manage active subscription lifecycles, MRR/ARR distributions, proration schedules, and contract renewals.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button className="btn-secondary flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">file_download</span>
-              <span>Export ARR Report</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button className="btn-secondary">
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>file_download</span>
+              <span>Export ARR report</span>
             </button>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Total ARR</div>
-            <div className="text-display font-bold text-slate-900 dark:text-white">${totalARR.toLocaleString()}</div>
-            <div className="type-body-base text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
-              <span className="material-symbols-outlined text-xs">trending_up</span> +14.2% YoY growth
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+          <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Total ARR</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>${totalARR.toLocaleString()}</span>
+            <span className="body-sm" style={{ color: 'var(--success)', fontWeight: 500 }}>+14.2% YoY growth</span>
           </div>
-          <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Total MRR</div>
-            <div className="text-display font-bold text-slate-900 dark:text-white">${totalMRR.toLocaleString()}</div>
-            <div className="type-body-base text-xs text-slate-500 dark:text-slate-400">Avg. contract: ${(totalMRR / initialSubscriptions.length).toFixed(0)}/mo</div>
+          <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Total MRR</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>${totalMRR.toLocaleString()}</span>
+            <span className="body-sm">Avg. contract: ${(totalMRR / initialSubscriptions.length).toFixed(0)}/mo</span>
           </div>
-          <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Active Subscriptions</div>
-            <div className="text-display font-bold text-slate-900 dark:text-white">{activeCount} / {initialSubscriptions.length}</div>
-            <div className="type-body-base text-xs text-emerald-600 dark:text-emerald-400 font-medium">96.5% Net Retention</div>
+          <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Active subscriptions</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>{activeCount} / {initialSubscriptions.length}</span>
+            <span className="body-sm" style={{ color: 'var(--success)', fontWeight: 500 }}>96.5% Net retention</span>
           </div>
-          <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Upcoming Renewals (30d)</div>
-            <div className="text-display font-bold text-amber-600 dark:text-amber-400">1 Contract</div>
-            <div className="type-body-base text-xs text-amber-600 dark:text-amber-400 font-medium truncate">Apex Dynamics (Apex-9023)</div>
+          <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Upcoming renewals (30d)</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: '#D97706' }}>1 Contract</span>
+            <span className="body-sm" style={{ color: '#D97706', fontWeight: 500 }}>Apex Dynamics (Apex-9023)</span>
           </div>
         </div>
 
         {/* Filters & Search */}
-        <div className="df-card p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <div className="relative w-full sm:w-72">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+        <div className="df-card" style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', color: 'var(--text-muted)', fontSize: '18px' }}>search</span>
               <input
                 type="text"
                 placeholder="Search subscription, customer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="df-input w-full pl-9 pr-4 text-sm"
+                className="df-input"
+                style={{ width: '280px', paddingLeft: '36px' }}
               />
             </div>
-            <div className="flex rounded-lg bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 text-xs font-semibold w-full sm:w-auto">
+            <div style={{ display: 'flex', gap: '4px', background: 'var(--canvas)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
               {['All', 'Monthly', 'Annual'].map((c) => (
                 <button
                   key={c}
                   onClick={() => setFilterCadence(c)}
-                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-md transition ${filterCadence === c ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                  style={{
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: filterCadence === c ? 'var(--surface)' : 'transparent',
+                    color: filterCadence === c ? 'var(--accent)' : 'var(--text-secondary)',
+                    border: 'none',
+                  }}
                 >
                   {c}
                 </button>
@@ -117,46 +125,42 @@ export default function SubscriptionsPage() {
             </div>
           </div>
 
-          <div className="type-body-base text-xs text-slate-500 dark:text-slate-400">
-            Showing <span className="text-slate-900 dark:text-white font-semibold">{filteredSubs.length}</span> active subscription schedules
+          <div className="body-sm">
+            Showing <strong style={{ color: 'var(--text-primary)' }}>{filteredSubs.length}</strong> active subscription schedules
           </div>
         </div>
 
         {/* Table */}
-        <div className="df-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="df-table">
+        <div className="df-card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
               <thead>
                 <tr>
                   <th>Subscription ID</th>
                   <th>Customer</th>
-                  <th>Plan & Software</th>
-                  <th className="text-right">MRR</th>
-                  <th className="text-right">ARR</th>
-                  <th className="text-center">Cadence</th>
+                  <th>Plan & software</th>
+                  <th style={{ textAlign: 'right' }}>MRR</th>
+                  <th style={{ textAlign: 'right' }}>ARR</th>
+                  <th style={{ textAlign: 'center' }}>Cadence</th>
                   <th>Status</th>
-                  <th className="text-right">Next Billing</th>
-                  <th className="text-center">Action</th>
+                  <th style={{ textAlign: 'right' }}>Next billing</th>
+                  <th style={{ textAlign: 'center' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredSubs.map((sub) => (
                   <tr key={sub.id}>
-                    <td className="font-mono font-medium text-indigo-600 dark:text-indigo-400">
-                      <Link href={`/subscriptions/${sub.id}`} className="hover:underline">
+                    <td>
+                      <Link href={`/subscriptions/${sub.id}`} style={{ fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>
                         {sub.id}
                       </Link>
                     </td>
-                    <td className="font-semibold text-slate-900 dark:text-white">{sub.customer}</td>
-                    <td className="max-w-xs truncate text-slate-600 dark:text-slate-300">{sub.plan}</td>
-                    <td className="text-right font-mono font-semibold text-emerald-600 dark:text-emerald-400">${sub.mrr.toLocaleString()}/mo</td>
-                    <td className="text-right font-mono text-slate-700 dark:text-slate-300">${sub.arr.toLocaleString()}/yr</td>
-                    <td className="text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        sub.cadence === 'Monthly'
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-800'
-                          : 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800'
-                      }`}>
+                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{sub.customer}</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{sub.plan}</td>
+                    <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--success)' }}>${sub.mrr.toLocaleString()}/mo</td>
+                    <td style={{ textAlign: 'right', color: 'var(--text-primary)' }}>${sub.arr.toLocaleString()}/yr</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <span className="badge badge-primary">
                         {sub.cadence}
                       </span>
                     </td>
@@ -166,14 +170,15 @@ export default function SubscriptionsPage() {
                         sub.status === 'Pending Renewal' ? 'badge-warning' :
                         'badge-muted'
                       }`}>
-                        {sub.status}
+                        {sub.status.toLowerCase()}
                       </span>
                     </td>
-                    <td className="text-right font-mono text-xs text-slate-500 dark:text-slate-400">{sub.nextBilling}</td>
-                    <td className="text-center">
+                    <td style={{ textAlign: 'right' }} className="body-sm">{sub.nextBilling}</td>
+                    <td style={{ textAlign: 'center' }}>
                       <Link
                         href={`/subscriptions/${sub.id}`}
-                        className="btn-secondary text-xs px-2.5 py-1"
+                        className="btn-secondary"
+                        style={{ height: '32px', padding: '0 12px', fontSize: '13px' }}
                       >
                         Manage
                       </Link>

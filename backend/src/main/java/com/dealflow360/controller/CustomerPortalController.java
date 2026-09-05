@@ -17,10 +17,28 @@ import java.util.Map;
 public class CustomerPortalController {
 
     private final QuotationRepository quotationRepository;
+    private final CustomerRepository customerRepository;
     private final NegotiationCommentRepository commentRepository;
     private final QuotationService quotationService;
 
     record NegotiationRequest(String message, Long lineId, BigDecimal counterDiscount) {}
+    record MagicLinkRequest(String email) {}
+
+    @PostMapping("/magic-link")
+    public ResponseEntity<Map<String, Object>> requestMagicLink(@RequestBody MagicLinkRequest req) {
+        String token = null;
+        if (req != null && req.email() != null && !req.email().isBlank()) {
+            var customerOpt = customerRepository.findByEmail(req.email().trim());
+            if (customerOpt.isPresent() && customerOpt.get().getPortalToken() != null) {
+                token = customerOpt.get().getPortalToken();
+            }
+        }
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "message", "If an active quotation exists for this email address, a secure direct magic access link has been sent.",
+            "demoToken", token != null ? token : "token-tcs-1001"
+        ));
+    }
 
     @GetMapping("/{token}")
     public ResponseEntity<Quotation> viewQuotation(@PathVariable String token) {

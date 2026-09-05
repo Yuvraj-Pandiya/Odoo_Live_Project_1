@@ -15,15 +15,11 @@ const STATUS_BADGE: Record<string, string> = {
   FULFILLED: 'badge-approved',
   CANCELLED: 'badge-rejected',
 };
+
 const RISK_BADGE: Record<string, string> = {
   HIGH: 'risk-high',
   MEDIUM: 'risk-medium',
   LOW: 'risk-low',
-};
-const TIER_COLOR: Record<string, string> = {
-  GOLD: '#ffc85a',
-  SILVER: 'var(--color-on-surface-variant)',
-  BRONZE: '#cd7f32',
 };
 
 const MOCK_QUOTATIONS = [
@@ -63,79 +59,101 @@ export default function QuotationsPage() {
 
   return (
     <AppLayout>
-      <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {/* ── Page Header ───────────────────────────────────────── */}
         <div
-          className="w-full bg-white rounded-xl border border-slate-200 p-6 shadow-xs"
+          style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            padding: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}
         >
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-heading-1 text-slate-900">Quotations</h1>
-                <span className="badge badge-primary">CPQ CORE</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <h1 className="page-heading">Quotations</h1>
+                <span className="badge badge-primary">CPQ core</span>
               </div>
-              <p className="text-body-lg text-slate-600 mt-1">
+              <p className="body-text" style={{ marginTop: '4px' }}>
                 Every quotation in the system — click a row to open details
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {/* Search */}
-              <div className="relative flex items-center">
-                <span className="material-symbols-outlined absolute left-3" style={{ color: 'var(--color-outline)', fontSize: '18px' }}>search</span>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <span className="material-symbols-outlined" style={{ position: 'absolute', left: '12px', color: 'var(--text-muted)', fontSize: '18px' }}>search</span>
                 <input
                   type="text"
                   placeholder="Search quotations..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="df-input pl-9"
-                  style={{ width: '240px' }}
+                  className="df-input"
+                  style={{ width: '240px', paddingLeft: '36px' }}
                 />
               </div>
-              <Link href="/quotations/new" className="btn-primary text-body-base">
+              <Link href="/quotations/new" className="btn-primary">
                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-                New Quotation
+                <span>New quotation</span>
               </Link>
             </div>
           </div>
         </div>
 
         {/* ── Status Filter Tabs ─────────────────────────────────── */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setFilter('ALL')}
-            className={`px-3.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer ${
-              filter === 'ALL'
-                ? 'bg-slate-900 text-white font-medium shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 font-normal'
-            }`}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: filter === 'ALL' ? 600 : 500,
+              cursor: 'pointer',
+              background: filter === 'ALL' ? 'var(--accent-subtle)' : 'var(--surface)',
+              color: filter === 'ALL' ? 'var(--accent)' : 'var(--text-secondary)',
+              border: `1px solid ${filter === 'ALL' ? 'var(--accent)' : 'var(--border)'}`,
+            }}
           >
-            All <span className={`ml-1 text-xs ${filter === 'ALL' ? 'text-slate-300' : 'text-slate-500'}`}>({quotations.length})</span>
+            All <span style={{ fontSize: '12px', opacity: 0.8 }}>({quotations.length})</span>
           </button>
           {STATUS_GROUPS.map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-3.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer ${
-                filter === s
-                  ? 'bg-slate-900 text-white font-medium shadow-xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 font-normal'
-              }`}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: filter === s ? 600 : 500,
+                cursor: 'pointer',
+                background: filter === s ? 'var(--accent-subtle)' : 'var(--surface)',
+                color: filter === s ? 'var(--accent)' : 'var(--text-secondary)',
+                border: `1px solid ${filter === s ? 'var(--accent)' : 'var(--border)'}`,
+              }}
             >
-              {s.replace(/_/g, ' ')} {counts[s] ? <span className={`ml-1 text-xs ${filter === s ? 'text-slate-300' : 'text-slate-500'}`}>({counts[s]})</span> : null}
+              {s.toLowerCase().replace(/_/g, ' ')} {counts[s] ? <span style={{ fontSize: '12px', opacity: 0.8 }}>({counts[s]})</span> : null}
             </button>
           ))}
         </div>
 
         {/* ── Table ─────────────────────────────────────────────── */}
         <div
-          className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs"
+          style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          }}
         >
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <span className="material-symbols-outlined animate-spin text-headline-lg" style={{ color: 'var(--color-primary)' }}>refresh</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '64px' }}>
+              <span className="material-symbols-outlined animate-spin" style={{ fontSize: '28px', color: 'var(--accent)' }}>refresh</span>
             </div>
           ) : (
-            <table className="df-table">
+            <table>
               <thead>
                 <tr>
                   <th>Quote #</th>
@@ -150,57 +168,57 @@ export default function QuotationsPage() {
               </thead>
               <tbody>
                 {filtered.map((q) => (
-                  <tr key={q.id} onClick={() => router.push(`/quotations/${q.id}`)}>
+                  <tr key={q.id} onClick={() => router.push(`/quotations/${q.id}`)} style={{ cursor: 'pointer' }}>
                     <td>
-                      <span className="text-meta-numeric" style={{ color: 'var(--color-primary)' }}>{q.quoteNumber}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--accent)' }}>{q.quoteNumber}</span>
                     </td>
                     <td>
-                      <div className="flex flex-col gap-0.5">
-                        <span style={{ color: 'var(--color-on-surface)' }}>{q.customer?.name || q.customerName}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{q.customer?.name || q.customerName}</span>
                         {(q.customer?.tier || q.customerTier) && (
-                          <span className="text-label-sm" style={{ color: TIER_COLOR[q.customer?.tier || q.customerTier] }}>
-                            {q.customer?.tier || q.customerTier}
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                            {q.customer?.tier || q.customerTier} tier
                           </span>
                         )}
                       </div>
                     </td>
                     <td>
                       <span className={`badge ${STATUS_BADGE[q.status] || 'badge-outline'}`}>
-                        {q.status.replace(/_/g, ' ')}
+                        {q.status.toLowerCase().replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td>
                       {q.riskLevel && (
                         <span className={`badge ${RISK_BADGE[q.riskLevel] || 'badge-outline'}`}>
-                          {q.riskLevel}
-                          {q.blendedRiskScore > 0 && <span className="ml-1 opacity-70">({q.blendedRiskScore})</span>}
+                          {q.riskLevel.toLowerCase()}
+                          {q.blendedRiskScore > 0 && <span style={{ marginLeft: '4px', opacity: 0.8 }}>({q.blendedRiskScore})</span>}
                         </span>
                       )}
                     </td>
                     <td>
-                      <span className="text-meta-numeric" style={{ color: 'var(--color-on-surface)' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                         ${(q.grandTotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
                     </td>
                     <td>
-                      <span style={{ color: 'var(--color-on-surface-variant)' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>
                         {q.salesRep?.fullName || q.salesRepName || '—'}
                       </span>
                     </td>
                     <td>
-                      <span className="text-body-sm" style={{ color: 'var(--color-outline)' }}>
+                      <span className="body-sm">
                         {q.lastActivityAt ? new Date(q.lastActivityAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
                       </span>
                     </td>
                     <td>
-                      <span className="material-symbols-outlined" style={{ color: 'var(--color-outline)', fontSize: '18px' }}>chevron_right</span>
+                      <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', fontSize: '18px' }}>chevron_right</span>
                     </td>
                   </tr>
                 ))}
                 {!filtered.length && (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-on-surface-variant)' }}>
-                      <span className="material-symbols-outlined text-headline-lg block mb-2" style={{ color: 'var(--color-outline)' }}>receipt_long</span>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '48px', color: 'var(--text-secondary)' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '32px', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>receipt_long</span>
                       No quotations match the current filter
                     </td>
                   </tr>

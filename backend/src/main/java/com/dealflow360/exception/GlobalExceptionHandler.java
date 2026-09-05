@@ -55,6 +55,21 @@ public class GlobalExceptionHandler {
             .body(new ErrorResponse(403, "Forbidden", "Access denied: Insufficient role permissions", OffsetDateTime.now()));
     }
 
+    @ExceptionHandler({
+        org.springframework.security.authentication.BadCredentialsException.class,
+        org.springframework.security.authentication.InternalAuthenticationServiceException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBadCredentials(Exception ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ErrorResponse(401, "Unauthorized", "Incorrect email or password.", OffsetDateTime.now()));
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    public ResponseEntity<ErrorResponse> handleDisabled(org.springframework.security.authentication.DisabledException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ErrorResponse(401, "Unauthorized", "Your account has been deactivated. Contact your admin.", OffsetDateTime.now()));
+    }
+
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(org.springframework.security.core.AuthenticationException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

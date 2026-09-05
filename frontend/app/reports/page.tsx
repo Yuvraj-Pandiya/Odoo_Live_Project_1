@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import { CheckCircle, FileText, Table, TrendingUp, Zap, ShieldCheck } from 'lucide-react';
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState('last30');
@@ -16,11 +16,11 @@ export default function ReportsPage() {
 
   return (
     <AppLayout>
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="space-y-6">
         {/* Toast */}
         {toastMsg && (
-          <div className="fixed top-20 right-8 z-50 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce">
-            <span className="material-symbols-outlined">check_circle</span>
+          <div className="fixed top-20 right-8 z-50 bg-[var(--success)] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce">
+            <CheckCircle size={18} />
             <span className="text-sm font-semibold">{toastMsg}</span>
           </div>
         )}
@@ -28,12 +28,12 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 type-subheading text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
-              BI & AUDIT ENGINE • v4.18 REAL-TIME SYNC
+            <div className="flex items-center gap-2 section-label text-[var(--accent)]">
+              <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-ping"></span>
+              BI & audit engine • v4.18 real-time sync
             </div>
-            <h1 className="text-heading-1 font-bold text-slate-900 dark:text-white mt-1">Admin & Reporting Analytics</h1>
-            <p className="type-body-base text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
+            <h1 className="page-heading mt-1">Admin & Reporting Analytics</h1>
+            <p className="body-text mt-1 max-w-3xl">
               High-precision deal velocity, approval cycle bottlenecks, discount margin compliance, and governance audit logs.
             </p>
           </div>
@@ -43,14 +43,14 @@ export default function ReportsPage() {
               onClick={() => triggerToast('Generating Executive BI PDF Report... Download started.')}
               className="btn-secondary flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-base text-rose-500">picture_as_pdf</span>
+              <FileText size={16} className="text-[var(--error)]" />
               <span>Export PDF</span>
             </button>
             <button
               onClick={() => triggerToast('Exporting CSV raw dataset...')}
               className="btn-secondary flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-base text-emerald-500">table_chart</span>
+              <Table size={16} className="text-[var(--success)]" />
               <span>Export CSV</span>
             </button>
           </div>
@@ -59,11 +59,11 @@ export default function ReportsPage() {
         {/* Filter Bar */}
         <div className="df-card p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="type-subheading block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Time Period</label>
+            <label className="section-label block mb-1.5">Time period</label>
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="df-input w-full text-sm"
+              className="w-full text-sm p-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)]"
             >
               <option value="last30">Last 30 Days (Rolling)</option>
               <option value="q3">Current Quarter (Q3 FY26)</option>
@@ -72,11 +72,11 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="type-subheading block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Sales Team Segment</label>
+            <label className="section-label block mb-1.5">Sales team segment</label>
             <select
               value={team}
               onChange={(e) => setTeam(e.target.value)}
-              className="df-input w-full text-sm"
+              className="w-full text-sm p-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)]"
             >
               <option value="all">All Global Teams</option>
               <option value="enterprise">Enterprise NA (Tier 1)</option>
@@ -86,11 +86,11 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label className="type-subheading block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Approval Governance Status</label>
+            <label className="section-label block mb-1.5">Approval governance status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="df-input w-full text-sm"
+              className="w-full text-sm p-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)]"
             >
               <option value="all">All Statuses</option>
               <option value="approved">Approved & Executed</option>
@@ -103,29 +103,29 @@ export default function ReportsPage() {
         {/* Top KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Total Quotes Created</div>
-            <div className="text-display font-bold text-slate-900 dark:text-white">148</div>
-            <div className="type-body-base text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
-              <span className="material-symbols-outlined text-xs">trending_up</span> +18.4% vs last cycle
+            <div className="section-label text-[var(--text-secondary)]">Total quotes created</div>
+            <div className="text-3xl font-bold text-[var(--text-primary)]">148</div>
+            <div className="body-sm text-[var(--success)] flex items-center gap-1 font-medium">
+              <TrendingUp size={14} /> +18.4% vs last cycle
             </div>
           </div>
 
           <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Pipeline Deal Volume</div>
-            <div className="text-display font-bold text-slate-900 dark:text-white">$4.85M</div>
-            <div className="type-body-base text-xs text-indigo-600 dark:text-indigo-400 font-medium">76.2% Win conversion probability</div>
+            <div className="section-label text-[var(--text-secondary)]">Pipeline deal volume</div>
+            <div className="text-3xl font-bold text-[var(--text-primary)]">₹4.85M</div>
+            <div className="body-sm text-[var(--accent)] font-medium">76.2% Win conversion probability</div>
           </div>
 
           <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Avg Approval Turnaround</div>
-            <div className="text-display font-bold text-emerald-600 dark:text-emerald-400">4.2 hours</div>
-            <div className="type-body-base text-xs text-emerald-600 dark:text-emerald-400 font-medium">-35% SLA bottleneck reduction</div>
+            <div className="section-label text-[var(--text-secondary)]">Avg approval turnaround</div>
+            <div className="text-3xl font-bold text-[var(--success)]">4.2 hours</div>
+            <div className="body-sm text-[var(--success)] font-medium">-35% SLA bottleneck reduction</div>
           </div>
 
           <div className="df-card p-5 space-y-1">
-            <div className="type-subheading text-slate-500 dark:text-slate-400">Blended Discount Leakage</div>
-            <div className="text-display font-bold text-rose-600 dark:text-rose-400">11.4%</div>
-            <div className="type-body-base text-xs text-slate-500 dark:text-slate-400">Target limit &le; 12.0%</div>
+            <div className="section-label text-[var(--text-secondary)]">Blended discount leakage</div>
+            <div className="text-3xl font-bold text-[var(--error)]">11.4%</div>
+            <div className="body-sm">Target limit &le; 12.0%</div>
           </div>
         </div>
 
@@ -133,14 +133,14 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Approval Bottleneck Analysis */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="df-card p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div className="df-card p-6 space-y-4 !p-0 overflow-hidden">
+              <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
                 <div>
-                  <h3 className="text-heading-3 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400">speed</span>
-                    Approval Cycle Bottleneck Analysis
+                  <h3 className="section-label text-base text-[var(--text-primary)] flex items-center gap-2">
+                    <Zap className="text-[var(--accent)]" size={18} />
+                    Approval cycle bottleneck analysis
                   </h3>
-                  <p className="type-body-base text-xs text-slate-500 dark:text-slate-400">Turnaround latency breakdown across sequential approval tiers</p>
+                  <p className="body-sm">Turnaround latency breakdown across sequential approval tiers</p>
                 </div>
                 <span className="badge badge-success">
                   SLA Target: 8h Max
@@ -159,22 +159,22 @@ export default function ReportsPage() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="font-semibold text-slate-900 dark:text-white">Level 1: Sales Manager</td>
-                      <td className="text-right font-mono text-emerald-600 dark:text-emerald-400 font-bold">1.2 hours</td>
-                      <td className="text-right font-mono text-slate-700 dark:text-slate-300">3</td>
-                      <td className="text-right font-mono text-slate-700 dark:text-slate-300">94.2%</td>
+                      <td className="font-semibold text-[var(--text-primary)]">Level 1: Sales Manager</td>
+                      <td className="text-right font-mono text-[var(--success)] font-bold">1.2 hours</td>
+                      <td className="text-right font-mono text-[var(--text-secondary)]">3</td>
+                      <td className="text-right font-mono text-[var(--text-secondary)]">94.2%</td>
                     </tr>
                     <tr>
-                      <td className="font-semibold text-slate-900 dark:text-white">Level 2: VP Deal Desk</td>
-                      <td className="text-right font-mono text-amber-600 dark:text-amber-400 font-bold">3.8 hours</td>
-                      <td className="text-right font-mono font-bold text-amber-600 dark:text-amber-400">5</td>
-                      <td className="text-right font-mono text-slate-700 dark:text-slate-300">82.0%</td>
+                      <td className="font-semibold text-[var(--text-primary)]">Level 2: VP Deal Desk</td>
+                      <td className="text-right font-mono text-amber-600 font-bold">3.8 hours</td>
+                      <td className="text-right font-mono font-bold text-amber-600">5</td>
+                      <td className="text-right font-mono text-[var(--text-secondary)]">82.0%</td>
                     </tr>
                     <tr>
-                      <td className="font-semibold text-slate-900 dark:text-white">Level 3: CFO / Finance Desk</td>
-                      <td className="text-right font-mono text-rose-600 dark:text-rose-400 font-bold">6.5 hours</td>
-                      <td className="text-right font-mono text-slate-700 dark:text-slate-300">2</td>
-                      <td className="text-right font-mono text-slate-700 dark:text-slate-300">68.0%</td>
+                      <td className="font-semibold text-[var(--text-primary)]">Level 3: CFO / Finance Desk</td>
+                      <td className="text-right font-mono text-[var(--error)] font-bold">6.5 hours</td>
+                      <td className="text-right font-mono text-[var(--text-secondary)]">2</td>
+                      <td className="text-right font-mono text-[var(--text-secondary)]">68.0%</td>
                     </tr>
                   </tbody>
                 </table>
@@ -185,37 +185,37 @@ export default function ReportsPage() {
           {/* System Governance Audit Log */}
           <div className="lg:col-span-5 space-y-4">
             <div className="df-card p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                <h3 className="text-heading-3 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="material-symbols-outlined text-purple-600 dark:text-purple-400">policy</span>
-                  System Governance Audit Trail
+              <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
+                <h3 className="section-label text-base text-[var(--text-primary)] flex items-center gap-2">
+                  <ShieldCheck className="text-purple-600" size={18} />
+                  System governance audit trail
                 </h3>
                 <span className="badge badge-muted">Live Stream</span>
               </div>
 
-              <div className="space-y-3 type-body-base text-xs">
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                    <span className="font-bold text-slate-900 dark:text-white">Sarah Lin (Sales Rep)</span>
-                    <span className="font-mono text-[11px]">10 mins ago</span>
+              <div className="space-y-3 body-sm">
+                <div className="p-3.5 rounded-xl bg-[var(--canvas)] border border-[var(--border)] space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[var(--text-primary)]">Sarah Lin (Sales Rep)</span>
+                    <span className="font-mono text-xs text-[var(--text-muted)]">10 mins ago</span>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300">Submitted quote <strong className="text-indigo-600 dark:text-indigo-400 font-mono">Q-1042</strong> for approval (Services discount: 28%)</p>
+                  <p className="text-[var(--text-secondary)]">Submitted quote <strong className="text-[var(--accent)] font-mono">Q-1042</strong> for approval (Services discount: 28%)</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">Marcus Vance (VP Deal Desk)</span>
-                    <span className="font-mono text-[11px]">45 mins ago</span>
+                <div className="p-3.5 rounded-xl bg-[var(--canvas)] border border-[var(--border)] space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[var(--success)]">Marcus Vance (VP Deal Desk)</span>
+                    <span className="font-mono text-xs text-[var(--text-muted)]">45 mins ago</span>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300">Approved discount exception for <strong className="text-indigo-600 dark:text-indigo-400 font-mono">Q-1039</strong> (Global Logix)</p>
+                  <p className="text-[var(--text-secondary)]">Approved discount exception for <strong className="text-[var(--accent)] font-mono">Q-1039</strong> (Global Logix)</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                    <span className="font-bold text-amber-600 dark:text-amber-400">Automated Policy Engine</span>
-                    <span className="font-mono text-[11px]">2 hours ago</span>
+                <div className="p-3.5 rounded-xl bg-[var(--canvas)] border border-[var(--border)] space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-amber-700">Automated Policy Engine</span>
+                    <span className="font-mono text-xs text-[var(--text-muted)]">2 hours ago</span>
                   </div>
-                  <p className="text-slate-600 dark:text-slate-300">Flagged anomaly <strong className="text-amber-600 dark:text-amber-400 font-mono">ANOM-102</strong>: Margin leakage breach on Delta LLC</p>
+                  <p className="text-[var(--text-secondary)]">Flagged anomaly <strong className="text-amber-700 font-mono">ANOM-102</strong>: Margin leakage breach on Delta LLC</p>
                 </div>
               </div>
             </div>

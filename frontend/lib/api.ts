@@ -129,8 +129,9 @@ export const subscriptionApi = {
 
 // ── Customer Portal ─────────────────────────────────────────
 export const portalApi = {
-  view:      (token: string) => api.get(`/api/portal/${token}`),
-  comments:  (token: string) => api.get(`/api/portal/${token}/comments`),
-  negotiate: (token: string, data: any) => api.post(`/api/portal/${token}/negotiate`, data),
-  confirm:   (token: string) => api.post(`/api/portal/${token}/confirm`),
+  view:             (token: string) => api.get(`/api/portal/${token}`),
+  comments:         (token: string) => api.get(`/api/portal/${token}/comments`),
+  negotiate:        (token: string, data: any) => api.post(`/api/portal/${token}/negotiate`, data),
+  confirm:          (token: string) => api.post(`/api/portal/${token}/confirm`),
+  requestMagicLink: (email: string) => api.post('/api/portal/magic-link', { email }),
 };

@@ -5,6 +5,26 @@ import AppLayout from '@/components/AppLayout';
 import { dashboardApi, getStoredUser, getStoredToken } from '@/lib/api';
 import Link from 'next/link';
 
+/* ─── Workspace Design Tokens ────────────────────────────────────────────── */
+const t = {
+  surface:        '#FFFFFF',
+  canvas:         '#F0F2F7',
+  border:         '#D8DCE8',
+  textPrimary:    '#111827',
+  textSecondary:  '#4B5563',
+  textMuted:      '#9CA3AF',
+  accent:         '#2E51D6',
+  accentHover:    '#2341B8',
+  accentSubtle:   '#EEF2FF',
+  success:        '#16A34A',
+  successSubtle:  '#DCFCE7',
+  error:          '#DC2626',
+  errorSubtle:    '#FEE2E2',
+  panelBg:        '#1E3A8A',
+  panelText:      '#FFFFFF',
+  panelSubtext:   '#93C5FD',
+};
+
 const MOCK_STATS = {
   openQuotations: 7,
   pendingApprovals: 4,
@@ -20,27 +40,21 @@ const MOCK_ALERTS = [
 ];
 
 const ENTERPRISE_MODULES = [
-  { label: 'Quotations', desc: 'CPQ Core — pipeline velocity', icon: 'receipt_long', href: '/quotations', badge: 'LIVE', badgeColor: '#22c55e' },
-  { label: 'Approvals', desc: 'Governance Engine — SLA queue', icon: 'approval', href: '/approvals', badge: '4 PENDING', badgeColor: '#ff4d4f' },
-  { label: 'Invoices', desc: 'Invoice register — A/R tracking', icon: 'payments', href: '/invoices', badge: 'SYNC', badgeColor: '#e0e0e0' },
-  { label: 'Fulfillment', desc: 'Warehouse split — backorder mgmt', icon: 'local_shipping', href: '/fulfillment', badge: 'LIVE', badgeColor: '#22c55e' },
-  { label: 'Subscriptions', desc: 'Recurring revenue — MRR/ARR', icon: 'autorenew', href: '/subscriptions', badge: 'ACTIVE', badgeColor: '#22c55e' },
-  { label: 'Deal Health', desc: 'Anomaly alerts — risk monitoring', icon: 'health_metrics', href: '/deal-health', badge: '3 ALERTS', badgeColor: '#ff4d4f' },
-  { label: 'Customer Portal', desc: 'Live negotiation — self-service', icon: 'group', href: '/portal/demo', badge: 'PORTAL', badgeColor: '#a78bfa' },
-  { label: 'Reports', desc: 'Admin analytics — audit trail', icon: 'bar_chart', href: '/reports', badge: 'ADMIN', badgeColor: '#e0e0e0' },
+  { label: 'Quotations', desc: 'CPQ Core — pipeline velocity', icon: 'receipt_long', href: '/quotations', badge: 'Live', style: { bg: t.successSubtle, color: t.success, border: '#86EFAC' } },
+  { label: 'Approvals', desc: 'Governance Engine — SLA queue', icon: 'approval', href: '/approvals', badge: '4 pending', style: { bg: t.errorSubtle, color: t.error, border: '#FCA5A5' } },
+  { label: 'Invoices', desc: 'Invoice register — A/R tracking', icon: 'payments', href: '/invoices', badge: 'Sync', style: { bg: t.accentSubtle, color: t.accent, border: '#BFDBFE' } },
+  { label: 'Fulfillment', desc: 'Warehouse split — backorder mgmt', icon: 'local_shipping', href: '/fulfillment', badge: 'Live', style: { bg: t.successSubtle, color: t.success, border: '#86EFAC' } },
+  { label: 'Subscriptions', desc: 'Recurring revenue — MRR/ARR', icon: 'autorenew', href: '/subscriptions', badge: 'Active', style: { bg: t.successSubtle, color: t.success, border: '#86EFAC' } },
+  { label: 'Deal Health', desc: 'Anomaly alerts — risk monitoring', icon: 'health_metrics', href: '/deal-health', badge: '3 alerts', style: { bg: t.errorSubtle, color: t.error, border: '#FCA5A5' } },
+  { label: 'Customer Portal', desc: 'Live negotiation — self-service', icon: 'group', href: '/portal/login', badge: 'Portal', style: { bg: t.accentSubtle, color: t.accent, border: '#BFDBFE' } },
+  { label: 'Reports', desc: 'Admin analytics — audit trail', icon: 'bar_chart', href: '/reports', badge: 'Admin', style: { bg: t.accentSubtle, color: t.accent, border: '#BFDBFE' } },
 ];
 
-const ALERT_ICON: Record<string, string> = {
-  STALLED_DEAL: 'hourglass_empty',
-  DISCOUNT_ANOMALY: 'trending_down',
-  DELIVERY_SLIPPAGE: 'local_shipping',
-  BACKORDER_RESOLVED: 'check_circle',
-};
-const ALERT_COLOR: Record<string, string> = {
-  STALLED_DEAL: '#ff4d4f',
-  DISCOUNT_ANOMALY: '#ff4d4f',
-  DELIVERY_SLIPPAGE: '#e0e0e0',
-  BACKORDER_RESOLVED: '#22c55e',
+const ALERT_META: Record<string, { icon: string; bg: string; color: string; border: string }> = {
+  STALLED_DEAL:       { icon: 'hourglass_empty', bg: t.errorSubtle, color: t.error, border: '#FCA5A5' },
+  DISCOUNT_ANOMALY:   { icon: 'trending_down',   bg: t.errorSubtle, color: t.error, border: '#FCA5A5' },
+  DELIVERY_SLIPPAGE:  { icon: 'local_shipping',  bg: t.accentSubtle, color: t.accent, border: '#BFDBFE' },
+  BACKORDER_RESOLVED: { icon: 'check_circle',    bg: t.successSubtle, color: t.success, border: '#86EFAC' },
 };
 
 export default function DashboardPage() {
@@ -67,307 +81,565 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <div className="df-page-container flex flex-col" style={{ gap: '3rem' }}>
-
-
-        {/* ── Executive Greeting ────────────────────────────────── */}
+      <div
+        style={{
+          background: t.canvas,
+          minHeight: 'calc(100vh - 72px)',
+          padding: '32px 48px 48px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '32px',
+          fontFamily: 'Inter, sans-serif',
+        }}
+      >
+        {/* ── 1. Executive Hero Welcome Band ────────────────────────────────── */}
         <div
-          className="relative overflow-hidden rounded-xl p-6 sm:p-8"
           style={{
-            background: 'linear-gradient(135deg, #111111 0%, #141414 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.09)',
-            boxShadow: '0 4px 40px rgba(0,0,0,0.6)',
+            background: t.panelBg,
+            borderRadius: '16px',
+            padding: '32px 48px',
+            color: t.panelText,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '32px',
+            boxShadow: '0 4px 20px rgba(30, 58, 138, 0.15)',
           }}
         >
-          {/* Subtle top-right glow */}
-          <div
-            className="absolute top-0 right-0 pointer-events-none"
-            style={{
-              width: '300px', height: '200px',
-              background: 'radial-gradient(ellipse at top right, rgba(255,255,255,0.03) 0%, transparent 70%)',
-            }}
-          />
-          <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-            <div style={{ maxWidth: '42rem' }}>
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4"
+          <div style={{ maxWidth: '640px' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                background: 'rgba(255, 255, 255, 0.12)',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: t.panelSubtext,
+                marginBottom: '12px',
+              }}
+            >
+              <span
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  fontSize: '12px', fontWeight: 600,
-                  color: '#888888',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#60A5FA',
                 }}
-              >
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#e0e0e0' }} />
-                Q3 FY26 Live Cycle
-                <span style={{ color: '#555555' }}>•</span>
-                <span style={{ color: '#888888' }}>Day 67 of 90</span>
-              </div>
-              <h1 className="text-heading-1 mb-2" style={{ color: '#f0f0f0' }}>
-                Welcome back, {firstName}
-              </h1>
-              <p className="text-body-lg" style={{ color: '#888888' }}>
-                Central command hub linking active pipeline velocity, governance bottlenecks, and cross-tier fulfillment handoffs.
-              </p>
+              />
+              <span>Q3 FY26 live cycle</span>
+              <span style={{ opacity: 0.5 }}>•</span>
+              <span>Day 67 of 90</span>
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
-              {/* Quota capsule */}
+            <h1
+              style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                lineHeight: 1.2,
+                color: '#FFFFFF',
+                margin: '0 0 8px 0',
+                letterSpacing: '-0.4px',
+              }}
+            >
+              Welcome back, {firstName}
+            </h1>
+            <p
+              style={{
+                fontSize: '15px',
+                fontWeight: 400,
+                lineHeight: 1.6,
+                color: t.panelSubtext,
+                margin: 0,
+              }}
+            >
+              Central command hub linking active pipeline velocity, governance bottlenecks, and cross-tier fulfillment handoffs.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexShrink: 0 }}>
+            {/* Quota attainment capsule */}
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '12px',
+                padding: '16px 24px',
+                minWidth: '220px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: t.panelSubtext }}>
+                  Quota attainment
+                </span>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: '#34D399' }}>
+                  84.2%
+                </span>
+              </div>
               <div
-                className="rounded-xl flex items-center gap-4 p-4"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  height: '6px',
+                  borderRadius: '9999px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  overflow: 'hidden',
+                  width: '100%',
                 }}
               >
-                <div>
-                  <div className="flex items-center justify-between gap-6 mb-2">
-                    <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#555555' }}>Quota Attainment</span>
-                    <span className="text-subheading" style={{ color: '#22c55e', fontWeight: 700 }}>84.2%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full overflow-hidden w-44" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    <div className="h-full rounded-full" style={{ width: '84.2%', background: 'linear-gradient(90deg, #16a34a, #22c55e)' }} />
-                  </div>
-                  <div className="flex justify-between mt-1.5" style={{ fontSize: '11px', color: '#555555' }}>
-                    <span>$2.1M closed</span>
-                    <span>Target $2.5M</span>
-                  </div>
-                </div>
+                <div
+                  style={{
+                    height: '100%',
+                    width: '84.2%',
+                    background: '#34D399',
+                    borderRadius: '9999px',
+                  }}
+                />
               </div>
-              {/* CTAs */}
-              <div className="flex items-center gap-3">
-                <Link href="/approvals" className="btn-secondary relative text-body-base">
-                  View Approvals
-                  {stats.pendingApprovals > 0 && (
-                    <span
-                      style={{
-                        marginLeft: '6px', fontSize: '11px',
-                        padding: '1px 6px', borderRadius: '9999px',
-                        fontWeight: 700, background: 'rgba(255,77,79,0.15)',
-                        color: '#ff4d4f', border: '1px solid rgba(255,77,79,0.3)',
-                      }}
-                    >
-                      {stats.pendingApprovals}
-                    </span>
-                  )}
-                </Link>
-                <Link href="/quotations" className="btn-primary text-body-base">
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
-                  New Quotation
-                </Link>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '13px', color: t.panelSubtext }}>
+                <span>$2.1M closed</span>
+                <span>Target $2.5M</span>
               </div>
+            </div>
+
+            {/* Hero CTAs */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <Link
+                href="/quotations"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  height: '40px',
+                  padding: '0 24px',
+                  borderRadius: '8px',
+                  background: '#FFFFFF',
+                  color: t.accent,
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add_circle</span>
+                <span>New quotation</span>
+              </Link>
+              <Link
+                href="/approvals"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  height: '40px',
+                  padding: '0 24px',
+                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <span>View approvals</span>
+                {stats.pendingApprovals > 0 && (
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      padding: '2px 8px',
+                      borderRadius: '9999px',
+                      background: t.accentSubtle,
+                      color: t.accent,
+                    }}
+                  >
+                    {stats.pendingApprovals}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* ── KPI Metric Cards ──────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* ── 2. KPI Metric Cards ───────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
           {[
-            { label: 'Pending Approvals', value: stats.pendingApprovals, icon: 'gavel', color: '#ff4d4f', link: '/approvals', sub: 'Awaiting decision' },
-            { label: 'Active Quotations', value: stats.activeQuotes, icon: 'receipt_long', color: '#e0e0e0', link: '/quotations', sub: 'In pipeline' },
-            { label: 'Deal Health Alerts', value: stats.activeAlerts, icon: 'warning', color: '#e0e0e0', link: '/deal-health', sub: 'Require action' },
-
+            { label: 'Pending approvals', value: stats.pendingApprovals, icon: 'gavel', link: '/approvals', sub: 'Awaiting SLA decision' },
+            { label: 'Active quotations', value: stats.activeQuotes, icon: 'receipt_long', link: '/quotations', sub: 'In active negotiation' },
+            { label: 'Deal health alerts', value: stats.activeAlerts, icon: 'warning', link: '/deal-health', sub: 'Requires immediate action', isUrgent: true },
           ].map((card) => (
             <Link
               key={card.label}
               href={card.link}
-              className="df-card flex items-start gap-4 transition-all cursor-pointer group"
-              style={{ textDecoration: 'none' }}
+              style={{
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: '12px',
+                padding: '24px',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                transition: 'box-shadow 0.15s, border-color 0.15s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 32px rgba(0,0,0,0.8)';
+                e.currentTarget.style.borderColor = t.accent;
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(46, 81, 214, 0.08)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)';
-                (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 16px rgba(0,0,0,0.6), 0 1px 4px rgba(0,0,0,0.4)';
+                e.currentTarget.style.borderColor = t.border;
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
               }}
             >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: t.textSecondary }}>
+                  {card.label}
+                </span>
+                <span
+                  style={{
+                    fontSize: '28px',
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    color: card.isUrgent ? t.error : t.textPrimary,
+                  }}
+                >
+                  {card.value}
+                </span>
+                <span style={{ fontSize: '13px', color: t.textMuted }}>
+                  {card.sub}
+                </span>
+              </div>
               <div
-                className="rounded-lg flex items-center justify-center shrink-0 w-11 h-11"
                 style={{
-                  background: `rgba(${card.color === '#ff4d4f' ? '255,77,79' : card.color === '#e0e0e0' ? '255,255,255' : '234,179,8'}, 0.08)`,
-                  border: `1px solid rgba(${card.color === '#ff4d4f' ? '255,77,79' : card.color === '#e0e0e0' ? '255,255,255' : '234,179,8'}, 0.14)`,
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '10px',
+                  background: card.isUrgent ? t.errorSubtle : t.accentSubtle,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: card.color, fontSize: '22px' }}>{card.icon}</span>
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: '20px',
+                    color: card.isUrgent ? t.error : t.accent,
+                  }}
+                >
+                  {card.icon}
+                </span>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-display" style={{ color: card.color }}>
-                  {card.value}
-                </div>
-                <div className="text-heading-3 mt-1" style={{ color: '#e0e0e0' }}>{card.label}</div>
-                <div className="text-caption mt-0.5">{card.sub}</div>
-              </div>
-              <span className="material-symbols-outlined transition-transform group-hover:translate-x-1" style={{ fontSize: '18px', marginTop: '2px', color: '#444444' }}>arrow_forward</span>
             </Link>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* ── Recent Activity / Alerts ───────────────────────── */}
-          <div className="xl:col-span-2">
-            <div
-              className="rounded-xl overflow-hidden"
-              style={{
-                background: '#111111',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 2px 20px rgba(0,0,0,0.6)',
-              }}
-            >
-              <div
-                className="flex items-center justify-between px-5 py-4"
-                style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-              >
-                <div>
-                  <h2 className="text-heading-2" style={{ color: '#f0f0f0' }}>Recent Activity</h2>
-                  <p className="text-body-base mt-0.5" style={{ color: '#555555' }}>Live deal health alerts requiring attention</p>
-                </div>
-                <Link href="/deal-health" className="btn-ghost" style={{ padding: '0.25rem 0.75rem' }}>
-                  View all
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
-                </Link>
+        {/* ── 3. Recent Activity + Pipeline Snapshot Grid ──────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+          {/* Recent Activity Card */}
+          <div
+            style={{
+              background: t.surface,
+              border: `1px solid ${t.border}`,
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h2 style={{ fontSize: '14px', fontWeight: 600, color: t.textPrimary, margin: 0 }}>
+                  Recent activity
+                </h2>
+                <p style={{ fontSize: '13px', color: t.textMuted, margin: '4px 0 0 0' }}>
+                  Live deal health alerts requiring team attention
+                </p>
               </div>
-              <div className="p-4 flex flex-col gap-2">
-                {(alerts.length ? alerts : MOCK_ALERTS).map((alert) => (
+              <Link
+                href="/deal-health"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: t.accent,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <span>View all</span>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+              </Link>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {(alerts.length ? alerts : MOCK_ALERTS).map((alert) => {
+                const meta = ALERT_META[alert.alertType] || ALERT_META.DELIVERY_SLIPPAGE;
+                return (
                   <div
                     key={alert.id}
-                    className="flex items-start gap-3 p-3 rounded-lg transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.05)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      background: t.canvas,
+                      border: `1px solid ${t.border}`,
+                      gap: '16px',
                     }}
                   >
-                    <div
-                      className="rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                      style={{
-                        width: '32px', height: '32px',
-                        background: `rgba(${ALERT_COLOR[alert.alertType] === '#ff4d4f' ? '255,77,79' : ALERT_COLOR[alert.alertType] === '#e0e0e0' ? '255,255,255' : '34,197,94'}, 0.10)`,
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ color: ALERT_COLOR[alert.alertType] || '#888888', fontSize: '16px' }}>
-                        {ALERT_ICON[alert.alertType] || 'warning'}
-                      </span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-body-base" style={{ color: '#d0d0d0' }}>{alert.description}</p>
-                      <span
-                        className="badge mt-1"
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div
                         style={{
-                          background: `rgba(${ALERT_COLOR[alert.alertType] === '#ff4d4f' ? '255,77,79' : ALERT_COLOR[alert.alertType] === '#e0e0e0' ? '255,255,255' : '34,197,94'}, 0.08)`,
-                          color: ALERT_COLOR[alert.alertType] || '#888888',
-                          border: `1px solid rgba(${ALERT_COLOR[alert.alertType] === '#ff4d4f' ? '255,77,79' : ALERT_COLOR[alert.alertType] === '#e0e0e0' ? '255,255,255' : '34,197,94'}, 0.18)`,
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '8px',
+                          background: meta.bg,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
                         }}
                       >
-                        {alert.alertType.replace(/_/g, ' ')}
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px', color: meta.color }}>
+                          {meta.icon}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '15px', color: t.textPrimary, lineHeight: 1.5 }}>
+                        {alert.description}
                       </span>
                     </div>
+
+                    <span
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        background: meta.bg,
+                        color: meta.color,
+                        border: `1px solid ${meta.border}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {alert.alertType.toLowerCase().replace(/_/g, ' ')}
+                    </span>
                   </div>
-                ))}
-                {!alerts.length && (
-                  <p className="text-body-base text-center py-6" style={{ color: '#555555' }}>
-                    No active alerts — deal health looks good!
-                  </p>
-                )}
-              </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* ── Quick Stats ─────────────────────────────────────── */}
-          <div className="flex flex-col gap-4">
+          {/* Pipeline Snapshot + Quick Actions Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Pipeline Snapshot Card */}
             <div
-              className="rounded-xl p-5"
               style={{
-                background: '#111111',
-                border: '1px solid rgba(255,255,255,0.07)',
-                boxShadow: '0 2px 20px rgba(0,0,0,0.6)',
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
               }}
             >
-              <h2 className="text-heading-2 mb-4" style={{ color: '#f0f0f0' }}>Pipeline Snapshot</h2>
-              <div className="flex flex-col gap-3">
+              <h2 style={{ fontSize: '14px', fontWeight: 600, color: t.textPrimary, margin: 0 }}>
+                Pipeline snapshot
+              </h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
-                  { label: 'Open Quotations', value: stats.openQuotations, color: '#f0f0f0' },
-                  { label: 'Confirmed This Month', value: stats.confirmedThisMonth, color: '#22c55e' },
-                  { label: 'Pending Approvals', value: stats.pendingApprovals, color: '#e0e0e0' },
-                  { label: 'Active Alerts', value: stats.activeAlerts, color: '#ff4d4f' },
+                  { label: 'Open quotations', value: stats.openQuotations, isUrgent: false },
+                  { label: 'Confirmed this month', value: stats.confirmedThisMonth, isSuccess: true },
+                  { label: 'Pending approvals', value: stats.pendingApprovals, isUrgent: false },
+                  { label: 'Active alerts', value: stats.activeAlerts, isUrgent: true },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between py-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <span className="text-body-base" style={{ color: '#888888' }}>{item.label}</span>
-                    <span className="text-heading-3" style={{ color: item.color }}>{item.value}</span>
+                  <div
+                    key={item.label}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingBottom: '8px',
+                      borderBottom: `1px solid ${t.border}`,
+                    }}
+                  >
+                    <span style={{ fontSize: '14px', color: t.textSecondary }}>
+                      {item.label}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '15px',
+                        fontWeight: 700,
+                        color: item.isUrgent ? t.error : item.isSuccess ? t.success : t.textPrimary,
+                      }}
+                    >
+                      {item.value}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
+            {/* Quick Actions Card */}
             <div
-              className="rounded-xl p-4"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.10)',
+                background: t.surface,
+                border: `1px solid ${t.border}`,
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
               }}
             >
-              <div className="flex items-center gap-2 mb-3">
-                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#e0e0e0' }}>bolt</span>
-                <span className="text-heading-3" style={{ color: '#f0f0f0' }}>Quick Actions</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Link href="/quotations" className="btn-primary w-full justify-center" style={{ padding: '0.5rem' }}>
+              <h2 style={{ fontSize: '14px', fontWeight: 600, color: t.textPrimary, margin: 0 }}>
+                Quick actions
+              </h2>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <Link
+                  href="/quotations"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: t.accent,
+                    color: '#FFFFFF',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    transition: 'background 0.15s',
+                  }}
+                >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
-                  New Quotation
+                  <span>New quotation</span>
                 </Link>
-                <Link href="/approvals" className="btn-secondary w-full justify-center" style={{ padding: '0.5rem' }}>
+
+                <Link
+                  href="/approvals"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: t.accentSubtle,
+                    color: t.accent,
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    border: `1px solid ${t.border}`,
+                  }}
+                >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>approval</span>
-                  Review Approvals
-                </Link>
-                <Link href="/deal-health" className="btn-ghost w-full justify-center" style={{ padding: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>health_metrics</span>
-                  Deal Health
+                  <span>Review approvals</span>
                 </Link>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── Enterprise Modules Grid ────────────────────────────── */}
-        <div>
-          <div className="flex items-center gap-3 mb-5">
-            <h2 className="text-heading-2" style={{ color: '#f0f0f0' }}>Enterprise Modules</h2>
-            <span className="badge badge-primary">8 ACTIVE</span>
+        {/* ── 4. Enterprise Modules Grid ───────────────────────────────────── */}
+        <div
+          style={{
+            background: t.surface,
+            border: `1px solid ${t.border}`,
+            borderRadius: '12px',
+            padding: '24px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h2 style={{ fontSize: '14px', fontWeight: 600, color: t.textPrimary, margin: 0 }}>
+              Enterprise modules
+            </h2>
+            <span
+              style={{
+                padding: '2px 8px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: 600,
+                background: t.accentSubtle,
+                color: t.accent,
+                border: `1px solid ${t.border}`,
+              }}
+            >
+              8 active
+            </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
             {ENTERPRISE_MODULES.map((mod) => (
               <Link
                 key={mod.label}
                 href={mod.href}
-                className="rounded-xl p-4 flex flex-col gap-3 transition-all cursor-pointer group"
                 style={{
-                  background: '#111111',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  background: t.canvas,
+                  border: `1px solid ${t.border}`,
+                  borderRadius: '10px',
+                  padding: '16px',
                   textDecoration: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  transition: 'border-color 0.15s, box-shadow 0.15s',
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = '#161616';
-                  (e.currentTarget as HTMLElement).style.borderColor = `rgba(${mod.badgeColor === '#22c55e' ? '34,197,94' : mod.badgeColor === '#ff4d4f' ? '255,77,79' : mod.badgeColor === '#e0e0e0' ? '255,255,255' : '167,139,250'}, 0.20)`;
-                  (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 24px rgba(0,0,0,0.7)';
+                  e.currentTarget.style.borderColor = t.accent;
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(46, 81, 214, 0.08)';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = '#111111';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  e.currentTarget.style.borderColor = t.border;
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <span className="material-symbols-outlined" style={{ color: mod.badgeColor, fontSize: '24px' }}>{mod.icon}</span>
-                <div>
-                  <div className="text-label-md mb-0.5" style={{ color: '#e0e0e0' }}>{mod.label}</div>
-                  <div className="text-body-sm" style={{ color: '#555555' }}>{mod.desc}</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '22px', color: t.accent }}>
+                    {mod.icon}
+                  </span>
+                  <span
+                    style={{
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      background: mod.style.bg,
+                      color: mod.style.color,
+                      border: `1px solid ${mod.style.border}`,
+                    }}
+                  >
+                    {mod.badge}
+                  </span>
                 </div>
-                <span className="badge" style={{
-                  background: `rgba(${mod.badgeColor === '#22c55e' ? '34,197,94' : mod.badgeColor === '#ff4d4f' ? '255,77,79' : mod.badgeColor === '#e0e0e0' ? '255,255,255' : '167,139,250'}, 0.08)`,
-                  color: mod.badgeColor,
-                  border: `1px solid rgba(${mod.badgeColor === '#22c55e' ? '34,197,94' : mod.badgeColor === '#ff4d4f' ? '255,77,79' : mod.badgeColor === '#e0e0e0' ? '255,255,255' : '167,139,250'}, 0.18)`,
-                  fontSize: '10px',
-                  alignSelf: 'flex-start',
-                }}>
-                  {mod.badge}
-                </span>
+
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: t.textPrimary, marginBottom: '4px' }}>
+                    {mod.label}
+                  </div>
+                  <div style={{ fontSize: '13px', color: t.textMuted, lineHeight: 1.4 }}>
+                    {mod.desc}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

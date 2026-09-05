@@ -4,34 +4,28 @@ import { useEffect, useState } from 'react';
 import { customerApi } from '@/lib/api';
 import { Users, Plus } from 'lucide-react';
 
-const TIER_COLOR: any = {
-  GOLD:   { bg: 'hsl(38 92% 50% / 0.15)',  text: 'hsl(38 92% 65%)' },
-  SILVER: { bg: 'hsl(215 20% 65% / 0.15)', text: 'hsl(215 20% 75%)' },
-  BRONZE: { bg: 'hsl(25 70% 50% / 0.15)',  text: 'hsl(25 70% 65%)' },
-};
-
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading]     = useState(true);
   const [selected, setSelected]   = useState<any>(null);
 
   useEffect(() => {
-    customerApi.list().then(r => { setCustomers(r.data); setLoading(false); });
+    customerApi.list().then(r => { setCustomers(r.data || []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   return (
     <AppLayout>
-      <div className="df-page-container flex flex-col" style={{ gap: 'var(--space-xl)' }}>
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-heading-1 text-slate-900">Customers</h1>
-            <p className="text-body-lg text-slate-600 mt-1">Manage your customer accounts and commercial tiers</p>
+            <h1 className="page-heading">Customers</h1>
+            <p className="body-text mt-1">Manage your customer accounts and commercial tiers</p>
           </div>
-          <button className="btn-primary text-body-base"><Plus size={15} /> Add Customer</button>
+          <button className="btn-primary"><Plus size={16} /> Add Customer</button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs">
+          <div className="lg:col-span-2 df-card overflow-hidden !p-0">
             <table className="df-table">
               <thead>
                 <tr>
@@ -45,41 +39,48 @@ export default function CustomersPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={6} className="py-8 text-center text-body-base text-slate-500">Loading customer accounts…</td></tr>
+                  <tr><td colSpan={6} className="py-8 text-center body-sm">Loading customer accounts…</td></tr>
                 ) : customers.map((c: any) => {
                   return (
-                    <tr key={c.id} onClick={() => setSelected(c)}>
-                      <td className="font-semibold text-slate-900">{c.name}</td>
-                      <td className="text-slate-600">{c.company || '—'}</td>
-                      <td className="text-slate-600">{c.email}</td>
+                    <tr
+                      key={c.id}
+                      onClick={() => setSelected(c)}
+                      className={`cursor-pointer transition-colors ${selected?.id === c.id ? 'bg-[var(--accent-subtle)]' : ''}`}
+                    >
+                      <td className="font-semibold text-[var(--text-primary)]">{c.name}</td>
+                      <td className="body-text">{c.company || '—'}</td>
+                      <td className="body-text">{c.email}</td>
                       <td>
                         <span className={`badge ${c.tier === 'GOLD' ? 'badge-warning' : c.tier === 'SILVER' ? 'badge-outline' : 'badge-muted'}`}>
                           {c.tier}
                         </span>
                       </td>
-                      <td className="text-slate-600 font-mono">{c.currency}</td>
+                      <td className="body-text font-mono">{c.currency}</td>
                       <td><span className={`badge ${c.isActive ? 'badge-success' : 'badge-muted'}`}>{c.isActive ? 'Active' : 'Inactive'}</span></td>
                     </tr>
                   );
                 })}
+                {customers.length === 0 && !loading && (
+                  <tr><td colSpan={6} className="py-8 text-center body-sm">No customer accounts found.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
 
           <div>
             {!selected ? (
-              <div className="rounded-xl p-10 text-center bg-white border border-slate-200 shadow-xs">
-                <Users size={28} className="mx-auto mb-3 text-slate-400" />
-                <p className="text-heading-3 text-slate-800">Select a customer</p>
-                <p className="text-body-base text-slate-500 mt-1">View account profile and direct portal token</p>
+              <div className="df-card p-8 text-center">
+                <Users size={32} className="mx-auto mb-3 text-[var(--text-muted)]" />
+                <p className="section-label mb-1">Select a customer</p>
+                <p className="body-sm">View account profile and direct portal token</p>
               </div>
             ) : (
-              <div className="rounded-xl p-6 bg-white border border-slate-200 shadow-xs space-y-5">
+              <div className="df-card p-6 space-y-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-heading-3 text-slate-900">{selected.name}</h3>
+                  <h3 className="section-label text-base text-[var(--text-primary)]">{selected.name}</h3>
                   <span className={`badge ${selected.tier === 'GOLD' ? 'badge-warning' : selected.tier === 'SILVER' ? 'badge-outline' : 'badge-muted'}`}>{selected.tier}</span>
                 </div>
-                <div className="space-y-2.5 text-body-base">
+                <div className="space-y-2.5 body-sm">
                   {[
                     ['Company',  selected.company || '—'],
                     ['Email',    selected.email],
@@ -88,17 +89,17 @@ export default function CustomersPage() {
                     ['Country',  selected.country || '—'],
                     ['Currency', selected.currency],
                   ].map(([l, v]) => (
-                    <div key={l as string} className="flex justify-between py-1 border-b border-slate-100 last:border-0">
-                      <span className="text-slate-500">{l}</span>
-                      <span className="font-medium text-slate-900">{v as string}</span>
+                    <div key={l as string} className="flex justify-between py-1 border-b border-[var(--border)] last:border-0">
+                      <span className="body-sm">{l}</span>
+                      <span className="font-semibold text-[var(--text-primary)]">{v as string}</span>
                     </div>
                   ))}
                 </div>
                 {selected.portalToken && (
                   <div className="pt-2">
-                    <p className="text-caption font-bold text-slate-500 uppercase tracking-wider mb-2">CUSTOMER PORTAL LINK</p>
+                    <p className="section-label mb-2">Customer portal link</p>
                     <a href={`/portal/${selected.portalToken}`} target="_blank"
-                       className="text-xs block p-2.5 rounded-lg font-mono break-all bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition">
+                       className="text-xs block p-2.5 rounded-lg font-mono break-all bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--border)] hover:underline">
                       /portal/{selected.portalToken?.substring(0,20)}…
                     </a>
                   </div>
