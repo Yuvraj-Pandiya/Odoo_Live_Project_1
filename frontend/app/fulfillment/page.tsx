@@ -131,10 +131,10 @@ export default function FulfillmentPage() {
             gap: '8px',
             padding: '10px 16px',
             borderRadius: '8px',
-            background: 'var(--canvas, #F0F2F7)',
-            border: '1px solid var(--border, #D8DCE8)',
+            background: 'var(--canvas, #F5F5F3)',
+            border: '1px solid var(--border, #DCDCD9)',
             fontSize: '13px',
-            color: 'var(--text-secondary, #4B5563)'
+            color: 'var(--text-secondary, #4B4B42)'
           }}>
             <Info size={16} className="text-blue-600 shrink-0" />
             <span>

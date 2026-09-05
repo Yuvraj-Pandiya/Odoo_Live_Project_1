@@ -5,21 +5,21 @@ import Link from 'next/link';
 import { Send, ArrowRight, CheckCircle2, AlertCircle, Loader2, FileText, MessageSquare, ThumbsUp, Download } from 'lucide-react';
 import { portalApi } from '@/lib/api';
 
-/* ─── Portal design tokens (shared base + teal accent) ─────────────────── */
+/* ─── Portal design tokens (Charcoal Brown / Silver palette) ─────────────────── */
 const t = {
-  accent:        '#0D7A6B',
-  accentHover:   '#0A6659',
-  accentSubtle:  '#E8F5F2',
-  panelBg:       '#0A4A5C',
-  panelSubtext:  '#7ECEC4',
-  textPrimary:   '#0D2137',   /* high-contrast fix — was blending on dark bg */
-  textSecondary: '#3B546A',
-  textMuted:     '#7A97A7',
-  border:        '#CCD8E0',
-  canvas:        '#EFF4F7',
+  accent:        '#4B4B42',
+  accentHover:   '#373730',
+  accentSubtle:  '#ECECE9',
+  panelBg:       '#373730',
+  panelSubtext:  '#A2A0A1',
+  textPrimary:   '#1F1F1C',
+  textSecondary: '#4B4B42',
+  textMuted:     '#91918F',
+  border:        '#DCDCD9',
+  canvas:        '#F5F5F3',
   surface:       '#FFFFFF',
-  success:       '#16A34A',
-  successSubtle: '#DCFCE7',
+  success:       '#2E6B4F',
+  successSubtle: '#E8F5EE',
   error:         '#DC2626',
   errorSubtle:   '#FEE2E2',
 };
