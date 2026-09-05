@@ -4,7 +4,7 @@ cd /d "%~dp0backend"
 
 set DB_URL=jdbc:postgresql://localhost:5432/dealflow360?stringtype=unspecified
 set DB_USERNAME=postgres
-set DB_PASSWORD=1301
+set DB_PASSWORD=root
 set JWT_SECRET=dealflow360-super-secret-key-must-be-at-least-32-chars-long!
 set SERVER_PORT=8080
 

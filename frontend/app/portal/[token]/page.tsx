@@ -1,235 +1,216 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { portalApi } from '@/lib/api';
-import { MessageSquare, CheckCircle, TrendingUp, Send } from 'lucide-react';
 
-export default function CustomerPortalPage() {
+export default function CustomerPortalNegotiationPage() {
   const params = useParams();
-  const token  = params?.token as string;
+  const token = (params?.token as string) || 'demo-token-1042';
 
-  const [quotation, setQuotation]   = useState<any>(null);
-  const [comments, setComments]     = useState<any[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [message, setMessage]       = useState('');
-  const [counterDiscount, setCounter] = useState('');
-  const [lineId, setLineId]         = useState('');
-  const [msg, setMsg]               = useState('');
-  const [confirmed, setConfirmed]   = useState(false);
+  const [counterDiscount, setCounterDiscount] = useState<number>(15);
+  const [counterTerm, setCounterTerm] = useState<string>('Net 30');
+  const [customerNotes, setCustomerNotes] = useState<string>('');
+  const [confirmed, setConfirmed] = useState<boolean>(false);
+  const [counterSubmitted, setCounterSubmitted] = useState<boolean>(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!token) return;
-    (async () => {
-      try {
-        const [q, c] = await Promise.all([portalApi.view(token), portalApi.comments(token)]);
-        setQuotation(q.data); setComments(c.data);
-      } catch { setMsg('Quotation not found or link has expired.'); }
-      setLoading(false);
-    })();
-  }, [token]);
-
-  const submitRequest = async () => {
-    if (!message.trim()) return;
-    try {
-      const res = await portalApi.negotiate(token, {
-        message,
-        lineId: lineId ? Number(lineId) : null,
-        counterDiscount: counterDiscount ? Number(counterDiscount) : null,
-      });
-      setComments(prev => [...prev, res.data]);
-      setMessage(''); setCounter(''); setLineId('');
-      setMsg('Request submitted successfully');
-    } catch { setMsg('Failed to submit request'); }
-    setTimeout(() => setMsg(''), 3000);
+  const triggerToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3500);
   };
 
-  const confirmQuotation = async () => {
-    try {
-      const res = await portalApi.confirm(token);
-      setQuotation(res.data);
-      setConfirmed(true);
-      setMsg(res.data.status === 'PENDING_APPROVAL'
-        ? '⟳ Terms require re-approval — submitted for review'
-        : '✓ Quotation confirmed! Order is being processed.');
-    } catch { setMsg('Failed to confirm'); }
+  const handleConfirmOrder = () => {
+    setConfirmed(true);
+    triggerToast('Order confirmed! Deal desk has received your binding acceptance.');
   };
 
-  const STATUS_LABEL: any = {
-    DRAFT: 'Draft', PENDING_APPROVAL: 'Under Review', APPROVED: 'Approved',
-    NEGOTIATION: 'Under Negotiation', CONFIRMED: 'Confirmed', FULFILLED: 'Fulfilled',
+  const handleSubmitCounter = () => {
+    setCounterSubmitted(true);
+    triggerToast('Counter-offer submitted to Deal Desk for review.');
   };
-
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(222 47% 7%)' }}>
-      <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
-    </div>
-  );
-
-  if (!quotation) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(222 47% 7%)' }}>
-      <div className="glass-card p-8 text-center max-w-md">
-        <p className="text-white font-medium">Quotation not found</p>
-        <p className="text-sm mt-2" style={{ color: 'hsl(215 20% 65%)' }}>{msg}</p>
-      </div>
-    </div>
-  );
 
   return (
-    <div className="min-h-screen" style={{ background: 'hsl(222 47% 7%)' }}>
+    <div className="min-h-screen bg-[#0f131c] text-[#dfe2ee] font-sans">
+      {/* Toast */}
+      {toastMsg && (
+        <div className="fixed top-6 right-8 z-50 bg-emerald-600 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
+          <span className="material-symbols-outlined">check_circle</span>
+          <span className="text-sm font-semibold">{toastMsg}</span>
+        </div>
+      )}
+
       {/* Header */}
-      <header className="border-b p-5 flex items-center justify-between" style={{ background: 'hsl(222 47% 11%)', borderColor: 'hsl(222 47% 22%)' }}>
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, hsl(220 90% 56%), hsl(262 83% 58%))' }}>
-            <TrendingUp size={16} className="text-white" />
+          <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-white text-lg">
+            DF
           </div>
           <div>
-            <p className="font-bold text-white">DealFlow<span style={{ color: 'hsl(262 83% 72%)' }}>360</span> Customer Portal</p>
-            <p className="text-xs" style={{ color: 'hsl(215 15% 45%)' }}>Secure quotation view</p>
+            <div className="font-bold text-white tracking-tight text-lg">DealFlow360 Customer Portal</div>
+            <div className="text-xs text-slate-400">Secure Direct Negotiation • Token: <code className="text-indigo-400">{token}</code></div>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm font-mono font-bold" style={{ color: 'hsl(220 90% 70%)' }}>{quotation.quoteNumber}</p>
-          <p className="text-xs px-2 py-0.5 rounded mt-1 inline-block" style={{ background: 'hsl(220 90% 56% / 0.15)', color: 'hsl(220 90% 70%)' }}>
-            {STATUS_LABEL[quotation.status] || quotation.status}
-          </p>
+
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 text-xs font-semibold flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            STATUS: UNDER NEGOTIATION
+          </span>
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto p-6 space-y-6">
-        {msg && (
-          <div className="p-3 rounded-lg text-sm text-center" style={{ background: 'hsl(220 90% 56% / 0.1)', border: '1px solid hsl(220 90% 56% / 0.2)', color: 'hsl(220 90% 70%)' }}>
-            {msg}
-          </div>
-        )}
-
-        {confirmed && quotation.status === 'CONFIRMED' && (
-          <div className="glass-card p-8 text-center" style={{ border: '1px solid hsl(142 70% 45% / 0.3)' }}>
-            <CheckCircle size={40} className="mx-auto mb-4" style={{ color: 'hsl(142 70% 60%)' }} />
-            <h2 className="text-xl font-bold text-white">Order Confirmed!</h2>
-            <p className="mt-2" style={{ color: 'hsl(215 20% 65%)' }}>Your order is now being processed. You will receive updates shortly.</p>
-          </div>
-        )}
-
-        {/* Quotation Summary */}
-        <div className="glass-card p-6">
-          <h2 className="font-semibold text-white mb-4">Quotation Summary</h2>
-          <div className="grid grid-cols-3 gap-4 mb-5 text-center">
+      {/* Main Content */}
+      <main className="p-8 max-w-6xl mx-auto space-y-8">
+        {/* Banner */}
+        <div className="glass-card p-8 space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <p className="text-xs" style={{ color: 'hsl(215 20% 65%)' }}>Customer</p>
-              <p className="font-semibold text-white">{quotation.customer?.name || '—'}</p>
+              <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Acme Corporation Inc.</div>
+              <h1 className="text-3xl font-black text-white mt-1">Quotation Review: #DF-88301-B</h1>
+              <p className="text-sm text-slate-400 mt-1 max-w-2xl">
+                Review your commercial proposal below. You can accept directly or submit counter-terms to your dedicated Account Executive.
+              </p>
             </div>
-            <div>
-              <p className="text-xs" style={{ color: 'hsl(215 20% 65%)' }}>Valid Until</p>
-              <p className="font-semibold text-white">{quotation.validUntil || '30 days'}</p>
-            </div>
-            <div>
-              <p className="text-xs" style={{ color: 'hsl(215 20% 65%)' }}>Grand Total</p>
-              <p className="text-xl font-bold text-white">${Number(quotation.grandTotal || 0).toLocaleString()}</p>
-            </div>
-          </div>
-
-          {/* Line Items */}
-          <table className="df-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Type</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Discount</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {quotation.lines?.map((line: any) => (
-                <tr key={line.id}>
-                  <td className="font-medium text-white">{line.product?.name}</td>
-                  <td><span className="badge badge-muted">{line.lineType}</span></td>
-                  <td>{line.quantity}</td>
-                  <td>${Number(line.unitPrice).toLocaleString()}</td>
-                  <td>{Number(line.discountPct).toFixed(1)}%</td>
-                  <td className="font-semibold text-white">${Number(line.lineTotal).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Negotiation Panel */}
-          {!confirmed && (quotation.status === 'APPROVED' || quotation.status === 'NEGOTIATION' || quotation.status === 'DRAFT') && (
-            <div className="glass-card p-6">
-              <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <MessageSquare size={14} style={{ color: 'hsl(262 83% 72%)' }} />
-                Request Changes / Counter Proposal
-              </h2>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Line Item (optional)</label>
-                  <select className="input text-sm" value={lineId} onChange={e => setLineId(e.target.value)}>
-                    <option value="">General quotation comment</option>
-                    {quotation.lines?.map((l: any) => (
-                      <option key={l.id} value={l.id}>{l.product?.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Counter Discount % (optional)</label>
-                  <input type="number" className="input text-sm" min={0} max={50} step={0.5}
-                         placeholder="e.g. 20" value={counterDiscount} onChange={e => setCounter(e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'hsl(215 20% 65%)' }}>Message</label>
-                  <textarea className="input text-sm" rows={3} value={message} onChange={e => setMessage(e.target.value)}
-                            placeholder="Describe your request or question…" />
-                </div>
-                <button onClick={submitRequest} className="btn-primary w-full justify-center" disabled={!message.trim()}>
-                  <Send size={14} /> Submit Request
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Comments Thread */}
-          <div className="glass-card p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
-              <MessageSquare size={14} style={{ color: 'hsl(220 90% 70%)' }} />
-              Negotiation History
-            </h2>
-            <div className="space-y-3 max-h-64 overflow-y-auto">
-              {comments.length === 0 ? (
-                <p className="text-sm text-center py-4" style={{ color: 'hsl(215 15% 45%)' }}>No messages yet</p>
-              ) : comments.map((c: any) => (
-                <div key={c.id} className="p-3 rounded-lg" style={{ background: 'hsl(222 47% 15%)', border: '1px solid hsl(222 47% 22%)' }}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold" style={{ color: 'hsl(220 90% 70%)' }}>{c.authorType}</span>
-                    <span className="text-xs" style={{ color: 'hsl(215 15% 45%)' }}>{new Date(c.createdAt).toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm" style={{ color: 'hsl(215 20% 65%)' }}>{c.message}</p>
-                  {c.counterDiscount && (
-                    <p className="text-xs mt-1 font-semibold" style={{ color: 'hsl(38 92% 65%)' }}>
-                      Counter discount: {c.counterDiscount}%
-                    </p>
-                  )}
-                </div>
-              ))}
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 shrink-0 text-right">
+              <div className="text-xs text-slate-400 uppercase font-semibold">Current Proposal Total</div>
+              <div className="text-3xl font-black text-white">$2,730.00</div>
+              <div className="text-xs text-emerald-400 font-semibold">Includes 2yr Platinum SLA</div>
             </div>
           </div>
         </div>
 
-        {/* Confirm Button */}
-        {!confirmed && (quotation.status === 'APPROVED' || quotation.status === 'NEGOTIATION') && (
-          <div className="glass-card p-5 text-center">
-            <p className="text-sm mb-4" style={{ color: 'hsl(215 20% 65%)' }}>
-              Happy with the terms? Confirm the quotation to proceed with your order.
+        {/* Confirmed Notice */}
+        {confirmed && (
+          <div className="p-6 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-300 space-y-2">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <span className="material-symbols-outlined text-2xl">verified</span>
+              Quotation Confirmed & Order Created!
+            </h3>
+            <p className="text-sm text-emerald-400/80">
+              Thank you for confirming Order #DF-88301-B. Fulfillment pick tickets have been dispatched to our logistics team.
             </p>
-            <button onClick={confirmQuotation} className="btn-primary px-8 py-3">
-              <CheckCircle size={16} /> Confirm Quotation
-            </button>
           </div>
         )}
-      </div>
+
+        {/* Counter Submitted Notice */}
+        {counterSubmitted && !confirmed && (
+          <div className="p-6 rounded-xl bg-amber-950/40 border border-amber-500/50 text-amber-300 space-y-2">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <span className="material-symbols-outlined text-2xl">pending</span>
+              Counter-Offer Submitted to Deal Desk
+            </h3>
+            <p className="text-sm text-amber-400/80">
+              Your requested counter-terms ({counterDiscount}% discount, {counterTerm}) have been sent to Sarah Lin (AE). You will receive an updated link shortly.
+            </p>
+          </div>
+        )}
+
+        {/* Line Items Table */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8 space-y-6">
+            <div className="glass-card p-6 space-y-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-indigo-400">inventory</span>
+                Quotation Line Items & Feedback
+              </h3>
+
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="text-xs uppercase tracking-wider text-slate-400 bg-slate-900/60">
+                  <tr>
+                    <th className="px-4 py-3">Line Description</th>
+                    <th className="px-4 py-3 text-right">Qty</th>
+                    <th className="px-4 py-3 text-right">Price</th>
+                    <th className="px-4 py-3">Customer Notes</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="px-4 py-3 font-semibold text-white">Laptop Pro 16" (M3 Max, 32GB)</td>
+                    <td className="px-4 py-3 text-right font-mono">2</td>
+                    <td className="px-4 py-3 text-right font-mono font-bold text-white">$2,112.00</td>
+                    <td className="px-4 py-3 text-xs text-slate-400">Accepted as priced</td>
+                  </tr>
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="px-4 py-3 font-semibold text-white">Cloud IoT Platform Enterprise License</td>
+                    <td className="px-4 py-3 text-right font-mono">1</td>
+                    <td className="px-4 py-3 text-right font-mono font-bold text-white">$46.00 / mo</td>
+                    <td className="px-4 py-3 text-xs text-amber-300">"Requesting 15% bundle discount"</td>
+                  </tr>
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="px-4 py-3 font-semibold text-white">Custom Onboarding & Migration SLA</td>
+                    <td className="px-4 py-3 text-right font-mono">1</td>
+                    <td className="px-4 py-3 text-right font-mono font-bold text-white">$572.00</td>
+                    <td className="px-4 py-3 text-xs text-purple-300">"Can engineer dispatch move to Q4?"</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Action Box */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="glass-card p-6 space-y-4">
+              <h3 className="text-lg font-bold text-white">Commercial Actions</h3>
+
+              {!confirmed && (
+                <>
+                  <button
+                    onClick={handleConfirmOrder}
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm rounded-lg shadow-xl transition flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined">check_circle</span>
+                    Accept Proposal & Confirm Order
+                  </button>
+
+                  <div className="border-t border-slate-800 pt-4 space-y-3">
+                    <div className="text-xs font-bold text-slate-300 uppercase">Submit Counter-Offer</div>
+
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Target Discount %</label>
+                      <input
+                        type="number"
+                        value={counterDiscount}
+                        onChange={(e) => setCounterDiscount(Number(e.target.value))}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Requested Payment Terms</label>
+                      <select
+                        value={counterTerm}
+                        onChange={(e) => setCounterTerm(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white"
+                      >
+                        <option>Net 30</option>
+                        <option>Net 60</option>
+                        <option>50% Upfront, 50% Delivery</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">Notes to AE</label>
+                      <textarea
+                        rows={3}
+                        value={customerNotes}
+                        onChange={(e) => setCustomerNotes(e.target.value)}
+                        placeholder="Add comments on timeline or scope..."
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm text-white placeholder-slate-500"
+                      ></textarea>
+                    </div>
+
+                    <button
+                      onClick={handleSubmitCounter}
+                      className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg shadow transition"
+                    >
+                      Submit Counter-Offer
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

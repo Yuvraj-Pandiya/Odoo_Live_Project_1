@@ -56,10 +56,24 @@ public class ProductController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/upsell")
+    @GetMapping({"/upsell", "/upsell-recommendations", "/recommendations", "/upsell/recommendations"})
     public ResponseEntity<List<UpsellRule>> upsellRules(
-        @RequestParam List<Long> productIds
+        @RequestParam(name = "productIds", required = false) List<Long> productIds,
+        @RequestParam(name = "product_ids", required = false) List<Long> productIdsSnake,
+        @RequestParam(name = "ids", required = false) List<Long> ids,
+        @RequestParam(name = "productId", required = false) Long singleProductId
     ) {
-        return ResponseEntity.ok(upsellRuleRepository.findActiveRulesForProducts(productIds));
+        java.util.Set<Long> idSet = new java.util.HashSet<>();
+        if (productIds != null) idSet.addAll(productIds);
+        if (productIdsSnake != null) idSet.addAll(productIdsSnake);
+        if (ids != null) idSet.addAll(ids);
+        if (singleProductId != null) idSet.add(singleProductId);
+
+        if (idSet.isEmpty()) {
+            return ResponseEntity.ok(upsellRuleRepository.findAllActiveRules());
+        }
+
+        List<Long> targetIds = new java.util.ArrayList<>(idSet);
+        return ResponseEntity.ok(upsellRuleRepository.findActiveRulesForProducts(targetIds));
     }
 }

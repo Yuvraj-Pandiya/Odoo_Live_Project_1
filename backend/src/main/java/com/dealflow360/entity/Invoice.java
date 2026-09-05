@@ -33,6 +33,7 @@ public class Invoice {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "invoice_status")
+    @Builder.Default
     private InvoiceStatus status = InvoiceStatus.DRAFT;
 
     @Builder.Default
@@ -43,18 +44,22 @@ public class Invoice {
 
     @Builder.Default
     @Column(name = "tax_total")
+    @Builder.Default
     private BigDecimal taxTotal = BigDecimal.ZERO;
 
     @Builder.Default
     @Column(name = "total_amount")
+    @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @Builder.Default
     @Column(name = "amount_paid")
+    @Builder.Default
     private BigDecimal amountPaid = BigDecimal.ZERO;
 
     @Builder.Default
     @Column(name = "amount_due")
+    @Builder.Default
     private BigDecimal amountDue = BigDecimal.ZERO;
 
     @Column(name = "due_date")
@@ -62,6 +67,7 @@ public class Invoice {
 
     @Builder.Default
     @Column(name = "is_recurring")
+    @Builder.Default
     private Boolean isRecurring = false;
 
     private String notes;

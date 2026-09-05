@@ -19,6 +19,7 @@ public class QuotationLine {
     @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quotation_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Quotation quotation;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -35,6 +36,7 @@ public class QuotationLine {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "line_type", columnDefinition = "line_type")
+    @Builder.Default
     private LineType lineType = LineType.ONE_TIME;
 
     @Builder.Default
@@ -48,14 +50,17 @@ public class QuotationLine {
 
     @Builder.Default
     @Column(name = "discount_pct")
+    @Builder.Default
     private BigDecimal discountPct = BigDecimal.ZERO;
 
     @Builder.Default
     @Column(name = "discount_allowed")
+    @Builder.Default
     private BigDecimal discountAllowed = BigDecimal.ZERO;
 
     @Builder.Default
     @Column(name = "tax_pct")
+    @Builder.Default
     private BigDecimal taxPct = BigDecimal.ZERO;
 
     @Column(name = "line_total")
@@ -73,10 +78,12 @@ public class QuotationLine {
 
     @Builder.Default
     @Column(name = "is_upsell")
+    @Builder.Default
     private Boolean isUpsell = false;
 
     @Builder.Default
     @Column(name = "sort_order")
+    @Builder.Default
     private Integer sortOrder = 0;
 
     @CreationTimestamp

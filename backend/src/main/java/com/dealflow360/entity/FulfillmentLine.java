@@ -21,6 +21,7 @@ public class FulfillmentLine {
     @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fulfillment_order_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private FulfillmentOrder fulfillmentOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,14 +41,17 @@ public class FulfillmentLine {
 
     @Builder.Default
     @Column(name = "quantity_allocated")
+    @Builder.Default
     private Integer quantityAllocated = 0;
 
     @Builder.Default
     @Column(name = "quantity_fulfilled")
+    @Builder.Default
     private Integer quantityFulfilled = 0;
 
     @Builder.Default
     @Column(name = "is_backorder")
+    @Builder.Default
     private Boolean isBackorder = false;
 
     @Column(name = "estimated_ship_date")
@@ -55,6 +59,7 @@ public class FulfillmentLine {
 
     @Builder.Default
     @Column(name = "shipping_cost")
+    @Builder.Default
     private BigDecimal shippingCost = BigDecimal.ZERO;
 
     @CreationTimestamp

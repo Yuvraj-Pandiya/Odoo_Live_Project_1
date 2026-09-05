@@ -1,7 +1,14 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // ignoreBuildErrors not needed in Next.js 16 — TS errors handled in tsconfig
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:8080/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
