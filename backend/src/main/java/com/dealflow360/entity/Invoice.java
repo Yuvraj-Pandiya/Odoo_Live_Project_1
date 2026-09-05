@@ -31,27 +31,35 @@ public class Invoice {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "invoice_status")
+    @Builder.Default
     private InvoiceStatus status = InvoiceStatus.DRAFT;
 
+    @Builder.Default
     private String currency = "USD";
+    @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
     @Column(name = "tax_total")
+    @Builder.Default
     private BigDecimal taxTotal = BigDecimal.ZERO;
 
     @Column(name = "total_amount")
+    @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
     @Column(name = "amount_paid")
+    @Builder.Default
     private BigDecimal amountPaid = BigDecimal.ZERO;
 
     @Column(name = "amount_due")
+    @Builder.Default
     private BigDecimal amountDue = BigDecimal.ZERO;
 
     @Column(name = "due_date")
     private LocalDate dueDate;
 
     @Column(name = "is_recurring")
+    @Builder.Default
     private Boolean isRecurring = false;
 
     private String notes;

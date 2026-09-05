@@ -32,19 +32,25 @@ public class Quotation {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "quotation_status")
+    @Builder.Default
     private QuotationStatus status = QuotationStatus.DRAFT;
 
+    @Builder.Default
     private String currency = "USD";
 
+    @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
     @Column(name = "tax_total")
+    @Builder.Default
     private BigDecimal taxTotal = BigDecimal.ZERO;
 
     @Column(name = "discount_total")
+    @Builder.Default
     private BigDecimal discountTotal = BigDecimal.ZERO;
 
     @Column(name = "grand_total")
+    @Builder.Default
     private BigDecimal grandTotal = BigDecimal.ZERO;
 
     @Column(name = "blended_risk_score")
@@ -75,9 +81,11 @@ public class Quotation {
     private OffsetDateTime confirmedAt;
 
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("quotation")
     private List<QuotationLine> lines;
 
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("quotation")
     private List<Approval> approvals;
 
     @CreationTimestamp
