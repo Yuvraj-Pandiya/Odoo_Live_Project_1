@@ -123,12 +123,12 @@ export default function HeaderNavbar() {
     <>
       {/* ── Main Header ─────────────────────────────────────────── */}
       <header
-        className="fixed top-0 left-0 right-0 z-50"
+        className="sticky top-0 z-50 w-full"
         style={{
-          background: 'color-mix(in srgb, var(--color-surface-container-lowest) 85%, transparent)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderBottom: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
+          background: 'rgba(10, 10, 10, 0.92)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.07)',
         }}
       >
         <div
@@ -163,8 +163,8 @@ export default function HeaderNavbar() {
             <nav
               className="hidden xl:flex items-center gap-0.5 p-1 rounded-xl"
               style={{
-                background: 'color-mix(in srgb, var(--color-surface-container-low) 60%, transparent)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 20%, transparent)',
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.07)',
               }}
             >
               {NAV_ITEMS.map((item) => {
@@ -178,27 +178,26 @@ export default function HeaderNavbar() {
                     style={
                       active
                         ? {
-                            background: 'var(--color-surface-container-high)',
-                            color: 'var(--color-on-surface)',
-                            fontWeight: 700,
-                            border: '1px solid color-mix(in srgb, var(--color-outline-variant) 60%, transparent)',
-                            boxShadow: '0 0 12px rgba(77,142,255,0.15)',
+                            background: 'rgba(255, 255, 255, 0.10)',
+                            color: '#f0f0f0',
+                            fontWeight: 600,
+                            border: '1px solid rgba(255, 255, 255, 0.20)',
                           }
                         : {
-                            color: 'var(--color-on-surface-variant)',
+                            color: '#888888',
                             border: '1px solid transparent',
                           }
                     }
                     onMouseEnter={(e) => {
                       if (!active) {
-                        e.currentTarget.style.background = 'var(--color-surface-container-high)';
-                        e.currentTarget.style.color = 'var(--color-on-surface)';
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                        e.currentTarget.style.color = '#f0f0f0';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!active) {
                         e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = 'var(--color-on-surface-variant)';
+                        e.currentTarget.style.color = '#888888';
                       }
                     }}
                   >
@@ -222,23 +221,23 @@ export default function HeaderNavbar() {
               onClick={() => { setSearchOpen(true); setTimeout(() => searchRef.current?.focus(), 100); }}
               className="flex items-center gap-2 rounded-lg transition-all cursor-pointer"
               style={{
-                background: 'var(--color-surface-container)',
-                border: '1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent)',
-                color: 'var(--color-on-surface-variant)',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.09)',
+                color: '#888888',
                 padding: '0.375rem 0.75rem',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-outline)' }}>search</span>
-              <span className="text-body-sm hidden md:inline" style={{ color: 'var(--color-on-surface-variant)' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#555555' }}>search</span>
+              <span className="text-body-sm hidden md:inline" style={{ color: '#666666' }}>
                 Search deals, accounts...
               </span>
               <kbd
                 className="hidden md:inline-block text-label-sm rounded"
                 style={{
-                  background: 'var(--color-surface-container-high)',
-                  color: 'var(--color-on-surface-variant)',
+                  background: 'rgba(255,255,255,0.06)',
+                  color: '#666666',
                   padding: '0.1rem 0.35rem',
-                  border: '1px solid color-mix(in srgb, var(--color-outline-variant) 60%, transparent)',
+                  border: '1px solid rgba(255,255,255,0.10)',
                   fontSize: '11px',
                 }}
               >
@@ -259,7 +258,7 @@ export default function HeaderNavbar() {
             {/* Divider */}
             <div
               className="h-6 w-px hidden sm:block"
-              style={{ background: 'color-mix(in srgb, var(--color-outline-variant) 40%, transparent)' }}
+              style={{ background: 'rgba(255,255,255,0.08)' }}
             />
 
             {/* User Profile & Role Switcher Dropdown */}
@@ -269,8 +268,8 @@ export default function HeaderNavbar() {
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer border"
                 style={{
-                  background: profileDropdownOpen ? 'var(--color-surface-container-high)' : 'var(--color-surface-container-low)',
-                  borderColor: profileDropdownOpen ? 'var(--color-primary)' : 'color-mix(in srgb, var(--color-outline-variant) 40%, transparent)',
+                  background: profileDropdownOpen ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.05)',
+                  borderColor: profileDropdownOpen ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.09)',
                 }}
               >
                 <div
@@ -304,9 +303,9 @@ export default function HeaderNavbar() {
                 <div
                   className="absolute right-0 top-full mt-2 w-72 rounded-2xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150"
                   style={{
-                    background: 'var(--color-surface-container)',
-                    border: '1px solid var(--color-outline-variant)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+                    background: '#141414',
+                    border: '1px solid rgba(255,255,255,0.10)',
+                    boxShadow: '0 24px 60px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.6)',
                   }}
                 >
                   {/* Current User Header */}
@@ -422,8 +421,8 @@ export default function HeaderNavbar() {
           <div
             className="xl:hidden"
             style={{
-              background: 'var(--color-surface-container-low)',
-              borderTop: '1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent)',
+              background: '#0f0f0f',
+              borderTop: '1px solid rgba(255,255,255,0.07)',
               padding: '0.75rem',
             }}
           >
@@ -440,11 +439,11 @@ export default function HeaderNavbar() {
                     style={
                       active
                         ? {
-                            background: 'var(--color-surface-container-high)',
-                            color: 'var(--color-on-surface)',
-                            fontWeight: 700,
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            color: '#f0f0f0',
+                            fontWeight: 600,
                           }
-                        : { color: 'var(--color-on-surface-variant)' }
+                        : { color: '#888888' }
                     }
                   >
                     <span>{item.label}</span>
@@ -474,25 +473,25 @@ export default function HeaderNavbar() {
       {searchOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-start justify-center pt-24"
-          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
           onClick={(e) => { if (e.target === e.currentTarget) setSearchOpen(false); }}
         >
           <div
             className="w-full max-w-lg rounded-2xl overflow-hidden"
             style={{
-              background: 'var(--color-surface-container)',
-              border: '1px solid var(--color-outline-variant)',
-              boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+              background: '#141414',
+              border: '1px solid rgba(255,255,255,0.10)',
+              boxShadow: '0 32px 80px rgba(0,0,0,0.9)',
             }}
           >
-            <div className="flex items-center gap-3 p-4" style={{ borderBottom: '1px solid var(--color-outline-variant)' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-outline)' }}>search</span>
+            <div className="flex items-center gap-3 p-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <span className="material-symbols-outlined" style={{ color: '#555555' }}>search</span>
               <input
                 ref={searchRef}
                 type="text"
                 placeholder="Search deals, quotations, customers..."
                 className="flex-1 bg-transparent outline-none text-body-lg"
-                style={{ color: 'var(--color-on-surface)' }}
+                style={{ color: '#f0f0f0' }}
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') setSearchOpen(false);
                   if (e.key === 'Enter') {
