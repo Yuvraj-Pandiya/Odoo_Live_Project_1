@@ -7,22 +7,25 @@
 @layer base {
   :root {
     /* === EXACT DESIGN TOKENS === */
+    /* Mainframe landing page fonts */
+    --font-heading: 'HelveticaNowDisplay-Medium', 'Helvetica Neue', Arial, sans-serif;
+    --font-body-mainframe: 'HelveticaNowDisplayW01-Rg', 'Helvetica Neue', Arial, sans-serif;
     --surface:          #FFFFFF;
     --canvas:           #F0F2F7;
     --border:           #D8DCE8;
     --text-primary:     #111827;
     --text-secondary:   #4B5563;
     --text-muted:       #9CA3AF;
-    --accent:           #2E51D6;
-    --accent-hover:     #2341B8;
-    --accent-subtle:    #EEF2FF;
+    --accent:           #2D6A4F;
+    --accent-hover:     #1E4D39;
+    --accent-subtle:    #E8F5EE;
     --success:          #16A34A;
     --success-subtle:   #DCFCE7;
     --error:            #DC2626;
     --error-subtle:     #FEE2E2;
-    --panel-bg:         #1E3A8A;
+    --panel-bg:         #1A3D2B;
     --panel-text:       #FFFFFF;
-    --panel-subtext:    #93C5FD;
+    --panel-subtext:    #86C5A3;
 
     /* Spacing scale */
     --sp-1: 4px;
@@ -175,7 +178,7 @@ body, p, .body-text, .type-body-base, .text-body-base, .text-body {
   color: var(--accent) !important;
 }
 .btn-secondary:hover {
-  background: #E0E7FF !important;
+  background: #D1EAD9 !important;
 }
 
 .btn-danger {
@@ -303,4 +306,21 @@ td {
 }
 tr:hover td {
   background: #FAFAFC;
+}
+
+/* ===========================
+   Mainframe Landing — Cursor
+   =========================== */
+@keyframes mf-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.mf-cursor-blink {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: #000;
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: mf-blink 1s step-end infinite;
 }
