@@ -653,8 +653,6 @@ export default function ApprovalsPage() {
           style={{
             padding: '14px 18px',
             display: 'flex',
-            alignItems: 'center',
-<<<<<<< HEAD
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '12px',
@@ -676,9 +674,9 @@ export default function ApprovalsPage() {
                     borderRadius: '8px',
                     fontSize: '13px',
                     fontWeight: active ? 700 : 500,
-                    background: active ? '#4F46E5' : 'transparent',
-                    color: active ? '#FFFFFF' : 'var(--text-secondary, #4B5563)',
-                    border: active ? '1px solid #4F46E5' : '1px solid transparent',
+                    background: active ? 'var(--accent, #4B4B42)' : 'transparent',
+                    color: active ? '#FFFFFF' : 'var(--text-secondary, #4B4B42)',
+                    border: active ? '1px solid var(--accent, #4B4B42)' : '1px solid transparent',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                   }}
@@ -693,20 +691,6 @@ export default function ApprovalsPage() {
                 </button>
               );
             })}
-=======
-            gap: '8px',
-            padding: '10px 16px',
-            borderRadius: '8px',
-            background: 'var(--canvas, #F5F5F3)',
-            border: '1px solid var(--border, #DCDCD9)',
-            fontSize: '13px',
-            color: 'var(--text-secondary, #4B4B42)'
-          }}>
-            <Info size={16} className="text-blue-600 shrink-0" />
-            <span>
-              <strong>View-only mode:</strong> Approval decisions are restricted to <strong>Sales Managers</strong> and <strong>Finance Leads</strong>.
-            </span>
->>>>>>> afde824 (style: apply Charcoal Brown & Silver theme palette across all pages (#4B4B42, #42423E, #A2A0A1, #373730, #91918F))
           </div>
 
           {/* Right controls: Pending Only toggle, Search bar, Risk Filter */}
