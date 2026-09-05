@@ -444,7 +444,7 @@ body, .type-body-base, .text-body-base, .text-body, .text-body-md {
 .risk-low    { background: rgba(34,197,94,0.12);  color: #22c55e; border: 1px solid rgba(34,197,94,0.25); }
 
 /* --------------------------------------------------------------------------
-   BUTTON UTILITIES — Insta360 Yellow Accent + Dark Ghost
+   BUTTON UTILITIES — White Primary, Dark Ghost
    -------------------------------------------------------------------------- */
 .btn-primary {
   display: inline-flex;
@@ -453,7 +453,7 @@ body, .type-body-base, .text-body-base, .text-body, .text-body-md {
   gap: var(--space-xs);
   padding: 0.5rem 1.125rem;
   background: #ffffff;
-  color: #000000;
+  color: #000000 !important;
   border: 1px solid #ffffff;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -462,6 +462,10 @@ body, .type-body-base, .text-body-base, .text-body, .text-body-md {
   transition: all 0.15s ease;
   letter-spacing: -0.01em;
   box-shadow: none;
+}
+/* Force ALL children inside a primary button to use black — overrides global !important typography */
+.btn-primary * {
+  color: #000000 !important;
 }
 .btn-primary:hover {
   background: #e8e8e8;
@@ -621,12 +625,12 @@ body, .type-body-base, .text-body-base, .text-body, .text-body-md {
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 3rem 2rem;
 }
 
 @media (min-width: 1024px) {
   .df-page-container {
-    padding: 2.5rem var(--margin-desktop);
+    padding: 3.5rem 3.5rem;
   }
 }
 

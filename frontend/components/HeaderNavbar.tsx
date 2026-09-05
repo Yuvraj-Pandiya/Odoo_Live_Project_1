@@ -132,11 +132,11 @@ export default function HeaderNavbar() {
         }}
       >
         <div
-          style={{ height: '64px' }}
-          className="w-full px-4 sm:px-6 flex items-center justify-between gap-4"
+          style={{ height: '72px' }}
+          className="w-full px-6 sm:px-8 flex items-center justify-between gap-6"
         >
-          {/* ── Left: Logo + Nav ─────────────────────────────────── */}
-          <div className="flex items-center gap-4 shrink-0 min-w-0">
+          {/* ── Left: Logo + Nav ───────────────────────────────── */}
+          <div className="flex items-center gap-6 shrink-0 min-w-0">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
               <Image
@@ -174,7 +174,7 @@ export default function HeaderNavbar() {
                   <Link
                     key={item.path}
                     href={item.href}
-                    className={`px-3 py-1.5 rounded-lg transition-all text-label-md flex items-center gap-1.5 ${!hasAccess ? 'opacity-50' : ''}`}
+                    className={`px-5 py-2.5 rounded-lg transition-all text-label-md flex items-center gap-1.5 ${!hasAccess ? 'opacity-50' : ''}`}
                     style={
                       active
                         ? {
@@ -213,8 +213,8 @@ export default function HeaderNavbar() {
             </nav>
           </div>
 
-          {/* ── Right: Search + Quick Persona Pill + User Profile ──────── */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* ── Right: Search + Quick Persona Pill + User Profile ────────── */}
+          <div className="flex items-center gap-3 shrink-0">
             {/* Search Bar */}
             <button
               type="button"
@@ -249,10 +249,10 @@ export default function HeaderNavbar() {
             <Link
               href="/quotations"
               className="btn-primary hidden sm:flex"
-              style={{ padding: '0.375rem 0.75rem' }}
+              style={{ padding: '0.5rem 1rem', color: '#000000' }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-              <span className="text-label-md hidden md:inline">New Quote</span>
+              <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#000000' }}>add</span>
+              <span className="hidden md:inline" style={{ color: '#000000', fontWeight: 600, fontSize: '14px' }}>New Quote</span>
             </Link>
 
             {/* Divider */}

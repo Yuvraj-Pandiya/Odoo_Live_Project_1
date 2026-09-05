@@ -67,7 +67,8 @@ export default function DashboardPage() {
 
   return (
     <AppLayout>
-      <div className="df-page-container flex flex-col" style={{ gap: '2rem' }}>
+      <div className="df-page-container flex flex-col" style={{ gap: '3rem' }}>
+
 
         {/* ── Executive Greeting ────────────────────────────────── */}
         <div
