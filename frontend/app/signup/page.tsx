@@ -68,7 +68,7 @@ export default function SignupPage() {
         lastName: lastName.trim(),
         email: email.trim().toLowerCase(),
         password,
-        role: role === 'CUSTOMER' ? 'SALES_REP' : role, // Map customer registration gracefully
+        role,
       });
 
       // 2. Log in
@@ -109,9 +109,13 @@ export default function SignupPage() {
       const data = err.response?.data;
       if (data?.fields) {
         setFieldErrors(data.fields);
+        setError('Please resolve the field validation errors highlighted below.');
+      } else if (data?.message) {
+        setError(data.message);
+      } else if (err.message === 'Network Error' || !err.response) {
+        setError('Cannot connect to backend server at http://localhost:8080. Please ensure the backend is running.');
       } else {
-        const msg = data?.message || data?.error || 'Registration failed. Please check your details and try again.';
-        setError(msg);
+        setError(data?.error || 'Registration failed. Please check your details and try again.');
       }
     } finally {
       setLoading(false);
