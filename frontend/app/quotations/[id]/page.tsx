@@ -137,7 +137,6 @@ export default function QuotationDetailPage() {
         if (cRes?.data?.length) setCustomers(cRes.data);
         if (pRes?.data?.length) {
           setProducts(pRes.data);
-          setUpsells(pRes.data.slice(0, 3));
         }
       } catch {
         // Keep mock data if backend not reachable
@@ -148,6 +147,88 @@ export default function QuotationDetailPage() {
 
     loadData();
   }, [id, router]);
+
+  // Dynamically compute and query Upsell & Cross-Sell Rules based on current quotation lines & catalog products
+  useEffect(() => {
+    const currentLines = quotation.lines || quotation.quotationLines || [];
+    const currentProductIds = currentLines
+      .map((l: any) => l.productId || l.product?.id)
+      .filter((pid: any): pid is number => pid != null && !isNaN(Number(pid)));
+
+    const currentProductIdsSet = new Set(currentProductIds.map(Number));
+
+    productApi.upsell(currentProductIds)
+      .then((res) => {
+        let candidates: any[] = [];
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          candidates = res.data.map((r: any) => {
+            const p = r.suggestProduct || r.product || r;
+            return {
+              id: p.id,
+              name: p.name,
+              basePrice: p.basePrice || p.unitPrice || 0,
+              costPrice: p.costPrice || (p.basePrice ? p.basePrice * 0.7 : 0),
+              sku: p.sku || '',
+              taxPercentage: p.taxPercentage || 18,
+              isSubscription: p.isSubscription || false,
+              isPromoted: r.isPromoted || p.isPromoted || false,
+              maxDiscount: p.maxDiscount || 20.0,
+              ruleReason: r.triggerProduct ? `Paired with ${r.triggerProduct.name}` : undefined,
+            };
+          });
+        }
+
+        // Filter out products already present in quotation lines
+        let filteredCandidates = candidates.filter(
+          (item) => item.id && !currentProductIdsSet.has(Number(item.id))
+        );
+
+        // De-duplicate by product id
+        const seenIds = new Set<number>();
+        filteredCandidates = filteredCandidates.filter((item) => {
+          if (seenIds.has(item.id)) return false;
+          seenIds.add(item.id);
+          return true;
+        });
+
+        // If fewer than 3 suggestions from direct rules, supplement from active catalog products not yet in quotation
+        if (filteredCandidates.length < 3 && products.length > 0) {
+          const supplemental = products
+            .filter((p) => p.id && !currentProductIdsSet.has(Number(p.id)) && !seenIds.has(p.id))
+            .map((p) => ({
+              id: p.id,
+              name: p.name,
+              basePrice: p.basePrice || 0,
+              costPrice: p.costPrice || (p.basePrice * 0.7),
+              sku: p.sku || '',
+              taxPercentage: p.taxPercentage || 18,
+              isSubscription: p.isSubscription || false,
+              isPromoted: p.isPromoted || false,
+              maxDiscount: p.maxDiscount || 20.0,
+              ruleReason: p.isPromoted ? 'Promoted' : undefined,
+            }));
+          filteredCandidates = [...filteredCandidates, ...supplemental];
+        }
+
+        setUpsells(filteredCandidates.slice(0, 3));
+      })
+      .catch(() => {
+        // Dynamic fallback using local products state
+        const available = products
+          .filter((p) => p.id && !currentProductIdsSet.has(Number(p.id)))
+          .map((p) => ({
+            id: p.id,
+            name: p.name,
+            basePrice: p.basePrice || 0,
+            costPrice: p.costPrice || (p.basePrice * 0.7),
+            sku: p.sku || '',
+            taxPercentage: p.taxPercentage || 18,
+            isSubscription: p.isSubscription || false,
+            maxDiscount: p.maxDiscount || 20.0,
+          }));
+        setUpsells(available.slice(0, 3));
+      });
+  }, [quotation.lines, products]);
 
   const currency = quotation.currency || 'INR';
 

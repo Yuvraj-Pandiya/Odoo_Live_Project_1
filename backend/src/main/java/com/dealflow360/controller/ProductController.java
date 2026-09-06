@@ -41,7 +41,42 @@ public class ProductController {
     @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Product> create(@RequestBody Product product) {
         product.setIsActive(true);
-        return ResponseEntity.ok(productRepository.save(product));
+        Product saved = productRepository.save(product);
+
+        try {
+            List<Product> relatedProducts;
+            if (saved.getCategory() != null && saved.getCategory().getId() != null) {
+                relatedProducts = productRepository.findByCategoryIdAndIsActiveTrue(saved.getCategory().getId());
+            } else {
+                relatedProducts = productRepository.findByIsActiveTrue();
+            }
+            for (Product p : relatedProducts) {
+                if (!p.getId().equals(saved.getId())) {
+                    UpsellRule rule1 = UpsellRule.builder()
+                        .triggerProduct(p)
+                        .suggestProduct(saved)
+                        .coPurchaseCount(15)
+                        .priority(10)
+                        .isPromoted(saved.getIsPromoted() != null ? saved.getIsPromoted() : true)
+                        .isActive(true)
+                        .build();
+                    upsellRuleRepository.save(rule1);
+
+                    UpsellRule rule2 = UpsellRule.builder()
+                        .triggerProduct(saved)
+                        .suggestProduct(p)
+                        .coPurchaseCount(15)
+                        .priority(10)
+                        .isPromoted(p.getIsPromoted() != null ? p.getIsPromoted() : false)
+                        .isActive(true)
+                        .build();
+                    upsellRuleRepository.save(rule2);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -80,6 +115,10 @@ public class ProductController {
         }
 
         List<Long> targetIds = new java.util.ArrayList<>(idSet);
-        return ResponseEntity.ok(upsellRuleRepository.findActiveRulesForProducts(targetIds));
+        List<UpsellRule> rules = upsellRuleRepository.findActiveRulesForProducts(targetIds);
+        if (rules.isEmpty()) {
+            return ResponseEntity.ok(upsellRuleRepository.findAllActiveRules());
+        }
+        return ResponseEntity.ok(rules);
     }
 }

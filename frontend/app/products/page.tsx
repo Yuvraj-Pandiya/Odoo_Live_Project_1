@@ -1,8 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
-import { productApi } from '@/lib/api';
-import { Plus, Package, Search } from 'lucide-react';
+import { productApi, getStoredUser } from '@/lib/api';
+import { Plus, Package, Search, X, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function ProductsPage() {
   const [products, setProducts]     = useState<any[]>([]);
@@ -11,19 +11,84 @@ export default function ProductsPage() {
   const [search, setSearch]         = useState('');
   const [selected, setSelected]     = useState<any>(null);
 
+  // New Product Modal State
+  const [showModal, setShowModal]   = useState(false);
+  const [creating, setCreating]     = useState(false);
+  const [toast, setToast]           = useState<string | null>(null);
+  const [newProd, setNewProd]       = useState({
+    name: '',
+    sku: '',
+    categoryId: 1,
+    basePrice: '',
+    costPrice: '',
+    taxPercentage: '18',
+    description: '',
+    isSubscription: false,
+    isPromoted: true,
+  });
+
+  const loadData = async () => {
+    try {
+      const [p, c] = await Promise.all([productApi.list(), productApi.categories()]);
+      setProducts(p.data || []); 
+      setCategories(c.data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        const [p, c] = await Promise.all([productApi.list(), productApi.categories()]);
-        setProducts(p.data || []); 
-        setCategories(c.data || []);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadData();
   }, []);
+
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProd.name.trim() || !newProd.basePrice) return;
+    setCreating(true);
+
+    try {
+      const payload: any = {
+        name: newProd.name.trim(),
+        sku: newProd.sku.trim() || `SKU-${Date.now().toString().slice(-6)}`,
+        basePrice: parseFloat(newProd.basePrice) || 0,
+        costPrice: parseFloat(newProd.costPrice) || (parseFloat(newProd.basePrice) * 0.7),
+        taxPercentage: parseFloat(newProd.taxPercentage) || 18,
+        description: newProd.description.trim() || newProd.name.trim(),
+        isSubscription: newProd.isSubscription,
+        isPromoted: newProd.isPromoted,
+        productType: newProd.isSubscription ? 'SERVICE' : 'HARDWARE',
+        quantityOnHand: 100,
+        isActive: true,
+      };
+
+      if (newProd.categoryId) {
+        payload.category = { id: Number(newProd.categoryId) };
+      }
+
+      const res = await productApi.create(payload);
+      setToast(`Product "${res.data.name}" added & dynamic upsell rules activated!`);
+      setTimeout(() => setToast(null), 3500);
+      setShowModal(false);
+      setNewProd({
+        name: '',
+        sku: '',
+        categoryId: categories[0]?.id || 1,
+        basePrice: '',
+        costPrice: '',
+        taxPercentage: '18',
+        description: '',
+        isSubscription: false,
+        isPromoted: true,
+      });
+      await loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Error creating product. Ensure you have admin permissions.');
+    } finally {
+      setCreating(false);
+    }
+  };
 
   const filtered = products.filter(p =>
     p.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -33,16 +98,160 @@ export default function ProductsPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
+        {toast && (
+          <div className="fixed top-6 right-8 z-50 bg-[var(--accent)] text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-bounce">
+            <CheckCircle size={18} />
+            <span className="text-sm font-semibold">{toast}</span>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="page-heading">Product Catalog</h1>
             <p className="body-text mt-1">Manage enterprise products, configurable variants, pricing tiers, and tax rates</p>
           </div>
-          <button className="btn-primary flex items-center gap-2">
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn-primary flex items-center gap-2"
+          >
             <Plus size={16} />
             <span>New Product</span>
           </button>
         </div>
+
+        {/* Create Product Modal */}
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-150">
+              <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+                <div className="flex items-center gap-2.5">
+                  <Package className="text-[var(--accent)]" size={22} />
+                  <h2 className="text-lg font-bold text-[var(--text-primary)]">Add New Enterprise Product</h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="p-1 rounded-lg hover:bg-[var(--canvas)] text-[var(--text-muted)]"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateProduct} className="space-y-4">
+                <div>
+                  <label className="section-label block mb-1">Product Name *</label>
+                  <input
+                    required
+                    type="text"
+                    value={newProd.name}
+                    onChange={e => setNewProd({ ...newProd, name: e.target.value })}
+                    placeholder="e.g., CrowdStrike Falcon Complete v4"
+                    className="w-full text-sm p-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="section-label block mb-1">SKU</label>
+                    <input
+                      type="text"
+                      value={newProd.sku}
+                      onChange={e => setNewProd({ ...newProd, sku: e.target.value })}
+                      placeholder="e.g., SEC-CS-9900"
+                      className="w-full text-sm p-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="section-label block mb-1">Category</label>
+                    <select
+                      value={newProd.categoryId}
+                      onChange={e => setNewProd({ ...newProd, categoryId: Number(e.target.value) })}
+                      className="w-full text-sm p-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                    >
+                      {categories.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="section-label block mb-1">Base Price (₹) *</label>
+                    <input
+                      required
+                      type="number"
+                      step="any"
+                      value={newProd.basePrice}
+                      onChange={e => setNewProd({ ...newProd, basePrice: e.target.value })}
+                      placeholder="150000"
+                      className="w-full text-sm p-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="section-label block mb-1">Cost Price (₹)</label>
+                    <input
+                      type="number"
+                      step="any"
+                      value={newProd.costPrice}
+                      onChange={e => setNewProd({ ...newProd, costPrice: e.target.value })}
+                      placeholder="95000"
+                      className="w-full text-sm p-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                    />
+                  </div>
+                  <div>
+                    <label className="section-label block mb-1">GST Tax %</label>
+                    <input
+                      type="number"
+                      value={newProd.taxPercentage}
+                      onChange={e => setNewProd({ ...newProd, taxPercentage: e.target.value })}
+                      placeholder="18"
+                      className="w-full text-sm p-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6 pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-[var(--text-primary)]">
+                    <input
+                      type="checkbox"
+                      checked={newProd.isSubscription}
+                      onChange={e => setNewProd({ ...newProd, isSubscription: e.target.checked })}
+                      className="w-4 h-4 rounded text-[var(--accent)]"
+                    />
+                    <span>Subscription Plan</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-[var(--text-primary)]">
+                    <input
+                      type="checkbox"
+                      checked={newProd.isPromoted}
+                      onChange={e => setNewProd({ ...newProd, isPromoted: e.target.checked })}
+                      className="w-4 h-4 rounded text-[var(--accent)]"
+                    />
+                    <span>Promote in Upsell Rules</span>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border)]">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="btn-primary"
+                  >
+                    {creating ? <Loader2 size={16} className="animate-spin" /> : 'Save & Activate Rules'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
