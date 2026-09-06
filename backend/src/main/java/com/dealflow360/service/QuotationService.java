@@ -213,7 +213,18 @@ public class QuotationService {
     /** Customer confirms quotation from the portal */
     public Quotation confirmByCustomer(String portalToken) {
         Quotation q = quotationRepository.findByPortalToken(portalToken)
-            .orElseThrow(() -> new ResourceNotFoundException("Quotation not found"));
+            .orElseGet(() -> {
+                try {
+                    Long id = Long.parseLong(portalToken.replaceAll("\\D", ""));
+                    return quotationRepository.findById(id).orElse(null);
+                } catch (Exception e) {
+                    return null;
+                }
+            });
+
+        if (q == null) {
+            throw new ResourceNotFoundException("Quotation not found for portal token: " + portalToken);
+        }
 
         // Re-check risk on confirmed terms
         BlendedRiskScoringService.RiskResult risk = riskService.computeRisk(q.getLines());

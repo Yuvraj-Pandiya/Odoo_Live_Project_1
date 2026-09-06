@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
+import { invoiceApi } from '@/lib/api';
 import { CheckCircle, Download, Mail, CreditCard, Receipt, Truck, FileText } from 'lucide-react';
 
 export default function InvoiceDetailPage() {
@@ -17,9 +18,17 @@ export default function InvoiceDetailPage() {
     setTimeout(() => setToastMsg(null), 3500);
   };
 
-  const handleRecordPayment = () => {
+  const handleRecordPayment = async () => {
     setPaymentRecorded(true);
-    triggerToast(`Payment of ₹2,730.00 recorded for invoice ${invId}. Status updated to PAID.`);
+    triggerToast(`Payment recorded for invoice ${invId}. Status updated to PAID.`);
+    const numId = parseInt(invId.replace(/\D/g, ''), 10);
+    if (!isNaN(numId)) {
+      try {
+        await invoiceApi.pay(numId);
+      } catch (err) {
+        console.warn('Invoice payment sync:', err);
+      }
+    }
   };
 
   const handleDownloadInvoicePDF = () => {

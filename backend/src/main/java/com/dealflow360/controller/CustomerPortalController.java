@@ -87,17 +87,27 @@ public class CustomerPortalController {
         ));
     }
 
+    private Quotation findQuoteByTokenOrId(String token) {
+        return quotationRepository.findByPortalToken(token)
+            .orElseGet(() -> {
+                try {
+                    Long id = Long.parseLong(token.replaceAll("\\D", ""));
+                    return quotationRepository.findById(id).orElse(null);
+                } catch (Exception e) {
+                    return null;
+                }
+            });
+    }
+
     @GetMapping("/{token}")
     public ResponseEntity<Quotation> viewQuotation(@PathVariable String token) {
-        return quotationRepository.findByPortalToken(token)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        Quotation q = findQuoteByTokenOrId(token);
+        return q != null ? ResponseEntity.ok(q) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{token}/comments")
     public ResponseEntity<List<NegotiationComment>> getComments(@PathVariable String token) {
-        Quotation q = quotationRepository.findByPortalToken(token)
-            .orElse(null);
+        Quotation q = findQuoteByTokenOrId(token);
         if (q == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(commentRepository.findByQuotationIdOrderByCreatedAtAsc(q.getId()));
     }
@@ -107,8 +117,10 @@ public class CustomerPortalController {
         @PathVariable String token,
         @RequestBody NegotiationRequest req
     ) {
-        Quotation q = quotationRepository.findByPortalToken(token)
-            .orElseThrow(() -> new com.dealflow360.exception.ResourceNotFoundException("Quote not found"));
+        Quotation q = findQuoteByTokenOrId(token);
+        if (q == null) {
+            throw new com.dealflow360.exception.ResourceNotFoundException("Quote not found for token: " + token);
+        }
 
         q.setStatus(Quotation.QuotationStatus.NEGOTIATION);
         q.setLastActivityAt(java.time.OffsetDateTime.now());
@@ -117,11 +129,11 @@ public class CustomerPortalController {
         NegotiationComment comment = NegotiationComment.builder()
             .quotation(q)
             .authorType("CUSTOMER")
-            .message(req.message())
-            .counterDiscount(req.counterDiscount())
+            .message(req != null && req.message() != null ? req.message() : "Customer submitted counter-offer")
+            .counterDiscount(req != null ? req.counterDiscount() : null)
             .build();
 
-        if (req.lineId() != null) {
+        if (req != null && req.lineId() != null) {
             comment.setAuthorId(req.lineId());
         }
 

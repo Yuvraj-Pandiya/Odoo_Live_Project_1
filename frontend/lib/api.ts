@@ -186,9 +186,11 @@ export const fulfillmentApi = {
 
 // ── Invoices ────────────────────────────────────────────────
 export const invoiceApi = {
-  list:         () => api.get('/api/dashboard/invoices'),
+  list:         () => api.get('/api/invoices'),
+  get:          (id: number) => api.get(`/api/invoices/${id}`),
   byCustomer:   (customerId: number) => api.get(`/api/invoices/customer/${customerId}`),
   byQuotation:  (quotationId: number) => api.get(`/api/invoices/quotation/${quotationId}`),
+  pay:          (id: number) => api.post(`/api/invoices/${id}/pay`),
 };
 
 // ── Subscriptions ────────────────────────────────────────────
