@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
+import { fulfillmentApi } from '@/lib/api';
 import { CheckCircle, Truck, Clock, DollarSign, Package, Calendar, Route, Edit, RefreshCw } from 'lucide-react';
 
 export default function FulfillmentDetailPage() {
@@ -17,9 +18,17 @@ export default function FulfillmentDetailPage() {
     setTimeout(() => setToastMsg(null), 3500);
   };
 
-  const handleAcceptSplit = () => {
+  const handleAcceptSplit = async () => {
     setAccepted(true);
     triggerToast(`Split allocation for ${qid} confirmed. Warehouse pick lists generated.`);
+    const numId = parseInt(qid.replace(/\D/g, ''), 10);
+    if (!isNaN(numId)) {
+      try {
+        await fulfillmentApi.acceptSplit(numId);
+      } catch (err) {
+        console.warn('Split acceptance backend sync:', err);
+      }
+    }
   };
 
   return (
