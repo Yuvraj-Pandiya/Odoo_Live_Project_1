@@ -143,12 +143,9 @@ export default function DashboardPage() {
                   height: '8px',
                   borderRadius: '50%',
                   background: '#A2A0A1',
-
                 }}
               />
               <span>Q3 FY26 live cycle</span>
-              <span style={{ opacity: 0.5 }}>•</span>
-              <span>Day 67 of 90</span>
             </div>
             <h1
               style={{
@@ -178,48 +175,6 @@ export default function DashboardPage() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexShrink: 0 }}>
-            {/* Quota attainment capsule */}
-            <div
-              style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '12px',
-                padding: '16px 24px',
-                minWidth: '220px',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600, color: t.panelSubtext }}>
-                  Quota attainment
-                </span>
-                <span style={{ fontSize: '15px', fontWeight: 700, color: '#34D399' }}>
-                  84.2%
-                </span>
-              </div>
-              <div
-                style={{
-                  height: '6px',
-                  borderRadius: '9999px',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  overflow: 'hidden',
-                  width: '100%',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: '84.2%',
-                    background: '#34D399',
-                    borderRadius: '9999px',
-                  }}
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '13px', color: t.panelSubtext }}>
-                <span>$2.1M closed</span>
-                <span>Target $2.5M</span>
-              </div>
-            </div>
-
             {/* Hero CTAs */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {showNewQuote && (

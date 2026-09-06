@@ -143,10 +143,24 @@ export default function QuotationDetailPage() {
       try {
         if (!isNew && id > 0) {
           const qRes = await quotationApi.get(id);
-          if (qRes?.data) setQuotation(qRes.data);
+          if (qRes?.data) {
+            setQuotation(qRes.data);
+          } else {
+            const savedDraftsStr = localStorage.getItem('dealflow_saved_drafts');
+            if (savedDraftsStr) {
+              const savedDrafts = JSON.parse(savedDraftsStr);
+              if (savedDrafts[id]) setQuotation(savedDrafts[id]);
+            }
+          }
         }
       } catch {
-        // Fallback to mock initialization
+        const savedDraftsStr = localStorage.getItem('dealflow_saved_drafts');
+        if (savedDraftsStr) {
+          try {
+            const savedDrafts = JSON.parse(savedDraftsStr);
+            if (savedDrafts[id]) setQuotation(savedDrafts[id]);
+          } catch {}
+        }
       }
 
       try {
@@ -346,14 +360,17 @@ export default function QuotationDetailPage() {
     const totalMarginAmount = totalRevenueSum - totalCostSum;
     const blendedMarginPct = totalRevenueSum > 0 ? (totalMarginAmount / totalRevenueSum) * 100 : 0;
 
-    // Risk scoring
+    // Risk scoring (only compute risk if line items exist and total revenue > 0)
     let riskScore = 0;
-    if (overLimitPoints > 0) riskScore += overLimitPoints * 1.5;
-    if (blendedMarginPct < 15) riskScore += (15 - blendedMarginPct) * 0.8;
-    if (grandTotal > 5000000) riskScore += 3.0;
+    const hasItems = recalculatedLines && recalculatedLines.length > 0;
+    if (hasItems && totalRevenueSum > 0) {
+      if (overLimitPoints > 0) riskScore += overLimitPoints * 1.5;
+      if (blendedMarginPct < 15) riskScore += (15 - blendedMarginPct) * 0.8;
+      if (grandTotal > 5000000) riskScore += 3.0;
+    }
 
     riskScore = Math.round(riskScore * 10) / 10;
-    const riskLevel = riskScore >= 8 ? 'HIGH' : riskScore > 0 ? 'MEDIUM' : 'LOW';
+    const riskLevel = hasItems && riskScore >= 8 ? 'HIGH' : hasItems && riskScore > 0 ? 'MEDIUM' : 'LOW';
 
     return {
       subtotal,
@@ -464,8 +481,8 @@ export default function QuotationDetailPage() {
         return;
       } else {
         // Update local state in draft mode
-        setQuotation((prev: any) => ({
-          ...prev,
+        const draftObj = {
+          ...quotation,
           status: 'DRAFT',
           grandTotal: orderSummary.grandTotal,
           subtotal: orderSummary.subtotal,
@@ -473,7 +490,14 @@ export default function QuotationDetailPage() {
           taxTotal: orderSummary.taxTotal,
           blendedRiskScore: orderSummary.riskScore,
           riskLevel: orderSummary.riskLevel,
-        }));
+        };
+        setQuotation(draftObj);
+        try {
+          const savedStr = localStorage.getItem('dealflow_saved_drafts') || '{}';
+          const savedMap = JSON.parse(savedStr);
+          savedMap[targetId || id || quotation.id] = draftObj;
+          localStorage.setItem('dealflow_saved_drafts', JSON.stringify(savedMap));
+        } catch {}
         setSaveToast('Draft saved successfully!');
       }
     } catch (err) {
