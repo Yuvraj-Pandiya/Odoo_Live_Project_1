@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
 import { quotationApi, productApi, customerApi, getStoredUser } from '@/lib/api';
+import { useQuotationStore } from '@/store/useQuotationStore';
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'badge-draft',
@@ -421,6 +422,11 @@ export default function QuotationDetailPage() {
     setTimeout(() => setSaveToast(null), 2500);
   };
 
+  const handleAddBlankLine = () => {
+    const defaultProd = products[0] || { id: Date.now(), name: 'Enterprise Cloud Suite License', basePrice: 150000.0, maxDiscount: 20.0, taxPercentage: 18.0 };
+    handleAddProductLine(defaultProd);
+  };
+
   const handleCustomerSelect = (custId: number) => {
     const found = customers.find((c) => c.id === custId);
     if (found) {
@@ -453,6 +459,18 @@ export default function QuotationDetailPage() {
             });
           }
         }
+        const draftObj: any = {
+          ...quotation,
+          id: targetId,
+          status: 'DRAFT',
+          grandTotal: orderSummary.grandTotal,
+          subtotal: orderSummary.subtotal,
+          discountTotal: orderSummary.totalDiscount,
+          taxTotal: orderSummary.taxTotal,
+          blendedRiskScore: orderSummary.riskScore,
+          riskLevel: orderSummary.riskLevel,
+        };
+        useQuotationStore.getState().addOrUpdateQuotation(draftObj);
         setSaveToast('Draft saved to database! Redirecting...');
         setTimeout(() => {
           router.replace(`/quotations/${targetId}`);
@@ -460,8 +478,9 @@ export default function QuotationDetailPage() {
         return;
       } else {
         // Update local state in draft mode
-        const draftObj = {
+        const draftObj: any = {
           ...quotation,
+          id: targetId || quotation.id,
           status: 'DRAFT',
           grandTotal: orderSummary.grandTotal,
           subtotal: orderSummary.subtotal,
@@ -471,6 +490,7 @@ export default function QuotationDetailPage() {
           riskLevel: orderSummary.riskLevel,
         };
         setQuotation(draftObj);
+        useQuotationStore.getState().addOrUpdateQuotation(draftObj);
         try {
           const savedStr = localStorage.getItem('dealflow_saved_drafts') || '{}';
           const savedMap = JSON.parse(savedStr);
@@ -481,6 +501,18 @@ export default function QuotationDetailPage() {
       }
     } catch (err) {
       console.error('Save draft error:', err);
+      const draftObj: any = {
+        ...quotation,
+        id: id || quotation.id || Date.now(),
+        status: 'DRAFT',
+        grandTotal: orderSummary.grandTotal,
+        subtotal: orderSummary.subtotal,
+        discountTotal: orderSummary.totalDiscount,
+        taxTotal: orderSummary.taxTotal,
+        blendedRiskScore: orderSummary.riskScore,
+        riskLevel: orderSummary.riskLevel,
+      };
+      useQuotationStore.getState().addOrUpdateQuotation(draftObj);
       setSaveToast('Draft saved locally.');
     } finally {
       setTimeout(() => setSaveToast(null), 2500);
@@ -515,7 +547,7 @@ export default function QuotationDetailPage() {
       }
 
       const { riskScore, riskLevel } = orderSummary;
-      const submittedItem = {
+      const submittedItem: any = {
         id: targetId || Date.now(),
         quoteNumber: quotation.quoteNumber && quotation.quoteNumber !== 'Draft (New)' ? quotation.quoteNumber : `QT-2026-${Math.floor(1050 + Math.random() * 50)}`,
         customer: quotation.customer || { name: 'Acme Technologies Ltd', tier: 'GOLD' },
@@ -532,6 +564,8 @@ export default function QuotationDetailPage() {
         lines: recalculatedLines
       };
 
+      useQuotationStore.getState().addOrUpdateQuotation(submittedItem);
+
       try {
         const existingStr = localStorage.getItem('dealflow_submitted_approvals') || '[]';
         const existingList = JSON.parse(existingStr);
@@ -543,6 +577,7 @@ export default function QuotationDetailPage() {
       const updated = submitRes?.data;
       if (updated) {
         setQuotation(updated);
+        useQuotationStore.getState().addOrUpdateQuotation(updated);
         if (updated.status === 'APPROVED') {
           setSaveToast('Quotation auto-approved by policy!');
         } else {
@@ -556,7 +591,7 @@ export default function QuotationDetailPage() {
     } catch (err) {
       console.error('Submit error:', err);
       const { riskScore, riskLevel } = orderSummary;
-      const submittedItem = {
+      const submittedItem: any = {
         id: targetId || Date.now(),
         quoteNumber: quotation.quoteNumber && quotation.quoteNumber !== 'Draft (New)' ? quotation.quoteNumber : `QT-2026-${Math.floor(1050 + Math.random() * 50)}`,
         customer: quotation.customer || { name: 'Acme Technologies Ltd', tier: 'GOLD' },
@@ -572,6 +607,8 @@ export default function QuotationDetailPage() {
         ],
         lines: recalculatedLines
       };
+
+      useQuotationStore.getState().addOrUpdateQuotation(submittedItem);
 
       try {
         const existingStr = localStorage.getItem('dealflow_submitted_approvals') || '[]';
@@ -787,8 +824,17 @@ export default function QuotationDetailPage() {
                   </p>
                 </div>
 
-                {/* Add Custom Product Line Dropdown */}
+                {/* Add Custom Product Line Dropdown & Button */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={handleAddBlankLine}
+                    className="btn-primary"
+                    style={{ height: '36px', fontSize: '13px', padding: '0 12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>add</span>
+                    <span>Add Product</span>
+                  </button>
                   <select
                     onChange={(e) => {
                       const pid = Number(e.target.value);
@@ -802,7 +848,7 @@ export default function QuotationDetailPage() {
                     style={{ fontSize: '13px', height: '36px' }}
                     defaultValue=""
                   >
-                    <option value="" disabled>+ Add product from catalog...</option>
+                    <option value="" disabled>Select from catalog...</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name} — {formatCurrency(p.basePrice)}

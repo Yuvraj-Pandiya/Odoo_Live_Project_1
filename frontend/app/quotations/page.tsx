@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
-import { quotationApi, getStoredUser } from '@/lib/api';
+import { getStoredUser } from '@/lib/api';
 import { canCreateQuotation } from '@/lib/permissions';
+import { useQuotationStore } from '@/store/useQuotationStore';
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'badge-draft',
   PENDING_APPROVAL: 'badge-pending',
+  PENDING: 'badge-pending',
   APPROVED: 'badge-approved',
   REJECTED: 'badge-rejected',
   NEGOTIATION: 'badge-negotiation',
@@ -29,24 +31,25 @@ const KANBAN_STAGES = [
   { id: 'APPROVED', label: 'Approved', badgeClass: 'badge-approved' },
   { id: 'NEGOTIATION', label: 'Negotiation', badgeClass: 'badge-negotiation' },
   { id: 'CONFIRMED', label: 'Confirmed', badgeClass: 'badge-confirmed' },
-];
-
-const MOCK_QUOTATIONS = [
-  { id: 1, quoteNumber: 'Q-1042', status: 'PENDING_APPROVAL', grandTotal: 2581.00, currency: 'INR', riskLevel: 'HIGH', blendedRiskScore: 8.5, customer: { name: 'Acme Corp', tier: 'GOLD' }, salesRep: { fullName: 'J. Rao' }, lastActivityAt: '2026-09-03T10:00:00Z' },
-  { id: 2, quoteNumber: 'Q-1039', status: 'PENDING_APPROVAL', grandTotal: 1974.00, currency: 'INR', riskLevel: 'MEDIUM', blendedRiskScore: 5.2, customer: { name: 'Beta Industries', tier: 'SILVER' }, salesRep: { fullName: 'J. Rao' }, lastActivityAt: '2026-09-01T09:00:00Z' },
-  { id: 3, quoteNumber: 'Q-1035', status: 'APPROVED', grandTotal: 413.00, currency: 'INR', riskLevel: 'LOW', blendedRiskScore: 0, customer: { name: 'Nova Retail', tier: 'BRONZE' }, salesRep: { fullName: 'S. Kumar' }, lastActivityAt: '2026-09-02T14:00:00Z' },
-  { id: 4, quoteNumber: 'Q-1030', status: 'CONFIRMED', grandTotal: 16854.00, currency: 'INR', riskLevel: 'LOW', blendedRiskScore: 2.1, customer: { name: 'Zenith Co', tier: 'GOLD' }, salesRep: { fullName: 'S. Kumar' }, lastActivityAt: '2026-08-26T11:00:00Z' },
+  { id: 'FULFILLED', label: 'Fulfilled', badgeClass: 'badge-approved' },
 ];
 
 const STATUS_GROUPS = ['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'NEGOTIATION', 'CONFIRMED', 'FULFILLED'];
 
 export default function QuotationsPage() {
   const router = useRouter();
-  const [quotations, setQuotations] = useState<any[]>(MOCK_QUOTATIONS);
-  const [viewMode, setViewMode] = useState<'pipeline' | 'table'>('pipeline');
-  const [filter, setFilter] = useState('ALL');
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
+  const {
+    quotations,
+    loading,
+    filter,
+    search,
+    viewMode,
+    fetchQuotations,
+    setFilter,
+    setSearch,
+    setViewMode,
+  } = useQuotationStore();
+
   const [user, setUser] = useState<any>({});
 
   const loadUser = () => {
@@ -58,32 +61,40 @@ export default function QuotationsPage() {
 
   useEffect(() => {
     loadUser();
+    fetchQuotations();
     const handleAuth = () => loadUser();
     window.addEventListener('dealflow-auth-change', handleAuth);
     return () => window.removeEventListener('dealflow-auth-change', handleAuth);
-  }, []);
+  }, [fetchQuotations]);
 
   const userRole = user?.role || 'SALES_REP';
   const showCreate = canCreateQuotation(userRole);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('dealflow_token')) {
-      router.push('/'); return;
+      router.push('/');
     }
-    quotationApi.list().then((r) => {
-      if (r.data && r.data.length) setQuotations(r.data);
-    }).catch(() => {}).finally(() => setLoading(false));
   }, [router]);
 
   const filtered = quotations.filter((q) => {
-    const matchStatus = filter === 'ALL' || q.status === filter;
-    const matchSearch = !search || q.quoteNumber.toLowerCase().includes(search.toLowerCase()) ||
+    const s = (q.status || '').toUpperCase();
+    const matchStatus =
+      filter === 'ALL' ||
+      s === filter ||
+      (filter === 'PENDING_APPROVAL' && s === 'PENDING');
+    const matchSearch =
+      !search ||
+      (q.quoteNumber || '').toLowerCase().includes(search.toLowerCase()) ||
       (q.customer?.name || q.customerName || '').toLowerCase().includes(search.toLowerCase());
     return matchStatus && matchSearch;
   });
 
   const counts: Record<string, number> = {};
-  quotations.forEach((q) => { counts[q.status] = (counts[q.status] || 0) + 1; });
+  quotations.forEach((q) => {
+    let s = (q.status || '').toUpperCase();
+    if (s === 'PENDING') s = 'PENDING_APPROVAL';
+    counts[s] = (counts[s] || 0) + 1;
+  });
 
   const formatAmount = (val: number, cur: string = 'INR') => {
     if (cur === 'USD' || cur === '$') {
@@ -110,9 +121,10 @@ export default function QuotationsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <h1 className="page-heading">Quotations</h1>
                 <span className="badge badge-primary">CPQ core</span>
+                <span className="badge badge-indigo">Zustand State Engine</span>
               </div>
               <p className="body-text" style={{ marginTop: '4px' }}>
-                Manage deals across sales pipeline stages — click any quotation card to view details
+                Manage deals across sales pipeline stages (Draft, Pending, Approved, Negotiation, Confirmed, Fulfilled)
               </p>
             </div>
 
@@ -250,18 +262,24 @@ export default function QuotationsPage() {
             <span className="material-symbols-outlined animate-spin" style={{ fontSize: '28px', color: 'var(--accent)' }}>refresh</span>
           </div>
         ) : viewMode === 'pipeline' ? (
-          /* ── Kanban Pipeline Board View ──────────────────────── */
+          /* ── Kanban Pipeline Board View (6 Columns) ───────────── */
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(5, minmax(260px, 1fr))',
+              gridTemplateColumns: 'repeat(6, minmax(240px, 1fr))',
               gap: '16px',
               overflowX: 'auto',
               paddingBottom: '12px',
             }}
           >
             {KANBAN_STAGES.map((stage) => {
-              const stageQuotes = filtered.filter((q) => q.status === stage.id);
+              const stageQuotes = filtered.filter((q) => {
+                const s = (q.status || '').toUpperCase();
+                if (stage.id === 'PENDING_APPROVAL') {
+                  return s === 'PENDING_APPROVAL' || s === 'PENDING';
+                }
+                return s === stage.id;
+              });
               const stageTotal = stageQuotes.reduce((acc, q) => acc + (q.grandTotal || 0), 0);
 
               return (
@@ -290,14 +308,14 @@ export default function QuotationsPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className="section-label" style={{ fontSize: '14px', margin: 0 }}>
+                      <span className="section-label" style={{ fontSize: '13px', margin: 0 }}>
                         {stage.label}
                       </span>
                       <span
                         className={`badge ${stage.badgeClass}`}
                         style={{ fontSize: '11px', padding: '2px 8px' }}
                       >
-                        {counts[stage.id] || 0}
+                        {stageQuotes.length}
                       </span>
                     </div>
                     {stageTotal > 0 && (
@@ -443,14 +461,14 @@ export default function QuotationsPage() {
                     </td>
                     <td>
                       <span className={`badge ${STATUS_BADGE[q.status] || 'badge-outline'}`}>
-                        {q.status.toLowerCase().replace(/_/g, ' ')}
+                        {(q.status || 'DRAFT').toLowerCase().replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td>
                       {q.riskLevel && (
                         <span className={`badge ${RISK_BADGE[q.riskLevel] || 'badge-outline'}`}>
                           {q.riskLevel.toLowerCase()}
-                          {q.blendedRiskScore > 0 && <span style={{ marginLeft: '4px', opacity: 0.8 }}>({q.blendedRiskScore})</span>}
+                          {(q.blendedRiskScore || 0) > 0 && <span style={{ marginLeft: '4px', opacity: 0.8 }}>({q.blendedRiskScore})</span>}
                         </span>
                       )}
                     </td>
@@ -490,4 +508,5 @@ export default function QuotationsPage() {
     </AppLayout>
   );
 }
+
 

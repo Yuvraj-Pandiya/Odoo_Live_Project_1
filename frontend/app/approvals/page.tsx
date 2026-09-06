@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { quotationApi, getStoredUser } from '@/lib/api';
+import { useQuotationStore } from '@/store/useQuotationStore';
 import { canApproveAny } from '@/lib/permissions';
 import {
   Clock,
@@ -204,6 +205,14 @@ export default function ApprovalsPage() {
       localSubmitted.forEach((item) => {
         const key = item.id || item.quoteNumber;
         combinedMap.set(key, item);
+      });
+
+      const storeQuotations = useQuotationStore.getState().quotations || [];
+      storeQuotations.forEach((item: any) => {
+        if (item.status === 'APPROVED' || item.status === 'PENDING_APPROVAL' || item.status === 'PENDING') {
+          const key = item.id || item.quoteNumber;
+          combinedMap.set(key, item);
+        }
       });
 
       setQuotations(Array.from(combinedMap.values()));
