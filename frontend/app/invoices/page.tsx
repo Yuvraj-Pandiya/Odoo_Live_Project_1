@@ -217,7 +217,7 @@ export default function InvoicesPage() {
                           </Link>
                         </td>
                         <td className="font-semibold text-[var(--text-primary)]">{inv.customer?.name || '—'}</td>
-                        <td className="font-bold text-[var(--text-primary)]">₹{Number(inv.totalAmount || 0).toLocaleString()}</td>
+                        <td suppressHydrationWarning className="font-bold text-[var(--text-primary)]">₹{Number(inv.totalAmount || 0).toLocaleString('en-IN')}</td>
                         <td className="text-[var(--text-secondary)] font-mono text-xs">{inv.dueDate || '—'}</td>
                         <td><span className="badge badge-muted">{inv.isRecurring ? 'Recurring' : 'One-Time'}</span></td>
                         <td>
