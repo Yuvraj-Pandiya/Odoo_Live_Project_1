@@ -157,13 +157,13 @@ export default function SubscriptionsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
           <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Total ARR</span>
-            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>${totalARR.toLocaleString()}</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>₹{totalARR.toLocaleString()}</span>
             <span className="body-sm" style={{ color: 'var(--success)', fontWeight: 500 }}>+18.4% YoY growth</span>
           </div>
           <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Total MRR</span>
-            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>${totalMRR.toLocaleString()}</span>
-            <span className="body-sm">Avg. contract: ${(totalMRR / INITIAL_SUBSCRIPTIONS.length).toFixed(0)}/mo</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>₹{totalMRR.toLocaleString()}</span>
+            <span className="body-sm">Avg. contract: ₹{(totalMRR / INITIAL_SUBSCRIPTIONS.length).toFixed(0)}/mo</span>
           </div>
           <div className="df-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)' }}>Active Plans</span>
@@ -291,10 +291,10 @@ export default function SubscriptionsPage() {
                         </span>
                       </td>
                       <td style={{ padding: '14px 18px', textAlign: 'right', fontWeight: 700, color: '#15803D' }}>
-                        ${sub.mrr.toLocaleString()}/mo
+                        ₹{sub.mrr.toLocaleString()}/mo
                       </td>
                       <td style={{ padding: '14px 18px', textAlign: 'right', color: 'var(--text-primary)', fontWeight: 600 }}>
-                        ${sub.arr.toLocaleString()}/yr
+                        ₹{sub.arr.toLocaleString()}/yr
                       </td>
                       <td style={{ padding: '14px 18px', textAlign: 'center' }}>
                         <span className="badge badge-primary">
