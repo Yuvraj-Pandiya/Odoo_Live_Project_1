@@ -17,6 +17,13 @@ export default function SubscriptionDetailPage() {
     setTimeout(() => setToastMsg(null), 3500);
   };
 
+  const handleDownloadStatementPDF = () => {
+    triggerToast('Generating official Subscription Statement PDF...');
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -51,31 +58,33 @@ export default function SubscriptionDetailPage() {
           </div>
         </div>
 
-        {/* Header Title & Actions */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        {/* Aligned Header Title & Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div className="flex items-center gap-2 section-label text-[var(--accent)]">
-              <span>Recurring Governance & Cadence</span>
-              <span>•</span>
-              <span className="text-[var(--text-muted)]">Originating Quote #QT-2024-4091-R2</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 className="page-heading">Billing Detail: Acme Corp - Care Plan 2yr</h1>
+              <span className="badge badge-indigo">
+                QT-2024-4091-R2
+              </span>
             </div>
-            <h1 className="page-heading mt-1">Billing Detail: Acme Corp - Care Plan 2yr</h1>
-            <p className="body-text mt-1 max-w-3xl">
+            <p className="body-text" style={{ marginTop: '4px' }}>
               Originating contract breakdown, one-time procurement lines, and active recurring cadence schedule with proration support.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               onClick={() => setShowModifyModal(true)}
               className="btn-primary flex items-center gap-2"
+              type="button"
             >
               <Sliders size={16} />
               <span>Modify Subscription</span>
             </button>
             <button
-              onClick={() => triggerToast('Statement PDF downloaded to desktop.')}
+              onClick={handleDownloadStatementPDF}
               className="btn-secondary flex items-center gap-2"
+              type="button"
             >
               <Download size={16} />
               <span>Statement PDF</span>
@@ -111,7 +120,7 @@ export default function SubscriptionDetailPage() {
           <div className="df-card p-5 space-y-2">
             <div className="flex items-center justify-between section-label">
               <span>Next Charge Date</span>
-              <Calendar className="text-purple-600" size={18} />
+              <Calendar className="text-[var(--accent)]" size={18} />
             </div>
             <div className="text-2xl font-bold text-[var(--text-primary)]">Sep 15, 2026</div>
             <div className="body-sm text-[var(--accent)] flex items-center gap-1 font-medium">

@@ -22,6 +22,13 @@ export default function InvoiceDetailPage() {
     triggerToast(`Payment of ₹2,730.00 recorded for invoice ${invId}. Status updated to PAID.`);
   };
 
+  const handleDownloadInvoicePDF = () => {
+    triggerToast(`Generating Invoice PDF for ${invId}...`);
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -34,7 +41,7 @@ export default function InvoiceDetailPage() {
         )}
 
         {/* Navigation & Status Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <nav className="flex items-center gap-2 body-sm">
             <Link href="/invoices" className="hover:text-[var(--text-primary)] flex items-center gap-1">
               <Receipt size={14} />
@@ -60,12 +67,30 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
 
-        {/* Title */}
-        <div>
-          <h1 className="page-heading">Invoice Detail: {invId} <span className="text-[var(--accent)]">(Acme Corp)</span></h1>
-          <p className="body-text mt-1 max-w-4xl">
-            Automated billing and fulfillment delivery synchronization strictly enforces no pre-billing prior to logistical release.
-          </p>
+        {/* Aligned Title & Download Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 className="page-heading">Invoice Detail: {invId}</h1>
+              <span className="badge badge-indigo">
+                Acme Corp
+              </span>
+            </div>
+            <p className="body-text" style={{ marginTop: '4px' }}>
+              Automated billing and fulfillment delivery synchronization strictly enforces no pre-billing prior to logistical release.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={handleDownloadInvoicePDF}
+              className="btn-secondary flex items-center gap-2"
+              type="button"
+            >
+              <Download size={16} />
+              <span>Download Invoice PDF</span>
+            </button>
+          </div>
         </div>
 
         {/* Executive Milestone Stepper Component */}
@@ -216,8 +241,9 @@ export default function InvoiceDetailPage() {
               )}
 
               <button
-                onClick={() => triggerToast('Invoice PDF downloaded to desktop.')}
+                onClick={handleDownloadInvoicePDF}
                 className="btn-secondary w-full justify-center gap-2"
+                type="button"
               >
                 <Download size={16} />
                 <span>Download Invoice PDF</span>

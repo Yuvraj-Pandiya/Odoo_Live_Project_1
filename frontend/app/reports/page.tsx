@@ -14,6 +14,37 @@ export default function ReportsPage() {
     setTimeout(() => setToastMsg(null), 3500);
   };
 
+  const handleExportCSV = () => {
+    const headers = ['Report Category', 'Metric / Item', 'Value / Level', 'Status / SLA', 'Timestamp / Notes'];
+    const rows = [
+      ['Approval Bottlenecks', 'Level 1: Sales Manager', '1.2 hours turnaround', '94.2% Pass Rate', '3 Pending Quotes'],
+      ['Approval Bottlenecks', 'Level 2: VP Deal Desk', '3.8 hours turnaround', '82.0% Pass Rate', '5 Pending Quotes (Warning SLA)'],
+      ['Approval Bottlenecks', 'Level 3: CFO / Finance Desk', '6.5 hours turnaround', '68.0% Pass Rate', '2 Pending Quotes (Critical Risk)'],
+      ['Governance Audit', 'Sarah Lin (Sales Rep)', 'Quote Q-1042', 'Submitted for approval', 'Services discount: 28%'],
+      ['Governance Audit', 'Marcus Vance (VP Deal Desk)', 'Quote Q-1039', 'Approved exception', 'Global Logix account'],
+      ['Governance Audit', 'Automated Policy Engine', 'Anomaly ANOM-102', 'Flagged risk', 'Margin leakage breach on Delta LLC']
+    ];
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Analytics_Audit_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    triggerToast('Report dataset exported as CSV successfully!');
+  };
+
+  const handleExportPDF = () => {
+    triggerToast('Preparing Executive PDF Print Report...');
+    setTimeout(() => {
+      window.print();
+    }, 500);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -25,30 +56,36 @@ export default function ReportsPage() {
           </div>
         )}
 
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        {/* Aligned Page Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <div className="flex items-center gap-2 section-label text-[var(--accent)]">
-              <span className="w-2 h-2 rounded-full bg-[var(--accent)] animate-ping"></span>
-              BI & audit engine • v4.18 real-time sync
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h1 className="page-heading">Admin & Reporting Analytics</h1>
+              <span className="badge badge-indigo">
+                BI & Audit Engine
+              </span>
+              <span className="badge badge-success">
+                v4.18 Real-Time Sync
+              </span>
             </div>
-            <h1 className="page-heading mt-1">Admin & Reporting Analytics</h1>
-            <p className="body-text mt-1 max-w-3xl">
+            <p className="body-text" style={{ marginTop: '4px' }}>
               High-precision deal velocity, approval cycle bottlenecks, discount margin compliance, and governance audit logs.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
-              onClick={() => triggerToast('Generating Executive BI PDF Report... Download started.')}
+              onClick={handleExportPDF}
               className="btn-secondary flex items-center gap-2"
+              type="button"
             >
               <FileText size={16} className="text-[var(--error)]" />
               <span>Export PDF</span>
             </button>
             <button
-              onClick={() => triggerToast('Exporting CSV raw dataset...')}
+              onClick={handleExportCSV}
               className="btn-secondary flex items-center gap-2"
+              type="button"
             >
               <Table size={16} className="text-[var(--success)]" />
               <span>Export CSV</span>
@@ -166,8 +203,8 @@ export default function ReportsPage() {
                     </tr>
                     <tr>
                       <td className="font-semibold text-[var(--text-primary)]">Level 2: VP Deal Desk</td>
-                      <td className="text-right font-mono text-amber-600 font-bold">3.8 hours</td>
-                      <td className="text-right font-mono font-bold text-amber-600">5</td>
+                      <td className="text-right font-mono font-bold" style={{ color: '#D97706' }}>3.8 hours</td>
+                      <td className="text-right font-mono font-bold" style={{ color: '#D97706' }}>5</td>
                       <td className="text-right font-mono text-[var(--text-secondary)]">82.0%</td>
                     </tr>
                     <tr>
@@ -187,7 +224,7 @@ export default function ReportsPage() {
             <div className="df-card p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
                 <h3 className="section-label text-base text-[var(--text-primary)] flex items-center gap-2">
-                  <ShieldCheck className="text-purple-600" size={18} />
+                  <ShieldCheck className="text-[var(--accent)]" size={18} />
                   System governance audit trail
                 </h3>
                 <span className="badge badge-muted">Live Stream</span>
@@ -212,10 +249,10 @@ export default function ReportsPage() {
 
                 <div className="p-3.5 rounded-xl bg-[var(--canvas)] border border-[var(--border)] space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-amber-700">Automated Policy Engine</span>
+                    <span className="font-bold" style={{ color: '#D97706' }}>Automated Policy Engine</span>
                     <span className="font-mono text-xs text-[var(--text-muted)]">2 hours ago</span>
                   </div>
-                  <p className="text-[var(--text-secondary)]">Flagged anomaly <strong className="text-amber-700 font-mono">ANOM-102</strong>: Margin leakage breach on Delta LLC</p>
+                  <p className="text-[var(--text-secondary)]">Flagged anomaly <strong className="font-mono" style={{ color: '#D97706' }}>ANOM-102</strong>: Margin leakage breach on Delta LLC</p>
                 </div>
               </div>
             </div>
@@ -225,3 +262,4 @@ export default function ReportsPage() {
     </AppLayout>
   );
 }
+

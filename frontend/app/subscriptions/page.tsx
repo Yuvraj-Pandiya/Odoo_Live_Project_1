@@ -97,6 +97,34 @@ export default function SubscriptionsPage() {
   const totalMRR = INITIAL_SUBSCRIPTIONS.reduce((acc, s) => acc + s.mrr, 0);
   const activeCount = INITIAL_SUBSCRIPTIONS.filter((s) => s.status === 'Active').length;
 
+  const handleExportARR = () => {
+    const headers = ['Subscription ID', 'Contract ID', 'Customer', 'Plan', 'Tier', 'MRR', 'ARR', 'Cadence', 'Status', 'Next Billing Date', 'Auto Renew'];
+    const rows = INITIAL_SUBSCRIPTIONS.map(sub => [
+      sub.id,
+      sub.contractId,
+      `"${sub.customer.replace(/"/g, '""')}"`,
+      `"${sub.plan.replace(/"/g, '""')}"`,
+      sub.tier,
+      sub.mrr,
+      sub.arr,
+      sub.cadence,
+      sub.status,
+      sub.nextBilling,
+      sub.autoRenew ? 'Yes' : 'No'
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `ARR_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <AppLayout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -118,7 +146,7 @@ export default function SubscriptionsPage() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button className="btn-secondary" type="button" onClick={() => alert('Exporting ARR Report...')}>
+            <button className="btn-secondary" type="button" onClick={handleExportARR}>
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>file_download</span>
               <span>Export ARR Report</span>
             </button>

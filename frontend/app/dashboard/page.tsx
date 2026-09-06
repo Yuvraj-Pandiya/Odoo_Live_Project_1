@@ -27,11 +27,11 @@ const t = {
 };
 
 const MOCK_STATS = {
-  openQuotations: 7,
-  pendingApprovals: 4,
-  activeQuotes: 23,
-  activeAlerts: 3,
-  confirmedThisMonth: 11,
+  openQuotations: 120,
+  pendingApprovals: 42,
+  activeQuotes: 300,
+  activeAlerts: 18,
+  confirmedThisMonth: 85,
 };
 
 const MOCK_ALERTS = [
