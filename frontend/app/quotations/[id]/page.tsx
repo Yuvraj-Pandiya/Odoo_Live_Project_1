@@ -144,23 +144,35 @@ export default function QuotationDetailPage() {
         if (!isNew && id > 0) {
           const qRes = await quotationApi.get(id);
           if (qRes?.data) {
-            setQuotation(qRes.data);
+            const fetched = qRes.data;
+            const lines = (fetched.lines && fetched.lines.length > 0)
+              ? fetched.lines
+              : (fetched.quotationLines && fetched.quotationLines.length > 0)
+              ? fetched.quotationLines
+              : INITIAL_QUOTATION.lines;
+            setQuotation({ ...fetched, lines, quoteNumber: fetched.quoteNumber || `Q-${1040 + id}` });
           } else {
             const savedDraftsStr = localStorage.getItem('dealflow_saved_drafts');
+            let loaded = null;
             if (savedDraftsStr) {
-              const savedDrafts = JSON.parse(savedDraftsStr);
-              if (savedDrafts[id]) setQuotation(savedDrafts[id]);
+              try {
+                const savedDrafts = JSON.parse(savedDraftsStr);
+                if (savedDrafts[id]) loaded = savedDrafts[id];
+              } catch {}
             }
+            setQuotation(loaded || { ...INITIAL_QUOTATION, id, quoteNumber: `Q-${1040 + id}` });
           }
         }
       } catch {
         const savedDraftsStr = localStorage.getItem('dealflow_saved_drafts');
+        let loaded = null;
         if (savedDraftsStr) {
           try {
             const savedDrafts = JSON.parse(savedDraftsStr);
-            if (savedDrafts[id]) setQuotation(savedDrafts[id]);
+            if (savedDrafts[id]) loaded = savedDrafts[id];
           } catch {}
         }
+        setQuotation(loaded || { ...INITIAL_QUOTATION, id, quoteNumber: `Q-${1040 + id}` });
       }
 
       try {
