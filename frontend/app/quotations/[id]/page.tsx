@@ -49,10 +49,10 @@ const INITIAL_QUOTATION = {
   id: 1,
   quoteNumber: 'Q-1042',
   status: 'DRAFT',
-  grandTotal: 1095040.0,
-  subtotal: 970000.0,
-  taxTotal: 174600.0,
-  discountTotal: 49560.0,
+  grandTotal: 0,
+  subtotal: 0,
+  taxTotal: 0,
+  discountTotal: 0,
   currency: 'INR',
   blendedRiskScore: 0,
   riskLevel: 'LOW',
@@ -60,40 +60,7 @@ const INITIAL_QUOTATION = {
   validUntil: '2026-10-15',
   customer: MOCK_CUSTOMERS[0],
   salesRep: { id: 4, fullName: 'Priya Patel', email: 'rep1@dealflow360.com' },
-  lines: [
-    {
-      id: 101,
-      productId: 1,
-      productName: 'NVIDIA H100 GPU Instance',
-      description: 'NVIDIA H100 GPU Instance — Cloud AI Cluster',
-      lineType: 'RECURRING',
-      quantity: 2,
-      unitPrice: 450000.0,
-      costPrice: 310000.0,
-      discountPct: 10.0,
-      discountAllowed: 25.0,
-      taxPct: 18.0,
-      lineTotal: 955800.0,
-      marginAmount: 190000.0,
-      marginPct: 23.46,
-    },
-    {
-      id: 102,
-      productId: 5,
-      productName: 'Datadog Enterprise APM Suite',
-      description: 'Datadog Enterprise APM Suite — 24/7 Monitoring',
-      lineType: 'RECURRING',
-      quantity: 1,
-      unitPrice: 95000.0,
-      costPrice: 45000.0,
-      discountPct: 5.0,
-      discountAllowed: 20.0,
-      taxPct: 18.0,
-      lineTotal: 106500.0,
-      marginAmount: 40250.0,
-      marginPct: 44.59,
-    },
-  ],
+  lines: [],
   approvals: [],
   portalToken: 'token-quote-1042',
 };
@@ -149,7 +116,7 @@ export default function QuotationDetailPage() {
               ? fetched.lines
               : (fetched.quotationLines && fetched.quotationLines.length > 0)
               ? fetched.quotationLines
-              : INITIAL_QUOTATION.lines;
+              : [];
             setQuotation({ ...fetched, lines, quoteNumber: fetched.quoteNumber || `Q-${1040 + id}` });
           } else {
             const savedDraftsStr = localStorage.getItem('dealflow_saved_drafts');

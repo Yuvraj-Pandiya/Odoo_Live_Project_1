@@ -269,6 +269,10 @@ export default function ApprovalsPage() {
       }
 
       return true;
+    }).sort((a, b) => {
+      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.id ? a.id * 1000 : 0);
+      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (b.id ? b.id * 1000 : 0);
+      return timeB - timeA;
     });
   }, [quotations, statusFilter, pendingOnly, riskFilter, searchQuery]);
 
