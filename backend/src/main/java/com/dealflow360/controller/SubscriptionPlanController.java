@@ -22,7 +22,7 @@ public class SubscriptionPlanController {
 
     @Data
     @Builder
-    public static class SubscriptionPlanDto {
+    public static class SubscriptionPlanInfo {
         private String code;
         private String name;
         private String tier;
@@ -35,8 +35,8 @@ public class SubscriptionPlanController {
         private Boolean isActive;
     }
 
-    private static final List<SubscriptionPlanDto> FIXED_PLANS = List.of(
-        SubscriptionPlanDto.builder()
+    private static final List<SubscriptionPlanInfo> FIXED_PLANS = List.of(
+        SubscriptionPlanInfo.builder()
             .code("PLAN-STARTER")
             .name("Starter Cloud & CPQ Core")
             .tier("BRONZE")
@@ -48,7 +48,7 @@ public class SubscriptionPlanController {
             .slaGuarantee("99.5% Uptime")
             .isActive(true)
             .build(),
-        SubscriptionPlanDto.builder()
+        SubscriptionPlanInfo.builder()
             .code("PLAN-PRO")
             .name("Professional Deal Flow & Approvals")
             .tier("SILVER")
@@ -60,7 +60,7 @@ public class SubscriptionPlanController {
             .slaGuarantee("99.9% Uptime")
             .isActive(true)
             .build(),
-        SubscriptionPlanDto.builder()
+        SubscriptionPlanInfo.builder()
             .code("PLAN-ENTERPRISE")
             .name("Enterprise Cloud Platform & AI Deal Desk")
             .tier("GOLD")
@@ -72,7 +72,7 @@ public class SubscriptionPlanController {
             .slaGuarantee("99.99% Uptime")
             .isActive(true)
             .build(),
-        SubscriptionPlanDto.builder()
+        SubscriptionPlanInfo.builder()
             .code("PLAN-LOGISTICS-AI")
             .name("Logistics AI & Warehouse Optimizer Suite")
             .tier("GOLD")
@@ -84,7 +84,7 @@ public class SubscriptionPlanController {
             .slaGuarantee("99.99% Uptime")
             .isActive(true)
             .build(),
-        SubscriptionPlanDto.builder()
+        SubscriptionPlanInfo.builder()
             .code("PLAN-CUSTOM-GOV")
             .name("Commercial Governance & Custom Audit")
             .tier("SILVER")
@@ -99,7 +99,7 @@ public class SubscriptionPlanController {
     );
 
     @GetMapping
-    public ResponseEntity<List<SubscriptionPlanDto>> getPlans() {
+    public ResponseEntity<List<SubscriptionPlanInfo>> getPlans() {
         return ResponseEntity.ok(FIXED_PLANS);
     }
 }
