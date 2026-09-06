@@ -490,9 +490,11 @@ export default function QuotationDetailPage() {
   // Submit for Approval Action
   const handleSubmitForApproval = async () => {
     setSubmitting(true);
+    let targetId = id;
+    const currentUser = typeof window !== 'undefined' ? getStoredUser() : null;
+
     try {
       setSaveToast('Submitting quotation for governance approval...');
-      let targetId = id;
 
       if (isNew) {
         const custId = quotation.customer?.id || customers[0]?.id || 1;
@@ -512,6 +514,31 @@ export default function QuotationDetailPage() {
         }
       }
 
+      const { riskScore, riskLevel } = orderSummary;
+      const submittedItem = {
+        id: targetId || Date.now(),
+        quoteNumber: quotation.quoteNumber && quotation.quoteNumber !== 'Draft (New)' ? quotation.quoteNumber : `QT-2026-${Math.floor(1050 + Math.random() * 50)}`,
+        customer: quotation.customer || { name: 'Acme Technologies Ltd', tier: 'GOLD' },
+        salesRep: quotation.salesRep || { fullName: currentUser?.fullName || 'Commercial Rep' },
+        status: riskScore === 0 ? 'APPROVED' : 'PENDING_APPROVAL',
+        grandTotal: orderSummary.grandTotal || quotation.grandTotal || 258000,
+        riskLevel: riskLevel,
+        blendedRiskScore: riskScore,
+        createdAt: new Date().toISOString(),
+        approvals: [
+          { level: 'MANAGER', status: 'PENDING', approver: { fullName: 'Sales Manager' } },
+          ...(riskScore >= 8 ? [{ level: 'FINANCE', status: 'PENDING', approver: { fullName: 'Finance Lead' } }] : [])
+        ],
+        lines: recalculatedLines
+      };
+
+      try {
+        const existingStr = localStorage.getItem('dealflow_submitted_approvals') || '[]';
+        const existingList = JSON.parse(existingStr);
+        const updatedList = [submittedItem, ...existingList.filter((x: any) => x.id !== submittedItem.id)];
+        localStorage.setItem('dealflow_submitted_approvals', JSON.stringify(updatedList));
+      } catch {}
+
       const submitRes = await quotationApi.submit(targetId);
       const updated = submitRes?.data;
       if (updated) {
@@ -529,6 +556,30 @@ export default function QuotationDetailPage() {
     } catch (err) {
       console.error('Submit error:', err);
       const { riskScore, riskLevel } = orderSummary;
+      const submittedItem = {
+        id: targetId || Date.now(),
+        quoteNumber: quotation.quoteNumber && quotation.quoteNumber !== 'Draft (New)' ? quotation.quoteNumber : `QT-2026-${Math.floor(1050 + Math.random() * 50)}`,
+        customer: quotation.customer || { name: 'Acme Technologies Ltd', tier: 'GOLD' },
+        salesRep: quotation.salesRep || { fullName: currentUser?.fullName || 'Commercial Rep' },
+        status: riskScore === 0 ? 'APPROVED' : 'PENDING_APPROVAL',
+        grandTotal: orderSummary.grandTotal || quotation.grandTotal || 258000,
+        riskLevel: riskLevel,
+        blendedRiskScore: riskScore,
+        createdAt: new Date().toISOString(),
+        approvals: [
+          { level: 'MANAGER', status: 'PENDING', approver: { fullName: 'Vikram Malhotra' } },
+          ...(riskScore >= 8 ? [{ level: 'FINANCE', status: 'PENDING', approver: { fullName: 'Sneha Gupta' } }] : [])
+        ],
+        lines: recalculatedLines
+      };
+
+      try {
+        const existingStr = localStorage.getItem('dealflow_submitted_approvals') || '[]';
+        const existingList = JSON.parse(existingStr);
+        const updatedList = [submittedItem, ...existingList.filter((x: any) => x.id !== submittedItem.id)];
+        localStorage.setItem('dealflow_submitted_approvals', JSON.stringify(updatedList));
+      } catch {}
+
       if (riskScore === 0) {
         setQuotation((prev: any) => ({
           ...prev,
@@ -554,6 +605,10 @@ export default function QuotationDetailPage() {
         }));
         setSaveToast(`Submitted for approval! Routed to ${newApprovals.length}-level approval chain.`);
       }
+
+      setTimeout(() => {
+        router.replace('/approvals');
+      }, 1200);
     } finally {
       setSubmitting(false);
       setTimeout(() => setSaveToast(null), 3000);

@@ -176,15 +176,39 @@ export default function ApprovalsPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const res = await quotationApi.list();
-      const list: QuotationItem[] = res.data || [];
-      if (list.length > 0) {
-        setQuotations(list);
-      } else {
-        setQuotations(DEMO_QUOTATIONS);
+      const storedStr = typeof window !== 'undefined' ? localStorage.getItem('dealflow_submitted_approvals') : null;
+      let localSubmitted: QuotationItem[] = [];
+      if (storedStr) {
+        try {
+          localSubmitted = JSON.parse(storedStr);
+        } catch {}
       }
+
+      let fetchedList: QuotationItem[] = [];
+      try {
+        const res = await quotationApi.list();
+        fetchedList = res.data || [];
+      } catch (err) {
+        console.warn('Backend offline or error fetching quotations, fallback to demo dataset:', err);
+      }
+
+      const baseList = fetchedList.length > 0 ? fetchedList : DEMO_QUOTATIONS;
+
+      const combinedMap = new Map<string | number, QuotationItem>();
+      
+      baseList.forEach((item) => {
+        const key = item.id || item.quoteNumber;
+        combinedMap.set(key, item);
+      });
+
+      localSubmitted.forEach((item) => {
+        const key = item.id || item.quoteNumber;
+        combinedMap.set(key, item);
+      });
+
+      setQuotations(Array.from(combinedMap.values()));
     } catch (err) {
-      console.warn('Backend offline or error fetching quotations, fallback to demo dataset:', err);
+      console.error('Error loading approvals queue:', err);
       setQuotations(DEMO_QUOTATIONS);
     } finally {
       setLoading(false);
@@ -216,7 +240,6 @@ export default function ApprovalsPage() {
         if (s === 'RETURNED' || (q.approvals && q.approvals.some((a) => a.status === 'RETURNED'))) {
           returned++;
         } else {
-          // If general draft/rejected, don't double count unless returned
           if (s === 'REJECTED') returned++;
         }
       } else if (s === 'APPROVED' || s === 'CONFIRMED' || s === 'FULFILLED') {
@@ -224,7 +247,6 @@ export default function ApprovalsPage() {
       }
     });
 
-    // Ensure minimum wireframe baseline numbers if demo is sparse
     if (pending === 0 && quotations.length === 0) pending = 3;
     if (returned === 0 && quotations.length === 0) returned = 1;
     if (approved === 0 && quotations.length === 0) approved = 2;
@@ -270,8 +292,29 @@ export default function ApprovalsPage() {
 
       return true;
     }).sort((a, b) => {
-      const timeA = a.createdAt ? new Date(a.createdAt).getTime() : (a.id ? a.id * 1000 : 0);
-      const timeB = b.createdAt ? new Date(b.createdAt).getTime() : (b.id ? b.id * 1000 : 0);
+      const statusA = (a.status || '').toUpperCase();
+      const statusB = (b.status || '').toUpperCase();
+      const isPendingA = statusA === 'PENDING_APPROVAL' || statusA === 'PENDING';
+      const isPendingB = statusB === 'PENDING_APPROVAL' || statusB === 'PENDING';
+
+      // Pending approvals always group at top
+      if (isPendingA && !isPendingB) return -1;
+      if (!isPendingA && isPendingB) return 1;
+
+      // Sort by timing descending (newest timestamp first)
+      const getTime = (q: QuotationItem) => {
+        if (q.createdAt) {
+          const t = new Date(q.createdAt).getTime();
+          if (!isNaN(t) && t > 0) return t;
+        }
+        if (typeof q.id === 'number' && q.id > 1000000000000) {
+          return q.id;
+        }
+        return (q.id || 0) * 1000;
+      };
+
+      const timeA = getTime(a);
+      const timeB = getTime(b);
       return timeB - timeA;
     });
   }, [quotations, statusFilter, pendingOnly, riskFilter, searchQuery]);

@@ -105,15 +105,27 @@ export default function ApprovalDetailPage() {
         const numId = parseInt(rawId, 10);
         let data: any = null;
         if (!isNaN(numId)) {
-          const res = await quotationApi.get(numId);
-          data = res.data;
+          try {
+            const res = await quotationApi.get(numId);
+            data = res.data;
+          } catch {}
+        }
+
+        if (!data && typeof window !== 'undefined') {
+          const storedStr = localStorage.getItem('dealflow_submitted_approvals');
+          if (storedStr) {
+            try {
+              const list = JSON.parse(storedStr);
+              const found = list.find((x: any) => String(x.id) === String(rawId) || x.quoteNumber === rawId);
+              if (found) data = found;
+            } catch {}
+          }
         }
 
         if (data && data.id) {
           setQuotation(data);
           initializeFromData(data);
         } else {
-          // Fallback mock tailored to the specific quote ID
           const fallback = generateMockQuotation(rawId);
           setQuotation(fallback);
           initializeFromData(fallback);
