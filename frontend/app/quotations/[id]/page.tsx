@@ -101,9 +101,29 @@ const INITIAL_QUOTATION = {
 export default function QuotationDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = Number(params.id);
+  const isNew = params.id === 'new' || isNaN(Number(params.id)) || Number(params.id) === 0;
+  const id = isNew ? 0 : Number(params.id);
 
-  const [quotation, setQuotation] = useState<any>(INITIAL_QUOTATION);
+  const [quotation, setQuotation] = useState<any>(isNew ? {
+    id: 0,
+    quoteNumber: 'Draft (New)',
+    status: 'DRAFT',
+    grandTotal: 0,
+    subtotal: 0,
+    taxTotal: 0,
+    discountTotal: 0,
+    currency: 'INR',
+    blendedRiskScore: 0,
+    riskLevel: 'LOW',
+    notes: '',
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    customer: MOCK_CUSTOMERS[0],
+    salesRep: { id: 1, fullName: 'Commercial Sales Rep', email: 'sales@dealflow360.com' },
+    lines: [],
+    approvals: [],
+    portalToken: '',
+  } : INITIAL_QUOTATION);
+
   const [customers, setCustomers] = useState<any[]>(MOCK_CUSTOMERS);
   const [products, setProducts] = useState<any[]>(MOCK_PRODUCTS);
   const [upsells, setUpsells] = useState<any[]>(MOCK_PRODUCTS.slice(2));
@@ -121,7 +141,7 @@ export default function QuotationDetailPage() {
 
     const loadData = async () => {
       try {
-        if (!isNaN(id) && id !== 0) {
+        if (!isNew && id > 0) {
           const qRes = await quotationApi.get(id);
           if (qRes?.data) setQuotation(qRes.data);
         }
@@ -134,7 +154,16 @@ export default function QuotationDetailPage() {
           customerApi.list(),
           productApi.list(),
         ]);
-        if (cRes?.data?.length) setCustomers(cRes.data);
+        if (cRes?.data?.length) {
+          setCustomers(cRes.data);
+          if (isNew) {
+            setQuotation((prev: any) => ({
+              ...prev,
+              customer: cRes.data[0],
+              currency: cRes.data[0].currency || 'INR',
+            }));
+          }
+        }
         if (pRes?.data?.length) {
           setProducts(pRes.data);
         }
@@ -146,7 +175,7 @@ export default function QuotationDetailPage() {
     };
 
     loadData();
-  }, [id, router]);
+  }, [id, isNew, router]);
 
   // Dynamically compute and query Upsell & Cross-Sell Rules based on current quotation lines & catalog products
   useEffect(() => {
@@ -410,20 +439,45 @@ export default function QuotationDetailPage() {
   // Save Draft Action
   const handleSaveDraft = async () => {
     try {
-      setSaveToast('Saving draft quotation...');
-      // Update local state in draft mode
-      setQuotation((prev: any) => ({
-        ...prev,
-        status: 'DRAFT',
-        grandTotal: orderSummary.grandTotal,
-        subtotal: orderSummary.subtotal,
-        discountTotal: orderSummary.totalDiscount,
-        taxTotal: orderSummary.taxTotal,
-        blendedRiskScore: orderSummary.riskScore,
-        riskLevel: orderSummary.riskLevel,
-      }));
-      setSaveToast('Draft saved successfully!');
-    } catch {
+      setSaveToast('Saving draft quotation to database...');
+      let targetId = id;
+      if (isNew) {
+        const custId = quotation.customer?.id || customers[0]?.id || 1;
+        const createRes = await quotationApi.create(custId);
+        targetId = createRes.data?.id;
+
+        const linesToSave = quotation.lines || [];
+        for (const line of linesToSave) {
+          const pid = line.productId || line.product?.id || line.id;
+          if (pid) {
+            await quotationApi.addLine(targetId, {
+              productId: pid,
+              quantity: line.quantity || 1,
+              discountPct: line.discountPct || 0,
+            });
+          }
+        }
+        setSaveToast('Draft saved to database! Redirecting...');
+        setTimeout(() => {
+          router.replace(`/quotations/${targetId}`);
+        }, 1000);
+        return;
+      } else {
+        // Update local state in draft mode
+        setQuotation((prev: any) => ({
+          ...prev,
+          status: 'DRAFT',
+          grandTotal: orderSummary.grandTotal,
+          subtotal: orderSummary.subtotal,
+          discountTotal: orderSummary.totalDiscount,
+          taxTotal: orderSummary.taxTotal,
+          blendedRiskScore: orderSummary.riskScore,
+          riskLevel: orderSummary.riskLevel,
+        }));
+        setSaveToast('Draft saved successfully!');
+      }
+    } catch (err) {
+      console.error('Save draft error:', err);
       setSaveToast('Draft saved locally.');
     } finally {
       setTimeout(() => setSaveToast(null), 2500);
@@ -433,47 +487,74 @@ export default function QuotationDetailPage() {
   // Submit for Approval Action
   const handleSubmitForApproval = async () => {
     setSubmitting(true);
-    const { riskScore, riskLevel } = orderSummary;
-
     try {
-      if (!isNaN(id) && id !== 0) {
-        await quotationApi.submit(id);
-      }
-    } catch {
-      // Local fallback execution
-    }
+      setSaveToast('Submitting quotation for governance approval...');
+      let targetId = id;
 
-    if (riskScore === 0) {
-      // Auto-approved directly
-      setQuotation((prev: any) => ({
-        ...prev,
-        status: 'APPROVED',
-        blendedRiskScore: 0,
-        riskLevel: 'LOW',
-        approvals: [],
-      }));
-      setSaveToast('Quotation submitted and auto-approved (No discount policy violations).');
-    } else {
-      // Route to Approval Chain
-      const newApprovals = [
-        { level: 'MANAGER', status: 'PENDING', approver: { fullName: 'Vikram Malhotra' } },
-      ];
-      if (riskScore >= 8 || orderSummary.overLimitPoints > 10) {
-        newApprovals.push({ level: 'FINANCE', status: 'PENDING', approver: { fullName: 'Sneha Gupta' } });
+      if (isNew) {
+        const custId = quotation.customer?.id || customers[0]?.id || 1;
+        const createRes = await quotationApi.create(custId);
+        targetId = createRes.data?.id;
+
+        const linesToSave = quotation.lines || [];
+        for (const line of linesToSave) {
+          const pid = line.productId || line.product?.id || line.id;
+          if (pid) {
+            await quotationApi.addLine(targetId, {
+              productId: pid,
+              quantity: line.quantity || 1,
+              discountPct: line.discountPct || 0,
+            });
+          }
+        }
       }
 
-      setQuotation((prev: any) => ({
-        ...prev,
-        status: 'PENDING_APPROVAL',
-        blendedRiskScore: riskScore,
-        riskLevel: riskLevel,
-        approvals: newApprovals,
-      }));
-      setSaveToast(`Submitted for approval! Routed to ${newApprovals.length}-level approval chain.`);
-    }
+      const submitRes = await quotationApi.submit(targetId);
+      const updated = submitRes?.data;
+      if (updated) {
+        setQuotation(updated);
+        if (updated.status === 'APPROVED') {
+          setSaveToast('Quotation auto-approved by policy!');
+        } else {
+          setSaveToast(`Submitted! Routed to approval chain (${updated.status}).`);
+        }
+      }
 
-    setSubmitting(false);
-    setTimeout(() => setSaveToast(null), 3000);
+      setTimeout(() => {
+        router.replace('/approvals');
+      }, 1200);
+    } catch (err) {
+      console.error('Submit error:', err);
+      const { riskScore, riskLevel } = orderSummary;
+      if (riskScore === 0) {
+        setQuotation((prev: any) => ({
+          ...prev,
+          status: 'APPROVED',
+          blendedRiskScore: 0,
+          riskLevel: 'LOW',
+          approvals: [],
+        }));
+        setSaveToast('Quotation submitted and auto-approved.');
+      } else {
+        const newApprovals = [
+          { level: 'MANAGER', status: 'PENDING', approver: { fullName: 'Vikram Malhotra' } },
+        ];
+        if (riskScore >= 8 || orderSummary.overLimitPoints > 10) {
+          newApprovals.push({ level: 'FINANCE', status: 'PENDING', approver: { fullName: 'Sneha Gupta' } });
+        }
+        setQuotation((prev: any) => ({
+          ...prev,
+          status: 'PENDING_APPROVAL',
+          blendedRiskScore: riskScore,
+          riskLevel: riskLevel,
+          approvals: newApprovals,
+        }));
+        setSaveToast(`Submitted for approval! Routed to ${newApprovals.length}-level approval chain.`);
+      }
+    } finally {
+      setSubmitting(false);
+      setTimeout(() => setSaveToast(null), 3000);
+    }
   };
 
   if (loading) {
